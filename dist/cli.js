@@ -8422,7 +8422,8 @@ function buildFixPrompt(root, findings) {
     const moved = line === null ? " (the code at this line has changed since the review)" : "";
     const at = line ?? f.line;
     const shifted = { ...f, line: at, ...f.endLine ? { endLine: f.endLine + at - f.line } : {} };
-    return `${i + 1}. [${f.id}] ${agentPromptFor(shifted)}${moved}`;
+    return `${i + 1}. [${f.id}] ${f.file}:${at}${moved}
+${agentPromptFor(shifted)}`;
   });
   return `${HEADER}
 

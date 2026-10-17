@@ -21,7 +21,7 @@ test('fix prints one prompt: --all skips nits and closed findings, --nits only n
   const repo = seeded();
   const all = await runCli(['fix'], { cwd: repo });
   assert.equal(all.code, 0, all.stderr);
-  assert.match(all.stdout, /\[aaaa1111\] In app\.py:2, fix this major bug issue: Returns the wrong value/);
+  assert.match(all.stdout, /\[aaaa1111\] app\.py:2\nIn app\.py:2, fix this major bug issue: Returns the wrong value/);
   assert.match(all.stdout, /Replace those lines with:\n {4}return 0/);
   assert.ok(!all.stdout.includes('bbbb2222') && !all.stdout.includes('cccc3333'));
   const nits = await runCli(['fix', '--nits'], { cwd: repo });
