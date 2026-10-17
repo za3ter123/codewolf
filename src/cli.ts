@@ -6,13 +6,17 @@ import { collectDiff, repoRoot } from './cli/git.ts';
 import type { DiffScope } from './cli/git.ts';
 import { formatNdjson, formatResult } from './cli/format.ts';
 import type { Format } from './cli/format.ts';
+import { cmdDismiss, cmdFindings, prepareReview, recordReview } from './cli/state.ts';
+import type { Prepared } from './cli/state.ts';
 import { INIT_TEMPLATE } from './cli/template.ts';
 import { loadConfig } from './core/config.ts';
 import { parseDiff } from './core/diff.ts';
 import { review } from './core/engine.ts';
+import { buildPacket, ingestAnswer } from './core/host.ts';
 import { appendLearning, learningsPath, readLearnings } from './core/learnings.ts';
 import { createChain } from './providers/chain.ts';
 import { errorMessage, stderrLogger } from './shared/log.ts';
+import type { LogFn } from './shared/log.ts';
 import { maskKey, redact } from './shared/mask.ts';
 import { SEVERITIES } from './shared/types.ts';
 import type { ConfigOverrides, ResolvedConfig } from './shared/types.ts';
@@ -26,6 +30,10 @@ Usage:
   codewolf learn "<text>"             Teach a reviewer preference (.codewolf/learnings.md)
   codewolf learnings                  List learned preferences
   codewolf providers [--check]        Show the provider chain and key counts; --check pings every key
+  codewolf packet [scope]             Print the review job as JSON for your own coding agent (no API key needed)
+  codewolf ingest <file|-> [scope]    Validate your agent's JSON answer and print it like review (same scope flags)
+  codewolf findings [--all] [--json] [--clear]   List open findings from the last reviews (--all adds dismissed, fixed)
+  codewolf dismiss <id...> [--reason "<text>"] [--learn]   Stop reporting findings; --learn saves the reason
   codewolf --version | --help
 
 Scope (pick one):
@@ -48,6 +56,7 @@ Options:
   --fail-on <sev>      Exit 1 if any finding is at or above: critical | major | minor | nit | none
   --claude-bin <path>  Claude Code binary for the claude-code provider (or CODEWOLF_CLAUDE_BIN)
   --no-tools           Do not run local linters (ruff, eslint, semgrep, gitleaks)
+  --fresh              Review every changed file, ignoring the incremental checkpoint
   --verbose            Debug logs on stderr
 
 Exit codes: 0 ok, 1 --fail-on threshold hit (or --agent found critical/major), 2 error.
@@ -65,6 +74,7 @@ const OPTIONS = {
   'claude-bin': { type: 'string' },
   check: { type: 'boolean' }, force: { type: 'boolean' }, 'no-tools': { type: 'boolean' }, verbose: { type: 'boolean' },
   version: { type: 'boolean', short: 'v' }, help: { type: 'boolean', short: 'h' },
+  fresh: { type: 'boolean' }, all: { type: 'boolean' }, json: { type: 'boolean' }, clear: { type: 'boolean' }, reason: { type: 'string' }, learn: { type: 'boolean' },
 } as const;
 
 type Values = ReturnType<typeof parseArgs<{ options: typeof OPTIONS; allowPositionals: true }>>['values'];
@@ -105,13 +115,8 @@ function scopeFrom(v: Values): DiffScope | { kind: 'file'; path: string } {
   return { kind: 'uncommitted' };
 }
 
-async function cmdReview(v: Values, cwd: string): Promise<number> {
-  const log = stderrLogger(v.verbose ? 'debug' : 'info');
-  let format: Format = process.stdout.isTTY ? 'pretty' : 'plain';
-  if (v.format) {
-    if (!['pretty', 'plain', 'markdown', 'json'].includes(v.format)) throw new UsageError(`unknown --format ${v.format}`);
-    format = v.format as Format;
-  }
+/** Config, scope and diff for review, packet and ingest, with the checkpoint and suppressions applied. */
+async function loadReview(v: Values, cwd: string, log: LogFn): Promise<{ config: ResolvedConfig; prep: Prepared }> {
   const config = configFor(v, cwd);
   const scope = scopeFrom(v);
   let patch: string;
@@ -125,8 +130,39 @@ async function cmdReview(v: Values, cwd: string): Promise<number> {
   } else {
     patch = collectDiff(scope, cwd);
   }
-  const files = parseDiff(patch);
-  if (!files.length) log('info', 'no changes to review');
+  return { config, prep: prepareReview(scope, parseDiff(patch), config, cwd, { fresh: v.fresh === true, log }) };
+}
+
+async function readAnswer(from: string, v: Values, cwd: string): Promise<string> {
+  if (from === '-') {
+    if (v.diff === '-') throw new UsageError('ingest - and --diff - cannot both read stdin');
+    return readStdin();
+  }
+  const p = path.resolve(cwd, from);
+  if (!existsSync(p)) throw new UsageError(`answer file not found: ${from}`);
+  return readFileSync(p, 'utf8');
+}
+
+async function cmdPacket(v: Values, cwd: string): Promise<number> {
+  const log = stderrLogger(v.verbose ? 'debug' : 'info');
+  const { config, prep } = await loadReview(v, cwd, log);
+  const packet = await buildPacket(prep.files, config, { linters: !v['no-tools'], log, suppressed: prep.suppressed });
+  process.stdout.write(JSON.stringify(packet, null, 2) + '\n');
+  return 0;
+}
+
+/** `review`, or `ingest <answer>` (host-agent mode: the answer replaces the provider call; everything else is shared). */
+async function cmdReview(v: Values, cwd: string, answerFrom?: string): Promise<number> {
+  const log = stderrLogger(v.verbose ? 'debug' : 'info');
+  let format: Format = process.stdout.isTTY ? 'pretty' : 'plain';
+  if (v.format) {
+    if (!['pretty', 'plain', 'markdown', 'json'].includes(v.format)) throw new UsageError(`unknown --format ${v.format}`);
+    format = v.format as Format;
+  }
+  const answer = answerFrom === undefined ? undefined : await readAnswer(answerFrom, v, cwd);
+  const { config, prep } = await loadReview(v, cwd, log);
+  const files = prep.files;
+  if (!prep.all.length) log('info', 'no changes to review');
   else log('debug', `reviewing ${files.length} file(s) with ${config.providers.map((p) => p.name).join(' -> ')}`);
 
   const ac = new AbortController();
@@ -134,10 +170,13 @@ async function cmdReview(v: Values, cwd: string): Promise<number> {
   process.once('SIGINT', onSig);
   let result;
   try {
-    result = await review(files, config, { signal: ac.signal, log, linters: !v['no-tools'] });
+    result = answer === undefined
+      ? await review(files, config, { signal: ac.signal, log, linters: !v['no-tools'], suppressed: prep.suppressed })
+      : await ingestAnswer(answer, prep.all, config, { log, linters: !v['no-tools'], suppressed: prep.suppressed });
   } finally {
     process.off('SIGINT', onSig);
   }
+  result = recordReview(prep, result, config, log);
 
   const rank = (s: string) => SEVERITIES.indexOf(s as (typeof SEVERITIES)[number]);
   if (v.agent) {
@@ -223,6 +262,10 @@ export async function main(argv: string[], cwd = process.cwd()): Promise<number>
       case 'learn': return cmdLearn(rest.join(' '), cwd);
       case 'learnings': return cmdLearnings(cwd);
       case 'providers': return await cmdProviders(v, cwd);
+      case 'packet': return await cmdPacket(v, cwd);
+      case 'ingest': if (!rest[0]) throw new UsageError('usage: codewolf ingest <answer.json|-> [scope flags]'); return await cmdReview(v, cwd, rest[0]);
+      case 'findings': return cmdFindings(v, cwd);
+      case 'dismiss': return cmdDismiss(rest, v, cwd);
       case 'version': process.stdout.write(`codewolf ${VERSION}\n`); return 0;
       default: throw new UsageError(`unknown command "${cmd}". Run codewolf --help for usage.`);
     }

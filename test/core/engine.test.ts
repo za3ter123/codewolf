@@ -49,6 +49,22 @@ test('full review: keeps the real finding, drops hallucinations, adds builtin se
   assert.ok(r.effort.score >= 1 && r.effort.score <= 5 && r.effort.minutes > 0);
 });
 
+test('off-hunk findings go to outsideDiff (deduped, never in stats); kind defaults; suppressed fingerprints are dropped', async () => {
+  const off = { file: 'src/app.py', line: 40, severity: 'major', category: 'bug', title: 'off hunk', body: 'b' };
+  const answer = JSON.stringify({ summary: 's', findings: [off, off, { ...off, line: 12, severity: 'nit', title: 'nit' }, { ...off, line: 13, title: 'ref', kind: 'refactor' }] });
+  const r = await review(parseDiff(FIXTURE_DIFF), config(), { chain: fakeChain(() => answer).chain });
+  assert.deepEqual(r.outsideDiff!.map((f) => [f.line, f.kind]), [[40, 'issue']]);
+  assert.ok(!r.findings.some((f) => f.title === 'off hunk'));
+  assert.equal(r.stats.findings, r.findings.length);
+  const kinds = Object.fromEntries(r.findings.map((f) => [f.title, f.kind]));
+  assert.equal(kinds.nit, 'nitpick');
+  assert.equal(kinds.ref, 'refactor');
+  assert.ok(r.findings.filter((f) => f.source === 'builtin').every((f) => f.kind === 'issue'));
+  const drop = new Set([...r.findings, ...r.outsideDiff!].map((f) => f.fingerprint));
+  const s = await review(parseDiff(FIXTURE_DIFF), config(), { chain: fakeChain(() => answer).chain, suppressed: drop });
+  assert.deepEqual([s.findings.length, s.outsideDiff!.length], [0, 0]);
+});
+
 test('profiles: quiet keeps only critical, chill drops nits and caps minors', async () => {
   const many = { summary: 's', findings: [10, 11, 12, 13, 14, 15, 16].map((line, i) => ({ file: 'src/app.py', line, severity: ['major', 'minor', 'minor', 'minor', 'minor', 'nit', 'critical'][i], category: 'bug', title: `t${line}`, body: 'b' })) };
   const run = async (profile: 'quiet' | 'chill' | 'assertive') => {

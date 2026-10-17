@@ -36,9 +36,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/yaml/dist/nodes/identity.js
+// ../../../node_modules/yaml/dist/nodes/identity.js
 var require_identity = __commonJS({
-  "node_modules/yaml/dist/nodes/identity.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/identity.js"(exports) {
     "use strict";
     var ALIAS = /* @__PURE__ */ Symbol.for("yaml.alias");
     var DOC = /* @__PURE__ */ Symbol.for("yaml.document");
@@ -93,9 +93,9 @@ var require_identity = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/visit.js
+// ../../../node_modules/yaml/dist/visit.js
 var require_visit = __commonJS({
-  "node_modules/yaml/dist/visit.js"(exports) {
+  "../../../node_modules/yaml/dist/visit.js"(exports) {
     "use strict";
     var identity = require_identity();
     var BREAK = /* @__PURE__ */ Symbol("break visit");
@@ -113,17 +113,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path7) {
-      const ctrl = callVisitor(key, node, visitor, path7);
+    function visit_(key, node, visitor, path9) {
+      const ctrl = callVisitor(key, node, visitor, path9);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path7, ctrl);
-        return visit_(key, ctrl, visitor, path7);
+        replaceNode(key, path9, ctrl);
+        return visit_(key, ctrl, visitor, path9);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path7 = Object.freeze(path7.concat(node));
+          path9 = Object.freeze(path9.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path7);
+            const ci = visit_(i, node.items[i], visitor, path9);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -134,13 +134,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path7 = Object.freeze(path7.concat(node));
-          const ck = visit_("key", node.key, visitor, path7);
+          path9 = Object.freeze(path9.concat(node));
+          const ck = visit_("key", node.key, visitor, path9);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path7);
+          const cv = visit_("value", node.value, visitor, path9);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -161,17 +161,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path7) {
-      const ctrl = await callVisitor(key, node, visitor, path7);
+    async function visitAsync_(key, node, visitor, path9) {
+      const ctrl = await callVisitor(key, node, visitor, path9);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path7, ctrl);
-        return visitAsync_(key, ctrl, visitor, path7);
+        replaceNode(key, path9, ctrl);
+        return visitAsync_(key, ctrl, visitor, path9);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path7 = Object.freeze(path7.concat(node));
+          path9 = Object.freeze(path9.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path7);
+            const ci = await visitAsync_(i, node.items[i], visitor, path9);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -182,13 +182,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path7 = Object.freeze(path7.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path7);
+          path9 = Object.freeze(path9.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path9);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path7);
+          const cv = await visitAsync_("value", node.value, visitor, path9);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -215,23 +215,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path7) {
+    function callVisitor(key, node, visitor, path9) {
       if (typeof visitor === "function")
-        return visitor(key, node, path7);
+        return visitor(key, node, path9);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path7);
+        return visitor.Map?.(key, node, path9);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path7);
+        return visitor.Seq?.(key, node, path9);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path7);
+        return visitor.Pair?.(key, node, path9);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path7);
+        return visitor.Scalar?.(key, node, path9);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path7);
+        return visitor.Alias?.(key, node, path9);
       return void 0;
     }
-    function replaceNode(key, path7, node) {
-      const parent = path7[path7.length - 1];
+    function replaceNode(key, path9, node) {
+      const parent = path9[path9.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -251,9 +251,9 @@ var require_visit = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/directives.js
+// ../../../node_modules/yaml/dist/doc/directives.js
 var require_directives = __commonJS({
-  "node_modules/yaml/dist/doc/directives.js"(exports) {
+  "../../../node_modules/yaml/dist/doc/directives.js"(exports) {
     "use strict";
     var identity = require_identity();
     var visit = require_visit();
@@ -422,9 +422,9 @@ var require_directives = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/anchors.js
+// ../../../node_modules/yaml/dist/doc/anchors.js
 var require_anchors = __commonJS({
-  "node_modules/yaml/dist/doc/anchors.js"(exports) {
+  "../../../node_modules/yaml/dist/doc/anchors.js"(exports) {
     "use strict";
     var identity = require_identity();
     var visit = require_visit();
@@ -492,9 +492,9 @@ var require_anchors = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/applyReviver.js
+// ../../../node_modules/yaml/dist/doc/applyReviver.js
 var require_applyReviver = __commonJS({
-  "node_modules/yaml/dist/doc/applyReviver.js"(exports) {
+  "../../../node_modules/yaml/dist/doc/applyReviver.js"(exports) {
     "use strict";
     function applyReviver(reviver, obj, key, val) {
       if (val && typeof val === "object") {
@@ -542,9 +542,9 @@ var require_applyReviver = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/toJS.js
+// ../../../node_modules/yaml/dist/nodes/toJS.js
 var require_toJS = __commonJS({
-  "node_modules/yaml/dist/nodes/toJS.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/toJS.js"(exports) {
     "use strict";
     var identity = require_identity();
     function toJS(value, arg, ctx) {
@@ -572,9 +572,9 @@ var require_toJS = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Node.js
+// ../../../node_modules/yaml/dist/nodes/Node.js
 var require_Node = __commonJS({
-  "node_modules/yaml/dist/nodes/Node.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/Node.js"(exports) {
     "use strict";
     var applyReviver = require_applyReviver();
     var identity = require_identity();
@@ -613,9 +613,9 @@ var require_Node = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Alias.js
+// ../../../node_modules/yaml/dist/nodes/Alias.js
 var require_Alias = __commonJS({
-  "node_modules/yaml/dist/nodes/Alias.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/Alias.js"(exports) {
     "use strict";
     var anchors = require_anchors();
     var visit = require_visit();
@@ -731,9 +731,9 @@ var require_Alias = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Scalar.js
+// ../../../node_modules/yaml/dist/nodes/Scalar.js
 var require_Scalar = __commonJS({
-  "node_modules/yaml/dist/nodes/Scalar.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/Scalar.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Node = require_Node();
@@ -761,9 +761,9 @@ var require_Scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/createNode.js
+// ../../../node_modules/yaml/dist/doc/createNode.js
 var require_createNode = __commonJS({
-  "node_modules/yaml/dist/doc/createNode.js"(exports) {
+  "../../../node_modules/yaml/dist/doc/createNode.js"(exports) {
     "use strict";
     var Alias = require_Alias();
     var identity = require_identity();
@@ -836,17 +836,17 @@ var require_createNode = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Collection.js
+// ../../../node_modules/yaml/dist/nodes/Collection.js
 var require_Collection = __commonJS({
-  "node_modules/yaml/dist/nodes/Collection.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/Collection.js"(exports) {
     "use strict";
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path7, value) {
+    function collectionFromPath(schema, path9, value) {
       let v = value;
-      for (let i = path7.length - 1; i >= 0; --i) {
-        const k = path7[i];
+      for (let i = path9.length - 1; i >= 0; --i) {
+        const k = path9[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -865,7 +865,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path7) => path7 == null || typeof path7 === "object" && !!path7[Symbol.iterator]().next().done;
+    var isEmptyPath = (path9) => path9 == null || typeof path9 === "object" && !!path9[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -895,11 +895,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path7, value) {
-        if (isEmptyPath(path7))
+      addIn(path9, value) {
+        if (isEmptyPath(path9))
           this.add(value);
         else {
-          const [key, ...rest] = path7;
+          const [key, ...rest] = path9;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -913,8 +913,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path7) {
-        const [key, ...rest] = path7;
+      deleteIn(path9) {
+        const [key, ...rest] = path9;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -928,8 +928,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path7, keepScalar) {
-        const [key, ...rest] = path7;
+      getIn(path9, keepScalar) {
+        const [key, ...rest] = path9;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -947,8 +947,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path7) {
-        const [key, ...rest] = path7;
+      hasIn(path9) {
+        const [key, ...rest] = path9;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -958,8 +958,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path7, value) {
-        const [key, ...rest] = path7;
+      setIn(path9, value) {
+        const [key, ...rest] = path9;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -979,26 +979,26 @@ var require_Collection = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyComment.js
+// ../../../node_modules/yaml/dist/stringify/stringifyComment.js
 var require_stringifyComment = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyComment.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringifyComment.js"(exports) {
     "use strict";
-    var stringifyComment = (str2) => str2.replace(/^(?!$)(?: $)?/gm, "#");
+    var stringifyComment = (str3) => str3.replace(/^(?!$)(?: $)?/gm, "#");
     function indentComment(comment, indent) {
       if (/^\n+$/.test(comment))
         return comment.substring(1);
       return indent ? comment.replace(/^(?! *$)/gm, indent) : comment;
     }
-    var lineComment = (str2, indent, comment) => str2.endsWith("\n") ? indentComment(comment, indent) : comment.includes("\n") ? "\n" + indentComment(comment, indent) : (str2.endsWith(" ") ? "" : " ") + comment;
+    var lineComment = (str3, indent, comment) => str3.endsWith("\n") ? indentComment(comment, indent) : comment.includes("\n") ? "\n" + indentComment(comment, indent) : (str3.endsWith(" ") ? "" : " ") + comment;
     exports.indentComment = indentComment;
     exports.lineComment = lineComment;
     exports.stringifyComment = stringifyComment;
   }
 });
 
-// node_modules/yaml/dist/stringify/foldFlowLines.js
+// ../../../node_modules/yaml/dist/stringify/foldFlowLines.js
 var require_foldFlowLines = __commonJS({
-  "node_modules/yaml/dist/stringify/foldFlowLines.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/foldFlowLines.js"(exports) {
     "use strict";
     var FOLD_FLOW = "flow";
     var FOLD_BLOCK = "block";
@@ -1132,9 +1132,9 @@ ${indent}${text.slice(fold + 1, end2)}`;
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyString.js
+// ../../../node_modules/yaml/dist/stringify/stringifyString.js
 var require_stringifyString = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyString.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringifyString.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var foldFlowLines = require_foldFlowLines();
@@ -1143,16 +1143,16 @@ var require_stringifyString = __commonJS({
       lineWidth: ctx.options.lineWidth,
       minContentWidth: ctx.options.minContentWidth
     });
-    var containsDocumentMarker = (str2) => /^(%|---|\.\.\.)/m.test(str2);
-    function lineLengthOverLimit(str2, lineWidth, indentLength) {
+    var containsDocumentMarker = (str3) => /^(%|---|\.\.\.)/m.test(str3);
+    function lineLengthOverLimit(str3, lineWidth, indentLength) {
       if (!lineWidth || lineWidth < 0)
         return false;
       const limit = lineWidth - indentLength;
-      const strLen = str2.length;
+      const strLen = str3.length;
       if (strLen <= limit)
         return false;
       for (let i = 0, start = 0; i < strLen; ++i) {
-        if (str2[i] === "\n") {
+        if (str3[i] === "\n") {
           if (i - start > limit)
             return true;
           start = i + 1;
@@ -1169,11 +1169,11 @@ var require_stringifyString = __commonJS({
       const { implicitKey } = ctx;
       const minMultiLineLength = ctx.options.doubleQuotedMinMultiLineLength;
       const indent = ctx.indent || (containsDocumentMarker(value) ? "  " : "");
-      let str2 = "";
+      let str3 = "";
       let start = 0;
       for (let i = 0, ch = json[i]; ch; ch = json[++i]) {
         if (ch === " " && json[i + 1] === "\\" && json[i + 2] === "n") {
-          str2 += json.slice(start, i) + "\\ ";
+          str3 += json.slice(start, i) + "\\ ";
           i += 1;
           start = i;
           ch = "\\";
@@ -1182,38 +1182,38 @@ var require_stringifyString = __commonJS({
           switch (json[i + 1]) {
             case "u":
               {
-                str2 += json.slice(start, i);
+                str3 += json.slice(start, i);
                 const code = json.substr(i + 2, 4);
                 switch (code) {
                   case "0000":
-                    str2 += "\\0";
+                    str3 += "\\0";
                     break;
                   case "0007":
-                    str2 += "\\a";
+                    str3 += "\\a";
                     break;
                   case "000b":
-                    str2 += "\\v";
+                    str3 += "\\v";
                     break;
                   case "001b":
-                    str2 += "\\e";
+                    str3 += "\\e";
                     break;
                   case "0085":
-                    str2 += "\\N";
+                    str3 += "\\N";
                     break;
                   case "00a0":
-                    str2 += "\\_";
+                    str3 += "\\_";
                     break;
                   case "2028":
-                    str2 += "\\L";
+                    str3 += "\\L";
                     break;
                   case "2029":
-                    str2 += "\\P";
+                    str3 += "\\P";
                     break;
                   default:
                     if (code.substr(0, 2) === "00")
-                      str2 += "\\x" + code.substr(2);
+                      str3 += "\\x" + code.substr(2);
                     else
-                      str2 += json.substr(i, 6);
+                      str3 += json.substr(i, 6);
                 }
                 i += 5;
                 start = i + 1;
@@ -1223,14 +1223,14 @@ var require_stringifyString = __commonJS({
               if (implicitKey || json[i + 2] === '"' || json.length < minMultiLineLength) {
                 i += 1;
               } else {
-                str2 += json.slice(start, i) + "\n\n";
+                str3 += json.slice(start, i) + "\n\n";
                 while (json[i + 2] === "\\" && json[i + 3] === "n" && json[i + 4] !== '"') {
-                  str2 += "\n";
+                  str3 += "\n";
                   i += 2;
                 }
-                str2 += indent;
+                str3 += indent;
                 if (json[i + 2] === " ")
-                  str2 += "\\";
+                  str3 += "\\";
                 i += 1;
                 start = i + 1;
               }
@@ -1239,8 +1239,8 @@ var require_stringifyString = __commonJS({
               i += 1;
           }
       }
-      str2 = start ? str2 + json.slice(start) : json;
-      return implicitKey ? str2 : foldFlowLines.foldFlowLines(str2, indent, foldFlowLines.FOLD_QUOTED, getFoldOptions(ctx, false));
+      str3 = start ? str3 + json.slice(start) : json;
+      return implicitKey ? str3 : foldFlowLines.foldFlowLines(str3, indent, foldFlowLines.FOLD_QUOTED, getFoldOptions(ctx, false));
     }
     function singleQuotedString(value, ctx) {
       if (ctx.options.singleQuote === false || ctx.implicitKey && value.includes("\n") || /[ \t]\n|\n[ \t]/.test(value))
@@ -1368,15 +1368,15 @@ ${indent}${start}${value}${end}`;
           return quotedString(value, ctx);
         }
       }
-      const str2 = value.replace(/\n+/g, `$&
+      const str3 = value.replace(/\n+/g, `$&
 ${indent}`);
       if (actualString) {
-        const test = (tag) => tag.default && tag.tag !== "tag:yaml.org,2002:str" && tag.test?.test(str2);
+        const test = (tag) => tag.default && tag.tag !== "tag:yaml.org,2002:str" && tag.test?.test(str3);
         const { compat, tags } = ctx.doc.schema;
         if (tags.some(test) || compat?.some(test))
           return quotedString(value, ctx);
       }
-      return implicitKey ? str2 : foldFlowLines.foldFlowLines(str2, indent, foldFlowLines.FOLD_FLOW, getFoldOptions(ctx, false));
+      return implicitKey ? str3 : foldFlowLines.foldFlowLines(str3, indent, foldFlowLines.FOLD_FLOW, getFoldOptions(ctx, false));
     }
     function stringifyString(item, ctx, onComment, onChompKeep) {
       const { implicitKey, inFlow } = ctx;
@@ -1415,9 +1415,9 @@ ${indent}`);
   }
 });
 
-// node_modules/yaml/dist/stringify/stringify.js
+// ../../../node_modules/yaml/dist/stringify/stringify.js
 var require_stringify = __commonJS({
-  "node_modules/yaml/dist/stringify/stringify.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringify.js"(exports) {
     "use strict";
     var anchors = require_anchors();
     var identity = require_identity();
@@ -1528,20 +1528,20 @@ var require_stringify = __commonJS({
       const props = stringifyProps(node, tagObj, ctx);
       if (props.length > 0)
         ctx.indentAtStart = (ctx.indentAtStart ?? 0) + props.length + 1;
-      const str2 = typeof tagObj.stringify === "function" ? tagObj.stringify(node, ctx, onComment, onChompKeep) : identity.isScalar(node) ? stringifyString.stringifyString(node, ctx, onComment, onChompKeep) : node.toString(ctx, onComment, onChompKeep);
+      const str3 = typeof tagObj.stringify === "function" ? tagObj.stringify(node, ctx, onComment, onChompKeep) : identity.isScalar(node) ? stringifyString.stringifyString(node, ctx, onComment, onChompKeep) : node.toString(ctx, onComment, onChompKeep);
       if (!props)
-        return str2;
-      return identity.isScalar(node) || str2[0] === "{" || str2[0] === "[" ? `${props} ${str2}` : `${props}
-${ctx.indent}${str2}`;
+        return str3;
+      return identity.isScalar(node) || str3[0] === "{" || str3[0] === "[" ? `${props} ${str3}` : `${props}
+${ctx.indent}${str3}`;
     }
     exports.createStringifyContext = createStringifyContext;
     exports.stringify = stringify;
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyPair.js
+// ../../../node_modules/yaml/dist/stringify/stringifyPair.js
 var require_stringifyPair = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyPair.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringifyPair.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -1567,8 +1567,8 @@ var require_stringifyPair = __commonJS({
       });
       let keyCommentDone = false;
       let chompKeep = false;
-      let str2 = stringify.stringify(key, ctx, () => keyCommentDone = true, () => chompKeep = true);
-      if (!explicitKey && !ctx.inFlow && str2.length > 1024) {
+      let str3 = stringify.stringify(key, ctx, () => keyCommentDone = true, () => chompKeep = true);
+      if (!explicitKey && !ctx.inFlow && str3.length > 1024) {
         if (simpleKeys)
           throw new Error("With simple keys, single line scalar must not span more than 1024 characters");
         explicitKey = true;
@@ -1577,27 +1577,27 @@ var require_stringifyPair = __commonJS({
         if (allNullValues || value == null) {
           if (keyCommentDone && onComment)
             onComment();
-          return str2 === "" ? "?" : explicitKey ? `? ${str2}` : str2;
+          return str3 === "" ? "?" : explicitKey ? `? ${str3}` : str3;
         }
       } else if (allNullValues && !simpleKeys || value == null && explicitKey) {
-        str2 = `? ${str2}`;
+        str3 = `? ${str3}`;
         if (keyComment && !keyCommentDone) {
-          str2 += stringifyComment.lineComment(str2, ctx.indent, commentString(keyComment));
+          str3 += stringifyComment.lineComment(str3, ctx.indent, commentString(keyComment));
         } else if (chompKeep && onChompKeep)
           onChompKeep();
-        return str2;
+        return str3;
       }
       if (keyCommentDone)
         keyComment = null;
       if (explicitKey) {
         if (keyComment)
-          str2 += stringifyComment.lineComment(str2, ctx.indent, commentString(keyComment));
-        str2 = `? ${str2}
+          str3 += stringifyComment.lineComment(str3, ctx.indent, commentString(keyComment));
+        str3 = `? ${str3}
 ${indent}:`;
       } else {
-        str2 = `${str2}:`;
+        str3 = `${str3}:`;
         if (keyComment)
-          str2 += stringifyComment.lineComment(str2, ctx.indent, commentString(keyComment));
+          str3 += stringifyComment.lineComment(str3, ctx.indent, commentString(keyComment));
       }
       let vsb, vcb, valueComment;
       if (identity.isNode(value)) {
@@ -1613,7 +1613,7 @@ ${indent}:`;
       }
       ctx.implicitKey = false;
       if (!explicitKey && !keyComment && identity.isScalar(value))
-        ctx.indentAtStart = str2.length + 1;
+        ctx.indentAtStart = str3.length + 1;
       chompKeep = false;
       if (!indentSeq && indentStep.length >= 2 && !ctx.inFlow && !explicitKey && identity.isSeq(value) && !value.flow && !value.tag && !value.anchor) {
         ctx.indent = ctx.indent.substring(2);
@@ -1657,24 +1657,24 @@ ${ctx.indent}`;
       } else if (valueStr === "" || valueStr[0] === "\n") {
         ws = "";
       }
-      str2 += ws + valueStr;
+      str3 += ws + valueStr;
       if (ctx.inFlow) {
         if (valueCommentDone && onComment)
           onComment();
       } else if (valueComment && !valueCommentDone) {
-        str2 += stringifyComment.lineComment(str2, ctx.indent, commentString(valueComment));
+        str3 += stringifyComment.lineComment(str3, ctx.indent, commentString(valueComment));
       } else if (chompKeep && onChompKeep) {
         onChompKeep();
       }
-      return str2;
+      return str3;
     }
     exports.stringifyPair = stringifyPair;
   }
 });
 
-// node_modules/yaml/dist/log.js
+// ../../../node_modules/yaml/dist/log.js
 var require_log = __commonJS({
-  "node_modules/yaml/dist/log.js"(exports) {
+  "../../../node_modules/yaml/dist/log.js"(exports) {
     "use strict";
     var node_process = __require("process");
     function debug(logLevel, ...messages) {
@@ -1694,9 +1694,9 @@ var require_log = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/merge.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/merge.js
 var require_merge = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/merge.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/merge.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -1754,9 +1754,9 @@ var require_merge = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/addPairToJSMap.js
+// ../../../node_modules/yaml/dist/nodes/addPairToJSMap.js
 var require_addPairToJSMap = __commonJS({
-  "node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports) {
     "use strict";
     var log = require_log();
     var merge = require_merge();
@@ -1818,9 +1818,9 @@ var require_addPairToJSMap = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/Pair.js
+// ../../../node_modules/yaml/dist/nodes/Pair.js
 var require_Pair = __commonJS({
-  "node_modules/yaml/dist/nodes/Pair.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/Pair.js"(exports) {
     "use strict";
     var createNode = require_createNode();
     var stringifyPair = require_stringifyPair();
@@ -1858,9 +1858,9 @@ var require_Pair = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyCollection.js
+// ../../../node_modules/yaml/dist/stringify/stringifyCollection.js
 var require_stringifyCollection = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyCollection.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringifyCollection.js"(exports) {
     "use strict";
     var identity = require_identity();
     var stringify = require_stringify();
@@ -1893,31 +1893,31 @@ var require_stringifyCollection = __commonJS({
           }
         }
         chompKeep = false;
-        let str3 = stringify.stringify(item, itemCtx, () => comment2 = null, () => chompKeep = true);
+        let str4 = stringify.stringify(item, itemCtx, () => comment2 = null, () => chompKeep = true);
         if (comment2)
-          str3 += stringifyComment.lineComment(str3, itemIndent, commentString(comment2));
+          str4 += stringifyComment.lineComment(str4, itemIndent, commentString(comment2));
         if (chompKeep && comment2)
           chompKeep = false;
-        lines.push(blockItemPrefix + str3);
+        lines.push(blockItemPrefix + str4);
       }
-      let str2;
+      let str3;
       if (lines.length === 0) {
-        str2 = flowChars.start + flowChars.end;
+        str3 = flowChars.start + flowChars.end;
       } else {
-        str2 = lines[0];
+        str3 = lines[0];
         for (let i = 1; i < lines.length; ++i) {
           const line = lines[i];
-          str2 += line ? `
+          str3 += line ? `
 ${indent}${line}` : "\n";
         }
       }
       if (comment) {
-        str2 += "\n" + stringifyComment.indentComment(commentString(comment), indent);
+        str3 += "\n" + stringifyComment.indentComment(commentString(comment), indent);
         if (onComment)
           onComment();
       } else if (chompKeep && onChompKeep)
         onChompKeep();
-      return str2;
+      return str3;
     }
     function stringifyFlowCollection({ items }, ctx, { flowChars, itemIndent }) {
       const { indent, indentStep, flowCollectionPadding: fcPadding, options: { commentString } } = ctx;
@@ -1960,21 +1960,21 @@ ${indent}${line}` : "\n";
         }
         if (comment)
           reqNewline = true;
-        let str2 = stringify.stringify(item, itemCtx, () => comment = null);
-        reqNewline || (reqNewline = lines.length > linesAtValue || str2.includes("\n"));
+        let str3 = stringify.stringify(item, itemCtx, () => comment = null);
+        reqNewline || (reqNewline = lines.length > linesAtValue || str3.includes("\n"));
         if (i < items.length - 1) {
-          str2 += ",";
+          str3 += ",";
         } else if (ctx.options.trailingComma) {
           if (ctx.options.lineWidth > 0) {
-            reqNewline || (reqNewline = lines.reduce((sum, line) => sum + line.length + 2, 2) + (str2.length + 2) > ctx.options.lineWidth);
+            reqNewline || (reqNewline = lines.reduce((sum, line) => sum + line.length + 2, 2) + (str3.length + 2) > ctx.options.lineWidth);
           }
           if (reqNewline) {
-            str2 += ",";
+            str3 += ",";
           }
         }
         if (comment)
-          str2 += stringifyComment.lineComment(str2, itemIndent, commentString(comment));
-        lines.push(str2);
+          str3 += stringifyComment.lineComment(str3, itemIndent, commentString(comment));
+        lines.push(str3);
         linesAtValue = lines.length;
       }
       const { start, end } = flowChars;
@@ -1986,11 +1986,11 @@ ${indent}${line}` : "\n";
           reqNewline = ctx.options.lineWidth > 0 && len > ctx.options.lineWidth;
         }
         if (reqNewline) {
-          let str2 = start;
+          let str3 = start;
           for (const line of lines)
-            str2 += line ? `
+            str3 += line ? `
 ${indentStep}${indent}${line}` : "\n";
-          return `${str2}
+          return `${str3}
 ${indent}${end}`;
         } else {
           return `${start}${fcPadding}${lines.join(" ")}${fcPadding}${end}`;
@@ -2009,9 +2009,9 @@ ${indent}${end}`;
   }
 });
 
-// node_modules/yaml/dist/nodes/YAMLMap.js
+// ../../../node_modules/yaml/dist/nodes/YAMLMap.js
 var require_YAMLMap = __commonJS({
-  "node_modules/yaml/dist/nodes/YAMLMap.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/YAMLMap.js"(exports) {
     "use strict";
     var stringifyCollection = require_stringifyCollection();
     var addPairToJSMap = require_addPairToJSMap();
@@ -2153,9 +2153,9 @@ var require_YAMLMap = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/map.js
+// ../../../node_modules/yaml/dist/schema/common/map.js
 var require_map = __commonJS({
-  "node_modules/yaml/dist/schema/common/map.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/common/map.js"(exports) {
     "use strict";
     var identity = require_identity();
     var YAMLMap = require_YAMLMap();
@@ -2175,9 +2175,9 @@ var require_map = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/nodes/YAMLSeq.js
+// ../../../node_modules/yaml/dist/nodes/YAMLSeq.js
 var require_YAMLSeq = __commonJS({
-  "node_modules/yaml/dist/nodes/YAMLSeq.js"(exports) {
+  "../../../node_modules/yaml/dist/nodes/YAMLSeq.js"(exports) {
     "use strict";
     var createNode = require_createNode();
     var stringifyCollection = require_stringifyCollection();
@@ -2291,9 +2291,9 @@ var require_YAMLSeq = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/seq.js
+// ../../../node_modules/yaml/dist/schema/common/seq.js
 var require_seq = __commonJS({
-  "node_modules/yaml/dist/schema/common/seq.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/common/seq.js"(exports) {
     "use strict";
     var identity = require_identity();
     var YAMLSeq = require_YAMLSeq();
@@ -2313,16 +2313,16 @@ var require_seq = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/string.js
+// ../../../node_modules/yaml/dist/schema/common/string.js
 var require_string = __commonJS({
-  "node_modules/yaml/dist/schema/common/string.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/common/string.js"(exports) {
     "use strict";
     var stringifyString = require_stringifyString();
     var string = {
       identify: (value) => typeof value === "string",
       default: true,
       tag: "tag:yaml.org,2002:str",
-      resolve: (str2) => str2,
+      resolve: (str3) => str3,
       stringify(item, ctx, onComment, onChompKeep) {
         ctx = Object.assign({ actualString: true }, ctx);
         return stringifyString.stringifyString(item, ctx, onComment, onChompKeep);
@@ -2332,9 +2332,9 @@ var require_string = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/common/null.js
+// ../../../node_modules/yaml/dist/schema/common/null.js
 var require_null = __commonJS({
-  "node_modules/yaml/dist/schema/common/null.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/common/null.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var nullTag = {
@@ -2350,9 +2350,9 @@ var require_null = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/bool.js
+// ../../../node_modules/yaml/dist/schema/core/bool.js
 var require_bool = __commonJS({
-  "node_modules/yaml/dist/schema/core/bool.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/core/bool.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var boolTag = {
@@ -2360,7 +2360,7 @@ var require_bool = __commonJS({
       default: true,
       tag: "tag:yaml.org,2002:bool",
       test: /^(?:[Tt]rue|TRUE|[Ff]alse|FALSE)$/,
-      resolve: (str2) => new Scalar.Scalar(str2[0] === "t" || str2[0] === "T"),
+      resolve: (str3) => new Scalar.Scalar(str3[0] === "t" || str3[0] === "T"),
       stringify({ source, value }, ctx) {
         if (source && boolTag.test.test(source)) {
           const sv = source[0] === "t" || source[0] === "T";
@@ -2374,9 +2374,9 @@ var require_bool = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyNumber.js
+// ../../../node_modules/yaml/dist/stringify/stringifyNumber.js
 var require_stringifyNumber = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyNumber.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringifyNumber.js"(exports) {
     "use strict";
     function stringifyNumber({ format, minFractionDigits, tag, value }) {
       if (typeof value === "bigint")
@@ -2401,9 +2401,9 @@ var require_stringifyNumber = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/float.js
+// ../../../node_modules/yaml/dist/schema/core/float.js
 var require_float = __commonJS({
-  "node_modules/yaml/dist/schema/core/float.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/core/float.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var stringifyNumber = require_stringifyNumber();
@@ -2412,7 +2412,7 @@ var require_float = __commonJS({
       default: true,
       tag: "tag:yaml.org,2002:float",
       test: /^(?:[-+]?\.(?:inf|Inf|INF)|\.nan|\.NaN|\.NAN)$/,
-      resolve: (str2) => str2.slice(-3).toLowerCase() === "nan" ? NaN : str2[0] === "-" ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+      resolve: (str3) => str3.slice(-3).toLowerCase() === "nan" ? NaN : str3[0] === "-" ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
       stringify: stringifyNumber.stringifyNumber
     };
     var floatExp = {
@@ -2421,7 +2421,7 @@ var require_float = __commonJS({
       tag: "tag:yaml.org,2002:float",
       format: "EXP",
       test: /^[-+]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)[eE][-+]?[0-9]+$/,
-      resolve: (str2) => parseFloat(str2),
+      resolve: (str3) => parseFloat(str3),
       stringify(node) {
         const num = Number(node.value);
         return isFinite(num) ? num.toExponential() : stringifyNumber.stringifyNumber(node);
@@ -2432,11 +2432,11 @@ var require_float = __commonJS({
       default: true,
       tag: "tag:yaml.org,2002:float",
       test: /^[-+]?(?:\.[0-9]+|[0-9]+\.[0-9]*)$/,
-      resolve(str2) {
-        const node = new Scalar.Scalar(parseFloat(str2));
-        const dot = str2.indexOf(".");
-        if (dot !== -1 && str2[str2.length - 1] === "0")
-          node.minFractionDigits = str2.length - dot - 1;
+      resolve(str3) {
+        const node = new Scalar.Scalar(parseFloat(str3));
+        const dot = str3.indexOf(".");
+        if (dot !== -1 && str3[str3.length - 1] === "0")
+          node.minFractionDigits = str3.length - dot - 1;
         return node;
       },
       stringify: stringifyNumber.stringifyNumber
@@ -2447,13 +2447,13 @@ var require_float = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/core/int.js
+// ../../../node_modules/yaml/dist/schema/core/int.js
 var require_int = __commonJS({
-  "node_modules/yaml/dist/schema/core/int.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/core/int.js"(exports) {
     "use strict";
     var stringifyNumber = require_stringifyNumber();
     var intIdentify = (value) => typeof value === "bigint" || Number.isInteger(value);
-    var intResolve = (str2, offset, radix, { intAsBigInt }) => intAsBigInt ? BigInt(str2) : parseInt(str2.substring(offset), radix);
+    var intResolve = (str3, offset, radix, { intAsBigInt }) => intAsBigInt ? BigInt(str3) : parseInt(str3.substring(offset), radix);
     function intStringify(node, radix, prefix) {
       const { value } = node;
       if (intIdentify(value) && value >= 0)
@@ -2466,15 +2466,15 @@ var require_int = __commonJS({
       tag: "tag:yaml.org,2002:int",
       format: "OCT",
       test: /^0o[0-7]+$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 2, 8, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 2, 8, opt),
       stringify: (node) => intStringify(node, 8, "0o")
     };
-    var int = {
+    var int2 = {
       identify: intIdentify,
       default: true,
       tag: "tag:yaml.org,2002:int",
       test: /^[-+]?[0-9]+$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 0, 10, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 0, 10, opt),
       stringify: stringifyNumber.stringifyNumber
     };
     var intHex = {
@@ -2483,18 +2483,18 @@ var require_int = __commonJS({
       tag: "tag:yaml.org,2002:int",
       format: "HEX",
       test: /^0x[0-9a-fA-F]+$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 2, 16, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 2, 16, opt),
       stringify: (node) => intStringify(node, 16, "0x")
     };
-    exports.int = int;
+    exports.int = int2;
     exports.intHex = intHex;
     exports.intOct = intOct;
   }
 });
 
-// node_modules/yaml/dist/schema/core/schema.js
+// ../../../node_modules/yaml/dist/schema/core/schema.js
 var require_schema = __commonJS({
-  "node_modules/yaml/dist/schema/core/schema.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/core/schema.js"(exports) {
     "use strict";
     var map = require_map();
     var _null = require_null();
@@ -2502,16 +2502,16 @@ var require_schema = __commonJS({
     var string = require_string();
     var bool2 = require_bool();
     var float = require_float();
-    var int = require_int();
+    var int2 = require_int();
     var schema = [
       map.map,
       seq.seq,
       string.string,
       _null.nullTag,
       bool2.boolTag,
-      int.intOct,
-      int.int,
-      int.intHex,
+      int2.intOct,
+      int2.int,
+      int2.intHex,
       float.floatNaN,
       float.floatExp,
       float.float
@@ -2520,9 +2520,9 @@ var require_schema = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/json/schema.js
+// ../../../node_modules/yaml/dist/schema/json/schema.js
 var require_schema2 = __commonJS({
-  "node_modules/yaml/dist/schema/json/schema.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/json/schema.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var map = require_map();
@@ -2536,7 +2536,7 @@ var require_schema2 = __commonJS({
         identify: (value) => typeof value === "string",
         default: true,
         tag: "tag:yaml.org,2002:str",
-        resolve: (str2) => str2,
+        resolve: (str3) => str3,
         stringify: stringifyJSON
       },
       {
@@ -2553,7 +2553,7 @@ var require_schema2 = __commonJS({
         default: true,
         tag: "tag:yaml.org,2002:bool",
         test: /^true$|^false$/,
-        resolve: (str2) => str2 === "true",
+        resolve: (str3) => str3 === "true",
         stringify: stringifyJSON
       },
       {
@@ -2561,7 +2561,7 @@ var require_schema2 = __commonJS({
         default: true,
         tag: "tag:yaml.org,2002:int",
         test: /^-?(?:0|[1-9][0-9]*)$/,
-        resolve: (str2, _onError, { intAsBigInt }) => intAsBigInt ? BigInt(str2) : parseInt(str2, 10),
+        resolve: (str3, _onError, { intAsBigInt }) => intAsBigInt ? BigInt(str3) : parseInt(str3, 10),
         stringify: ({ value }) => intIdentify(value) ? value.toString() : JSON.stringify(value)
       },
       {
@@ -2569,7 +2569,7 @@ var require_schema2 = __commonJS({
         default: true,
         tag: "tag:yaml.org,2002:float",
         test: /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]*)?(?:[eE][-+]?[0-9]+)?$/,
-        resolve: (str2) => parseFloat(str2),
+        resolve: (str3) => parseFloat(str3),
         stringify: stringifyJSON
       }
     ];
@@ -2577,9 +2577,9 @@ var require_schema2 = __commonJS({
       default: true,
       tag: "",
       test: /^/,
-      resolve(str2, onError) {
-        onError(`Unresolved plain scalar ${JSON.stringify(str2)}`);
-        return str2;
+      resolve(str3, onError) {
+        onError(`Unresolved plain scalar ${JSON.stringify(str3)}`);
+        return str3;
       }
     };
     var schema = [map.map, seq.seq].concat(jsonScalars, jsonError);
@@ -2587,9 +2587,9 @@ var require_schema2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/binary.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/binary.js
 var require_binary = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/binary.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/binary.js"(exports) {
     "use strict";
     var node_buffer = __require("buffer");
     var Scalar = require_Scalar();
@@ -2611,10 +2611,10 @@ var require_binary = __commonJS({
         if (typeof node_buffer.Buffer === "function") {
           return node_buffer.Buffer.from(src, "base64");
         } else if (typeof atob === "function") {
-          const str2 = atob(src.replace(/[\n\r]/g, ""));
-          const buffer = new Uint8Array(str2.length);
-          for (let i = 0; i < str2.length; ++i)
-            buffer[i] = str2.charCodeAt(i);
+          const str3 = atob(src.replace(/[\n\r]/g, ""));
+          const buffer = new Uint8Array(str3.length);
+          for (let i = 0; i < str3.length; ++i)
+            buffer[i] = str3.charCodeAt(i);
           return buffer;
         } else {
           onError("This environment does not support reading binary tags; either Buffer or atob is required");
@@ -2625,37 +2625,37 @@ var require_binary = __commonJS({
         if (!value)
           return "";
         const buf = value;
-        let str2;
+        let str3;
         if (typeof node_buffer.Buffer === "function") {
-          str2 = buf instanceof node_buffer.Buffer ? buf.toString("base64") : node_buffer.Buffer.from(buf.buffer).toString("base64");
+          str3 = buf instanceof node_buffer.Buffer ? buf.toString("base64") : node_buffer.Buffer.from(buf.buffer).toString("base64");
         } else if (typeof btoa === "function") {
           let s2 = "";
           for (let i = 0; i < buf.length; ++i)
             s2 += String.fromCharCode(buf[i]);
-          str2 = btoa(s2);
+          str3 = btoa(s2);
         } else {
           throw new Error("This environment does not support writing binary tags; either Buffer or btoa is required");
         }
         type ?? (type = Scalar.Scalar.BLOCK_LITERAL);
         if (type !== Scalar.Scalar.QUOTE_DOUBLE) {
           const lineWidth = Math.max(ctx.options.lineWidth - ctx.indent.length, ctx.options.minContentWidth);
-          const n = Math.ceil(str2.length / lineWidth);
+          const n = Math.ceil(str3.length / lineWidth);
           const lines = new Array(n);
           for (let i = 0, o = 0; i < n; ++i, o += lineWidth) {
-            lines[i] = str2.substr(o, lineWidth);
+            lines[i] = str3.substr(o, lineWidth);
           }
-          str2 = lines.join(type === Scalar.Scalar.BLOCK_LITERAL ? "\n" : " ");
+          str3 = lines.join(type === Scalar.Scalar.BLOCK_LITERAL ? "\n" : " ");
         }
-        return stringifyString.stringifyString({ comment, type, value: str2 }, ctx, onComment, onChompKeep);
+        return stringifyString.stringifyString({ comment, type, value: str3 }, ctx, onComment, onChompKeep);
       }
     };
     exports.binary = binary;
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/pairs.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/pairs.js
 var require_pairs = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/pairs.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/pairs.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Pair = require_Pair();
@@ -2731,9 +2731,9 @@ ${cn.comment}` : item.comment;
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/omap.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/omap.js
 var require_omap = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/omap.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/omap.js"(exports) {
     "use strict";
     var identity = require_identity();
     var toJS = require_toJS();
@@ -2809,9 +2809,9 @@ var require_omap = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/bool.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/bool.js
 var require_bool2 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/bool.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/bool.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     function boolStringify({ value, source }, ctx) {
@@ -2841,9 +2841,9 @@ var require_bool2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/float.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/float.js
 var require_float2 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/float.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/float.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var stringifyNumber = require_stringifyNumber();
@@ -2852,7 +2852,7 @@ var require_float2 = __commonJS({
       default: true,
       tag: "tag:yaml.org,2002:float",
       test: /^(?:[-+]?\.(?:inf|Inf|INF)|\.nan|\.NaN|\.NAN)$/,
-      resolve: (str2) => str2.slice(-3).toLowerCase() === "nan" ? NaN : str2[0] === "-" ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+      resolve: (str3) => str3.slice(-3).toLowerCase() === "nan" ? NaN : str3[0] === "-" ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
       stringify: stringifyNumber.stringifyNumber
     };
     var floatExp = {
@@ -2861,7 +2861,7 @@ var require_float2 = __commonJS({
       tag: "tag:yaml.org,2002:float",
       format: "EXP",
       test: /^[-+]?(?:[0-9][0-9_]*)?(?:\.[0-9_]*)?[eE][-+]?[0-9]+$/,
-      resolve: (str2) => parseFloat(str2.replace(/_/g, "")),
+      resolve: (str3) => parseFloat(str3.replace(/_/g, "")),
       stringify(node) {
         const num = Number(node.value);
         return isFinite(num) ? num.toExponential() : stringifyNumber.stringifyNumber(node);
@@ -2872,11 +2872,11 @@ var require_float2 = __commonJS({
       default: true,
       tag: "tag:yaml.org,2002:float",
       test: /^[-+]?(?:[0-9][0-9_]*)?\.[0-9_]*$/,
-      resolve(str2) {
-        const node = new Scalar.Scalar(parseFloat(str2.replace(/_/g, "")));
-        const dot = str2.indexOf(".");
+      resolve(str3) {
+        const node = new Scalar.Scalar(parseFloat(str3.replace(/_/g, "")));
+        const dot = str3.indexOf(".");
         if (dot !== -1) {
-          const f = str2.substring(dot + 1).replace(/_/g, "");
+          const f = str3.substring(dot + 1).replace(/_/g, "");
           if (f[f.length - 1] === "0")
             node.minFractionDigits = f.length;
         }
@@ -2890,40 +2890,40 @@ var require_float2 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/int.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/int.js
 var require_int2 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/int.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/int.js"(exports) {
     "use strict";
     var stringifyNumber = require_stringifyNumber();
     var intIdentify = (value) => typeof value === "bigint" || Number.isInteger(value);
-    function intResolve(str2, offset, radix, { intAsBigInt }) {
-      const sign = str2[0];
+    function intResolve(str3, offset, radix, { intAsBigInt }) {
+      const sign = str3[0];
       if (sign === "-" || sign === "+")
         offset += 1;
-      str2 = str2.substring(offset).replace(/_/g, "");
+      str3 = str3.substring(offset).replace(/_/g, "");
       if (intAsBigInt) {
         switch (radix) {
           case 2:
-            str2 = `0b${str2}`;
+            str3 = `0b${str3}`;
             break;
           case 8:
-            str2 = `0o${str2}`;
+            str3 = `0o${str3}`;
             break;
           case 16:
-            str2 = `0x${str2}`;
+            str3 = `0x${str3}`;
             break;
         }
-        const n2 = BigInt(str2);
+        const n2 = BigInt(str3);
         return sign === "-" ? BigInt(-1) * n2 : n2;
       }
-      const n = parseInt(str2, radix);
+      const n = parseInt(str3, radix);
       return sign === "-" ? -1 * n : n;
     }
     function intStringify(node, radix, prefix) {
       const { value } = node;
       if (intIdentify(value)) {
-        const str2 = value.toString(radix);
-        return value < 0 ? "-" + prefix + str2.substr(1) : prefix + str2;
+        const str3 = value.toString(radix);
+        return value < 0 ? "-" + prefix + str3.substr(1) : prefix + str3;
       }
       return stringifyNumber.stringifyNumber(node);
     }
@@ -2933,7 +2933,7 @@ var require_int2 = __commonJS({
       tag: "tag:yaml.org,2002:int",
       format: "BIN",
       test: /^[-+]?0b[0-1_]+$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 2, 2, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 2, 2, opt),
       stringify: (node) => intStringify(node, 2, "0b")
     };
     var intOct = {
@@ -2942,15 +2942,15 @@ var require_int2 = __commonJS({
       tag: "tag:yaml.org,2002:int",
       format: "OCT",
       test: /^[-+]?0[0-7_]+$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 1, 8, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 1, 8, opt),
       stringify: (node) => intStringify(node, 8, "0")
     };
-    var int = {
+    var int2 = {
       identify: intIdentify,
       default: true,
       tag: "tag:yaml.org,2002:int",
       test: /^[-+]?[0-9][0-9_]*$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 0, 10, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 0, 10, opt),
       stringify: stringifyNumber.stringifyNumber
     };
     var intHex = {
@@ -2959,19 +2959,19 @@ var require_int2 = __commonJS({
       tag: "tag:yaml.org,2002:int",
       format: "HEX",
       test: /^[-+]?0x[0-9a-fA-F_]+$/,
-      resolve: (str2, _onError, opt) => intResolve(str2, 2, 16, opt),
+      resolve: (str3, _onError, opt) => intResolve(str3, 2, 16, opt),
       stringify: (node) => intStringify(node, 16, "0x")
     };
-    exports.int = int;
+    exports.int = int2;
     exports.intBin = intBin;
     exports.intHex = intHex;
     exports.intOct = intOct;
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/set.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/set.js
 var require_set = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/set.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/set.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Pair = require_Pair();
@@ -3058,14 +3058,14 @@ var require_set = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
 var require_timestamp = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/timestamp.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/timestamp.js"(exports) {
     "use strict";
     var stringifyNumber = require_stringifyNumber();
-    function parseSexagesimal(str2, asBigInt) {
-      const sign = str2[0];
-      const parts = sign === "-" || sign === "+" ? str2.substring(1) : str2;
+    function parseSexagesimal(str3, asBigInt) {
+      const sign = str3[0];
+      const parts = sign === "-" || sign === "+" ? str3.substring(1) : str3;
       const num = (n) => asBigInt ? BigInt(n) : Number(n);
       const res = parts.replace(/_/g, "").split(":").reduce((res2, p) => res2 * num(60) + num(p), num(0));
       return sign === "-" ? num(-1) * res : res;
@@ -3102,7 +3102,7 @@ var require_timestamp = __commonJS({
       tag: "tag:yaml.org,2002:int",
       format: "TIME",
       test: /^[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+$/,
-      resolve: (str2, _onError, { intAsBigInt }) => parseSexagesimal(str2, intAsBigInt),
+      resolve: (str3, _onError, { intAsBigInt }) => parseSexagesimal(str3, intAsBigInt),
       stringify: stringifySexagesimal
     };
     var floatTime = {
@@ -3111,7 +3111,7 @@ var require_timestamp = __commonJS({
       tag: "tag:yaml.org,2002:float",
       format: "TIME",
       test: /^[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*$/,
-      resolve: (str2) => parseSexagesimal(str2, false),
+      resolve: (str3) => parseSexagesimal(str3, false),
       stringify: stringifySexagesimal
     };
     var timestamp = {
@@ -3122,8 +3122,8 @@ var require_timestamp = __commonJS({
       // may be omitted altogether, resulting in a date format. In such a case, the time part is
       // assumed to be 00:00:00Z (start of day, UTC).
       test: RegExp("^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})(?:(?:t|T|[ \\t]+)([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}(\\.[0-9]+)?)(?:[ \\t]*(Z|[-+][012]?[0-9](?::[0-9]{2})?))?)?$"),
-      resolve(str2) {
-        const match = str2.match(timestamp.test);
+      resolve(str3) {
+        const match = str3.match(timestamp.test);
         if (!match)
           throw new Error("!!timestamp expects a date, starting with yyyy-mm-dd");
         const [, year, month, day, hour, minute, second] = match.map(Number);
@@ -3146,9 +3146,9 @@ var require_timestamp = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/yaml-1.1/schema.js
+// ../../../node_modules/yaml/dist/schema/yaml-1.1/schema.js
 var require_schema3 = __commonJS({
-  "node_modules/yaml/dist/schema/yaml-1.1/schema.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/yaml-1.1/schema.js"(exports) {
     "use strict";
     var map = require_map();
     var _null = require_null();
@@ -3157,7 +3157,7 @@ var require_schema3 = __commonJS({
     var binary = require_binary();
     var bool2 = require_bool2();
     var float = require_float2();
-    var int = require_int2();
+    var int2 = require_int2();
     var merge = require_merge();
     var omap = require_omap();
     var pairs = require_pairs();
@@ -3170,10 +3170,10 @@ var require_schema3 = __commonJS({
       _null.nullTag,
       bool2.trueTag,
       bool2.falseTag,
-      int.intBin,
-      int.intOct,
-      int.int,
-      int.intHex,
+      int2.intBin,
+      int2.intOct,
+      int2.int,
+      int2.intHex,
       float.floatNaN,
       float.floatExp,
       float.float,
@@ -3190,9 +3190,9 @@ var require_schema3 = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/tags.js
+// ../../../node_modules/yaml/dist/schema/tags.js
 var require_tags = __commonJS({
-  "node_modules/yaml/dist/schema/tags.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/tags.js"(exports) {
     "use strict";
     var map = require_map();
     var _null = require_null();
@@ -3200,7 +3200,7 @@ var require_tags = __commonJS({
     var string = require_string();
     var bool2 = require_bool();
     var float = require_float();
-    var int = require_int();
+    var int2 = require_int();
     var schema = require_schema();
     var schema$1 = require_schema2();
     var binary = require_binary();
@@ -3224,9 +3224,9 @@ var require_tags = __commonJS({
       floatExp: float.floatExp,
       floatNaN: float.floatNaN,
       floatTime: timestamp.floatTime,
-      int: int.int,
-      intHex: int.intHex,
-      intOct: int.intOct,
+      int: int2.int,
+      intHex: int2.intHex,
+      intOct: int2.intOct,
       intTime: timestamp.intTime,
       map: map.map,
       merge: merge.merge,
@@ -3284,9 +3284,9 @@ var require_tags = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/schema/Schema.js
+// ../../../node_modules/yaml/dist/schema/Schema.js
 var require_Schema = __commonJS({
-  "node_modules/yaml/dist/schema/Schema.js"(exports) {
+  "../../../node_modules/yaml/dist/schema/Schema.js"(exports) {
     "use strict";
     var identity = require_identity();
     var map = require_map();
@@ -3316,9 +3316,9 @@ var require_Schema = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/stringify/stringifyDocument.js
+// ../../../node_modules/yaml/dist/stringify/stringifyDocument.js
 var require_stringifyDocument = __commonJS({
-  "node_modules/yaml/dist/stringify/stringifyDocument.js"(exports) {
+  "../../../node_modules/yaml/dist/stringify/stringifyDocument.js"(exports) {
     "use strict";
     var identity = require_identity();
     var stringify = require_stringify();
@@ -3396,9 +3396,9 @@ var require_stringifyDocument = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/doc/Document.js
+// ../../../node_modules/yaml/dist/doc/Document.js
 var require_Document = __commonJS({
-  "node_modules/yaml/dist/doc/Document.js"(exports) {
+  "../../../node_modules/yaml/dist/doc/Document.js"(exports) {
     "use strict";
     var Alias = require_Alias();
     var Collection = require_Collection();
@@ -3474,9 +3474,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path7, value) {
+      addIn(path9, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path7, value);
+          this.contents.addIn(path9, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -3551,14 +3551,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path7) {
-        if (Collection.isEmptyPath(path7)) {
+      deleteIn(path9) {
+        if (Collection.isEmptyPath(path9)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path7) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path9) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -3573,10 +3573,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path7, keepScalar) {
-        if (Collection.isEmptyPath(path7))
+      getIn(path9, keepScalar) {
+        if (Collection.isEmptyPath(path9))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path7, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path9, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -3587,10 +3587,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path7) {
-        if (Collection.isEmptyPath(path7))
+      hasIn(path9) {
+        if (Collection.isEmptyPath(path9))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path7) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path9) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3607,13 +3607,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path7, value) {
-        if (Collection.isEmptyPath(path7)) {
+      setIn(path9, value) {
+        if (Collection.isEmptyPath(path9)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path7), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path9), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path7, value);
+          this.contents.setIn(path9, value);
         }
       }
       /**
@@ -3705,9 +3705,9 @@ var require_Document = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/errors.js
+// ../../../node_modules/yaml/dist/errors.js
 var require_errors = __commonJS({
-  "node_modules/yaml/dist/errors.js"(exports) {
+  "../../../node_modules/yaml/dist/errors.js"(exports) {
     "use strict";
     var YAMLError = class extends Error {
       constructor(name, pos, code, message) {
@@ -3770,9 +3770,9 @@ ${pointer}
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-props.js
+// ../../../node_modules/yaml/dist/compose/resolve-props.js
 var require_resolve_props = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-props.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-props.js"(exports) {
     "use strict";
     function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIndent, startOnNewline }) {
       let spaceBefore = false;
@@ -3904,9 +3904,9 @@ var require_resolve_props = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-contains-newline.js
+// ../../../node_modules/yaml/dist/compose/util-contains-newline.js
 var require_util_contains_newline = __commonJS({
-  "node_modules/yaml/dist/compose/util-contains-newline.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/util-contains-newline.js"(exports) {
     "use strict";
     function containsNewline(key) {
       if (!key)
@@ -3946,9 +3946,9 @@ var require_util_contains_newline = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-flow-indent-check.js
+// ../../../node_modules/yaml/dist/compose/util-flow-indent-check.js
 var require_util_flow_indent_check = __commonJS({
-  "node_modules/yaml/dist/compose/util-flow-indent-check.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/util-flow-indent-check.js"(exports) {
     "use strict";
     var utilContainsNewline = require_util_contains_newline();
     function flowIndentCheck(indent, fc, onError) {
@@ -3964,9 +3964,9 @@ var require_util_flow_indent_check = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-map-includes.js
+// ../../../node_modules/yaml/dist/compose/util-map-includes.js
 var require_util_map_includes = __commonJS({
-  "node_modules/yaml/dist/compose/util-map-includes.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/util-map-includes.js"(exports) {
     "use strict";
     var identity = require_identity();
     function mapIncludes(ctx, items, search) {
@@ -3980,9 +3980,9 @@ var require_util_map_includes = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-block-map.js
+// ../../../node_modules/yaml/dist/compose/resolve-block-map.js
 var require_resolve_block_map = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-block-map.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-block-map.js"(exports) {
     "use strict";
     var Pair = require_Pair();
     var YAMLMap = require_YAMLMap();
@@ -4088,9 +4088,9 @@ var require_resolve_block_map = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-block-seq.js
+// ../../../node_modules/yaml/dist/compose/resolve-block-seq.js
 var require_resolve_block_seq = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-block-seq.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-block-seq.js"(exports) {
     "use strict";
     var YAMLSeq = require_YAMLSeq();
     var resolveProps = require_resolve_props();
@@ -4139,9 +4139,9 @@ var require_resolve_block_seq = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-end.js
+// ../../../node_modules/yaml/dist/compose/resolve-end.js
 var require_resolve_end = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-end.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-end.js"(exports) {
     "use strict";
     function resolveEnd(end, offset, reqSpace, onError) {
       let comment = "";
@@ -4182,9 +4182,9 @@ var require_resolve_end = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-flow-collection.js
+// ../../../node_modules/yaml/dist/compose/resolve-flow-collection.js
 var require_resolve_flow_collection = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-flow-collection.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-flow-collection.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Pair = require_Pair();
@@ -4376,9 +4376,9 @@ var require_resolve_flow_collection = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-collection.js
+// ../../../node_modules/yaml/dist/compose/compose-collection.js
 var require_compose_collection = __commonJS({
-  "node_modules/yaml/dist/compose/compose-collection.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/compose-collection.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -4441,9 +4441,9 @@ var require_compose_collection = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-block-scalar.js
+// ../../../node_modules/yaml/dist/compose/resolve-block-scalar.js
 var require_resolve_block_scalar = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-block-scalar.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-block-scalar.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     function resolveBlockScalar(ctx, scalar, onError) {
@@ -4624,9 +4624,9 @@ var require_resolve_block_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/resolve-flow-scalar.js
+// ../../../node_modules/yaml/dist/compose/resolve-flow-scalar.js
 var require_resolve_flow_scalar = __commonJS({
-  "node_modules/yaml/dist/compose/resolve-flow-scalar.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/resolve-flow-scalar.js"(exports) {
     "use strict";
     var Scalar = require_Scalar();
     var resolveEnd = require_resolve_end();
@@ -4845,9 +4845,9 @@ var require_resolve_flow_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-scalar.js
+// ../../../node_modules/yaml/dist/compose/compose-scalar.js
 var require_compose_scalar = __commonJS({
-  "node_modules/yaml/dist/compose/compose-scalar.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/compose-scalar.js"(exports) {
     "use strict";
     var identity = require_identity();
     var Scalar = require_Scalar();
@@ -4926,9 +4926,9 @@ var require_compose_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/util-empty-scalar-position.js
+// ../../../node_modules/yaml/dist/compose/util-empty-scalar-position.js
 var require_util_empty_scalar_position = __commonJS({
-  "node_modules/yaml/dist/compose/util-empty-scalar-position.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/util-empty-scalar-position.js"(exports) {
     "use strict";
     function emptyScalarPosition(offset, before, pos) {
       if (before) {
@@ -4956,9 +4956,9 @@ var require_util_empty_scalar_position = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-node.js
+// ../../../node_modules/yaml/dist/compose/compose-node.js
 var require_compose_node = __commonJS({
-  "node_modules/yaml/dist/compose/compose-node.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/compose-node.js"(exports) {
     "use strict";
     var Alias = require_Alias();
     var identity = require_identity();
@@ -5062,9 +5062,9 @@ var require_compose_node = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/compose-doc.js
+// ../../../node_modules/yaml/dist/compose/compose-doc.js
 var require_compose_doc = __commonJS({
-  "node_modules/yaml/dist/compose/compose-doc.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/compose-doc.js"(exports) {
     "use strict";
     var Document = require_Document();
     var composeNode = require_compose_node();
@@ -5105,9 +5105,9 @@ var require_compose_doc = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/compose/composer.js
+// ../../../node_modules/yaml/dist/compose/composer.js
 var require_composer = __commonJS({
-  "node_modules/yaml/dist/compose/composer.js"(exports) {
+  "../../../node_modules/yaml/dist/compose/composer.js"(exports) {
     "use strict";
     var node_process = __require("process");
     var directives = require_directives();
@@ -5313,9 +5313,9 @@ ${end.comment}` : end.comment;
   }
 });
 
-// node_modules/yaml/dist/parse/cst-scalar.js
+// ../../../node_modules/yaml/dist/parse/cst-scalar.js
 var require_cst_scalar = __commonJS({
-  "node_modules/yaml/dist/parse/cst-scalar.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/cst-scalar.js"(exports) {
     "use strict";
     var resolveBlockScalar = require_resolve_block_scalar();
     var resolveFlowScalar = require_resolve_flow_scalar();
@@ -5498,9 +5498,9 @@ var require_cst_scalar = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/cst-stringify.js
+// ../../../node_modules/yaml/dist/parse/cst-stringify.js
 var require_cst_stringify = __commonJS({
-  "node_modules/yaml/dist/parse/cst-stringify.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/cst-stringify.js"(exports) {
     "use strict";
     var stringify = (cst) => "type" in cst ? stringifyToken(cst) : stringifyItem(cst);
     function stringifyToken(token) {
@@ -5559,9 +5559,9 @@ var require_cst_stringify = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/cst-visit.js
+// ../../../node_modules/yaml/dist/parse/cst-visit.js
 var require_cst_visit = __commonJS({
-  "node_modules/yaml/dist/parse/cst-visit.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/cst-visit.js"(exports) {
     "use strict";
     var BREAK = /* @__PURE__ */ Symbol("break visit");
     var SKIP = /* @__PURE__ */ Symbol("skip children");
@@ -5574,9 +5574,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path7) => {
+    visit.itemAtPath = (cst, path9) => {
       let item = cst;
-      for (const [field, index] of path7) {
+      for (const [field, index] of path9) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -5585,23 +5585,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path7) => {
-      const parent = visit.itemAtPath(cst, path7.slice(0, -1));
-      const field = path7[path7.length - 1][0];
+    visit.parentCollection = (cst, path9) => {
+      const parent = visit.itemAtPath(cst, path9.slice(0, -1));
+      const field = path9[path9.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path7, item, visitor) {
-      let ctrl = visitor(item, path7);
+    function _visit(path9, item, visitor) {
+      let ctrl = visitor(item, path9);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path7.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path9.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5612,18 +5612,18 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path7);
+            ctrl = ctrl(item, path9);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path7) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path9) : ctrl;
     }
     exports.visit = visit;
   }
 });
 
-// node_modules/yaml/dist/parse/cst.js
+// ../../../node_modules/yaml/dist/parse/cst.js
 var require_cst = __commonJS({
-  "node_modules/yaml/dist/parse/cst.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/cst.js"(exports) {
     "use strict";
     var cstScalar = require_cst_scalar();
     var cstStringify = require_cst_stringify();
@@ -5723,9 +5723,9 @@ var require_cst = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/lexer.js
+// ../../../node_modules/yaml/dist/parse/lexer.js
 var require_lexer = __commonJS({
-  "node_modules/yaml/dist/parse/lexer.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/lexer.js"(exports) {
     "use strict";
     var cst = require_cst();
     function isEmpty(ch) {
@@ -6312,9 +6312,9 @@ var require_lexer = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/line-counter.js
+// ../../../node_modules/yaml/dist/parse/line-counter.js
 var require_line_counter = __commonJS({
-  "node_modules/yaml/dist/parse/line-counter.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/line-counter.js"(exports) {
     "use strict";
     var LineCounter = class {
       constructor() {
@@ -6343,9 +6343,9 @@ var require_line_counter = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/parse/parser.js
+// ../../../node_modules/yaml/dist/parse/parser.js
 var require_parser = __commonJS({
-  "node_modules/yaml/dist/parse/parser.js"(exports) {
+  "../../../node_modules/yaml/dist/parse/parser.js"(exports) {
     "use strict";
     var node_process = __require("process");
     var cst = require_cst();
@@ -7217,9 +7217,9 @@ var require_parser = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/public-api.js
+// ../../../node_modules/yaml/dist/public-api.js
 var require_public_api = __commonJS({
-  "node_modules/yaml/dist/public-api.js"(exports) {
+  "../../../node_modules/yaml/dist/public-api.js"(exports) {
     "use strict";
     var composer = require_composer();
     var Document = require_Document();
@@ -7314,9 +7314,9 @@ var require_public_api = __commonJS({
   }
 });
 
-// node_modules/yaml/dist/index.js
+// ../../../node_modules/yaml/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/yaml/dist/index.js"(exports) {
+  "../../../node_modules/yaml/dist/index.js"(exports) {
     "use strict";
     var composer = require_composer();
     var Document = require_Document();
@@ -7367,8 +7367,8 @@ var require_dist = __commonJS({
 });
 
 // src/cli.ts
-import { existsSync as existsSync5, readFileSync as readFileSync5, writeFileSync } from "node:fs";
-import path6 from "node:path";
+import { existsSync as existsSync5, readFileSync as readFileSync7, writeFileSync as writeFileSync2 } from "node:fs";
+import path8 from "node:path";
 import { parseArgs } from "node:util";
 
 // src/cli/git.ts
@@ -7487,13 +7487,17 @@ function counts(r) {
 function via(r) {
   return r.provider.model ? `${r.provider.name}/${r.provider.model}` : r.provider.name;
 }
+var kind = (f) => f.kind ?? (f.severity === "nit" ? "nitpick" : "issue");
 function formatPlain(r) {
-  const blocks = r.findings.map((f) => {
-    const lines = [`${loc(f)} ${f.severity} ${f.category} ${f.title}`, f.body];
+  const block = (f) => {
+    const lines = [`${loc(f)} ${f.severity} ${kind(f)} ${f.category} ${f.title}`, f.body];
     if (f.suggestion !== void 0) lines.push("suggestion:", f.suggestion);
     if (f.rewrite) lines.push(`rewrite (${f.rewrite.language}): ${f.rewrite.reason}`);
     return lines.join("\n");
-  });
+  };
+  const blocks = r.findings.map(block);
+  const outside = r.outsideDiff ?? [];
+  if (outside.length) blocks.push(`outside the diff (${outside.length}, on changed files but not on changed lines; check before acting):`, ...outside.map(block));
   const tail = r.findings.length ? `codewolf: ${r.findings.length} finding(s)${counts(r)} in ${r.stats.files} file(s) via ${via(r)}` : `codewolf: no findings in ${r.stats.files} file(s) via ${via(r)}`;
   return [...blocks, tail].join("\n\n") + "\n";
 }
@@ -7513,11 +7517,18 @@ function formatMarkdown(r) {
     out.push("");
   }
   if (r.diagram) out.push("## Flow", "", fence(r.diagram, "mermaid"), "");
+  const section = (fs) => {
+    for (const f of fs) {
+      out.push(`### ${f.severity} / ${f.category}: ${f.title}`, "", `\`${loc(f)}\` ${kind(f)}${f.cwe ? ` ${f.cwe}` : ""}${f.source !== "llm" ? ` (${f.source})` : ""}`, "", f.body, "");
+      if (f.suggestion !== void 0) out.push("Suggested replacement:", "", fence(f.suggestion), "");
+      if (f.rewrite) out.push(`Rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`, "", fence(f.rewrite.code, f.rewrite.language.toLowerCase()), "");
+    }
+  };
   out.push(`## Findings: ${r.findings.length}${counts(r)}`, "");
-  for (const f of r.findings) {
-    out.push(`### ${f.severity} / ${f.category}: ${f.title}`, "", `\`${loc(f)}\`${f.source !== "llm" ? ` (${f.source})` : ""}`, "", f.body, "");
-    if (f.suggestion !== void 0) out.push("Suggested replacement:", "", fence(f.suggestion), "");
-    if (f.rewrite) out.push(`Rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`, "", fence(f.rewrite.code, f.rewrite.language.toLowerCase()), "");
+  section(r.findings);
+  if (r.outsideDiff?.length) {
+    out.push(`## Outside the diff: ${r.outsideDiff.length}`, "", "On changed files, but not on changed lines. Check each one before acting.", "");
+    section(r.outsideDiff);
   }
   if (r.warnings?.length) out.push("## Warnings", "", ...r.warnings.map((w) => `- ${w}`), "");
   return out.join("\n");
@@ -7529,13 +7540,18 @@ function formatPretty(r, color) {
   const out = [c(C.bold, "CodeWolf review"), r.summary, ""];
   for (const w of r.walkthrough) out.push(`  ${c(C.dim, w.file)}  ${w.change}`);
   if (r.walkthrough.length) out.push("");
-  for (const f of r.findings) {
+  const entry = (f) => {
     out.push(`${c(SEV_COLOR[f.severity] ?? "", f.severity.toUpperCase().padEnd(8))} ${c(C.bold, f.title)}`);
-    out.push(`         ${c(C.dim, `${loc(f)} ${f.category}${f.source !== "llm" ? ` ${f.source}` : ""}`)}`);
+    out.push(`         ${c(C.dim, `${loc(f)} ${kind(f)} ${f.category}${f.cwe ? ` ${f.cwe}` : ""}${f.source !== "llm" ? ` ${f.source}` : ""}`)}`);
     for (const l of f.body.split("\n")) out.push(`         ${l}`);
     if (f.suggestion !== void 0) for (const l of f.suggestion.split("\n")) out.push(`         ${c(C.green, `+ ${l}`)}`);
     if (f.rewrite) out.push(`         ${c(C.dim, `rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`)}`);
     out.push("");
+  };
+  r.findings.forEach(entry);
+  if (r.outsideDiff?.length) {
+    out.push(c(C.bold, `Outside the diff (${r.outsideDiff.length})`) + c(C.dim, "  on changed files, not on changed lines"), "");
+    r.outsideDiff.forEach(entry);
   }
   out.push(r.findings.length ? `${r.findings.length} finding(s)${counts(r)}` : c(C.green, "No findings."));
   out.push(c(C.dim, `${r.stats.files} file(s), effort ${r.effort.score}/5 (~${r.effort.minutes} min), ${via(r)}`));
@@ -7543,7 +7559,7 @@ function formatPretty(r, color) {
 }
 function formatNdjson(r) {
   const lines = r.findings.map((f) => JSON.stringify({ type: "finding", ...f }));
-  lines.push(JSON.stringify({ type: "summary", summary: r.summary, stats: r.stats, effort: r.effort, provider: r.provider, walkthrough: r.walkthrough, ...r.warnings?.length ? { warnings: r.warnings } : {} }));
+  lines.push(JSON.stringify({ type: "summary", summary: r.summary, stats: r.stats, effort: r.effort, provider: r.provider, walkthrough: r.walkthrough, ...r.outsideDiff?.length ? { outsideDiff: r.outsideDiff } : {}, ...r.warnings?.length ? { warnings: r.warnings } : {} }));
   return lines.join("\n") + "\n";
 }
 function formatResult(r, format, color) {
@@ -7559,483 +7575,10 @@ function formatResult(r, format, color) {
   }
 }
 
-// src/cli/template.ts
-var INIT_TEMPLATE = `# CodeWolf configuration. Every key is optional; CLI flags override this file.
-# Docs: https://github.com/za3ter123/codewolf
-
-# quiet = critical only, chill = critical + major and a few minor, assertive = everything including nits
-profile: chill
-
-# Language for summaries and comments
-language: en
-
-# Providers are tried in order. When every key of one provider is rate limited or rejected,
-# CodeWolf falls through to the next. keys accepts literal keys or env:NAME (comma or newline list).
-providers:
-  - name: anthropic
-    model: claude-sonnet-5-5
-    keys: [env:ANTHROPIC_API_KEYS]
-  # Any OpenAI-compatible server: OpenAI, OpenRouter, Groq, Together, LM Studio, vLLM
-  # - name: openai
-  #   baseUrl: https://openrouter.ai/api/v1
-  #   model: qwen/qwen3-coder
-  #   keys: [env:OPENROUTER_API_KEY]
-  # - name: gemini
-  #   model: gemini-2.5-flash
-  #   keys: [env:GEMINI_API_KEYS]
-  # Your Claude subscription through the local Claude Code CLI, no API key
-  # - name: claude-code
-  # Local and free
-  - name: ollama
-    model: qwen2.5-coder:7b
-    # baseUrl: http://127.0.0.1:11434
-    # timeout: 900          # seconds
-
-review:
-  # Added to the built-in excludes (lockfiles, dist/, minified files, binaries). Prefix with ! to re-include.
-  exclude: []
-  # Extra instructions for matching paths
-  pathInstructions: []
-  #  - path: "src/api/**"
-  #    instructions: "Check authorization on every handler."
-  # Exit 1 when a finding is at or above this severity: critical | major | minor | nit | none
-  failOn: none
-  # Include CLAUDE.md, AGENTS.md, .cursorrules and .github/copilot-instructions.md as project guidelines
-  guidelines: true
-  # concurrency: 4
-  # maxChunkTokens: 12000
-
-# Local linters fused into the review when installed. Set one to false to skip it.
-tools:
-  ruff: true
-  eslint: true
-  semgrep: true
-  gitleaks: true
-`;
-
-// src/core/config.ts
-var import_yaml = __toESM(require_dist(), 1);
-import { existsSync as existsSync2, readFileSync as readFileSync3 } from "node:fs";
-import path3 from "node:path";
-
-// src/shared/mask.ts
-var known = /* @__PURE__ */ new Set();
-function maskKey(key) {
-  if (!key) return "(none)";
-  if (key.length <= 8) return "***";
-  const dash = key.indexOf("-");
-  const prefix = dash > 0 && dash <= 6 ? key.slice(0, dash + 1) : key.slice(0, Math.min(3, key.length - 8));
-  return `${prefix}...${key.slice(-4)}`;
-}
-function registerSecret(value) {
-  if (value && value.length >= 4) known.add(value);
-}
-function redact(text) {
-  let out = text;
-  for (const s2 of [...known].sort((a, b) => b.length - a.length)) {
-    if (out.includes(s2)) out = out.split(s2).join(maskKey(s2));
-  }
-  return out;
-}
-
-// src/shared/types.ts
-var SEVERITIES = ["critical", "major", "minor", "nit"];
-var CATEGORIES = ["bug", "security", "performance", "maintainability", "style", "test"];
-var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code"];
-
-// src/core/learnings.ts
-import { appendFileSync, existsSync, mkdirSync, readFileSync as readFileSync2 } from "node:fs";
-import path2 from "node:path";
-function learningsPath(root) {
-  return path2.join(root, ".codewolf", "learnings.md");
-}
-function readLearnings(root) {
-  const file = learningsPath(root);
-  if (!existsSync(file)) return [];
-  let text;
-  try {
-    text = readFileSync2(file, "utf8");
-  } catch {
-    return [];
-  }
-  return text.replace(/^\uFEFF/, "").split(/\r?\n/).map((l) => l.trim().replace(/^(?:[-*+]|\d+[.)])\s+/, "").trim()).filter((l) => l && !l.startsWith("#") && !l.startsWith("<!--"));
-}
-function appendLearning(root, text) {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (!clean) throw new Error("learning text is empty");
-  const file = learningsPath(root);
-  mkdirSync(path2.dirname(file), { recursive: true });
-  let prefix = "";
-  if (!existsSync(file)) prefix = "# CodeWolf learnings\n\n<!-- Reviewer preferences for this repo, one per line. CodeWolf adds them to every review prompt. -->\n\n";
-  else {
-    const cur = readFileSync2(file, "utf8");
-    if (cur.length && !cur.endsWith("\n")) prefix = "\n";
-  }
-  appendFileSync(file, `${prefix}- ${clean}
-`);
-  return file;
-}
-var GUIDELINE_FILES = ["CLAUDE.md", "AGENTS.md", ".cursorrules", ".github/copilot-instructions.md"];
-var GUIDELINES_CAP = 4e3;
-function readGuidelines(root, cap = GUIDELINES_CAP) {
-  const parts = [];
-  let used = 0;
-  for (const name of GUIDELINE_FILES) {
-    const file = path2.join(root, name);
-    if (!existsSync(file)) continue;
-    let text;
-    try {
-      text = readFileSync2(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-    } catch {
-      continue;
-    }
-    if (!text) continue;
-    const room = cap - used - name.length - 8;
-    if (room <= 200) break;
-    const body = text.length > room ? text.slice(0, room).replace(/\n[^\n]*$/, "") + "\n[...truncated]" : text;
-    parts.push(`From ${name}:
-${body}`);
-    used += body.length + name.length + 8;
-  }
-  return parts.join("\n\n");
-}
-
-// src/core/config.ts
-var ConfigError = class extends Error {
-  name = "ConfigError";
-};
-var CONFIG_FILENAMES = [".codewolf.yaml", ".codewolf.yml"];
-var DEFAULT_EXCLUDES = [
-  "**/package-lock.json",
-  "**/npm-shrinkwrap.json",
-  "**/yarn.lock",
-  "**/pnpm-lock.yaml",
-  "**/bun.lockb",
-  "**/bun.lock",
-  "**/*.lock",
-  "**/go.sum",
-  "**/composer.lock",
-  "**/Gemfile.lock",
-  "**/Pipfile.lock",
-  "**/poetry.lock",
-  "**/Cargo.lock",
-  "dist/**",
-  "**/node_modules/**",
-  "**/*.min.js",
-  "**/*.min.css",
-  "**/*.map",
-  "**/*.snap",
-  "**/*.{png,jpg,jpeg,gif,bmp,ico,webp,avif,tiff,psd}",
-  "**/*.{pdf,zip,gz,tgz,bz2,xz,7z,rar,jar,war,whl}",
-  "**/*.{exe,dll,so,dylib,a,o,obj,lib,class,pyc,wasm,bin,dat}",
-  "**/*.{woff,woff2,ttf,otf,eot}",
-  "**/*.{mp3,mp4,mov,avi,mkv,wav,flac,ogg,webm}",
-  "**/*.{sqlite,db}"
-];
-var DEFAULTS = {
-  anthropic: { baseUrl: "https://api.anthropic.com", model: "claude-sonnet-5-5", timeoutMs: 18e4 },
-  openai: { baseUrl: "https://api.openai.com/v1", model: "gpt-5-mini", timeoutMs: 18e4 },
-  gemini: { baseUrl: "https://generativelanguage.googleapis.com", model: "gemini-2.5-flash", timeoutMs: 18e4 },
-  ollama: { baseUrl: "http://127.0.0.1:11434", model: "qwen2.5-coder:7b", timeoutMs: 9e5 },
-  "claude-code": { baseUrl: "", model: "", timeoutMs: 9e5 }
-};
-var OPENROUTER_BASE = "https://openrouter.ai/api/v1";
-var DEFAULT_MAX_TOKENS = 8192;
-function splitList(v) {
-  return v.split(/[,\n\r]+/).map((s2) => s2.trim()).filter(Boolean);
-}
-function expandKeys(entries, env, where, allowEnv = true, warn = () => {
-}) {
-  if (entries === void 0 || entries === null) return [];
-  const list = typeof entries === "string" ? splitList(entries) : Array.isArray(entries) ? entries : null;
-  if (!list) throw new ConfigError(`${where}: keys must be a list or a comma separated string`);
-  const out = [];
-  for (const e of list) {
-    if (typeof e !== "string") throw new ConfigError(`${where}: every key must be a string`);
-    const t = e.trim();
-    if (t.startsWith("env:")) {
-      if (allowEnv) out.push(...splitList(env[t.slice(4).trim()] ?? ""));
-      else warn(`${where}: ignoring ${t} from the repository config; env references only work in a file passed with --config`);
-    } else if (t) out.push(...splitList(t));
-  }
-  return [...new Set(out)];
-}
-function envKeys(env, ...names) {
-  const out = [];
-  for (const n of names) out.push(...splitList(env[n] ?? ""));
-  return [...new Set(out)];
-}
-function isOpenAIHost(baseUrl) {
-  try {
-    return new URL(baseUrl).hostname === "api.openai.com";
-  } catch {
-    return false;
-  }
-}
-function defaultKeysFor(name, baseUrl, env) {
-  switch (name) {
-    case "anthropic":
-      return envKeys(env, "ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY", "CODEWOLF_API_KEYS");
-    case "gemini":
-      return envKeys(env, "GEMINI_API_KEYS", "GEMINI_API_KEY", "GOOGLE_API_KEY", "CODEWOLF_API_KEYS");
-    case "openai":
-      if (baseUrl.includes("openrouter.ai")) return envKeys(env, "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY", "CODEWOLF_API_KEYS");
-      if (isOpenAIHost(baseUrl)) return envKeys(env, "OPENAI_API_KEYS", "OPENAI_API_KEY", "CODEWOLF_API_KEYS");
-      return envKeys(env, "CODEWOLF_API_KEYS");
-    default:
-      return [];
-  }
-}
-var OFFICIAL_HOSTS = {
-  anthropic: ["api.anthropic.com"],
-  gemini: ["generativelanguage.googleapis.com"],
-  openai: ["api.openai.com", "openrouter.ai"],
-  ollama: [],
-  "claude-code": []
-};
-function isOfficialHost(name, baseUrl) {
-  try {
-    const u = new URL(baseUrl);
-    return u.protocol === "https:" && OFFICIAL_HOSTS[name].includes(u.hostname);
-  } catch {
-    return false;
-  }
-}
-function normName(raw, where) {
-  if (typeof raw !== "string" || !raw.trim()) throw new ConfigError(`${where}: provider name is required`);
-  const n = raw.trim().toLowerCase();
-  if (n === "openrouter") return { name: "openai", baseUrl: OPENROUTER_BASE };
-  if (n === "claude" || n === "claudecode" || n === "claude_code") return { name: "claude-code" };
-  if (n === "openai-compatible" || n === "openai_compatible") return { name: "openai" };
-  if (!PROVIDER_NAMES.includes(n)) {
-    throw new ConfigError(`${where}: unknown provider "${raw}" (expected one of ${PROVIDER_NAMES.join(", ")}, openrouter)`);
-  }
-  return { name: n };
-}
-function str(v, where) {
-  if (v === void 0 || v === null || v === "") return void 0;
-  if (typeof v !== "string" && typeof v !== "number") throw new ConfigError(`${where} must be a string`);
-  return String(v).trim();
-}
-function posInt(v, where) {
-  if (v === void 0 || v === null || v === "") return void 0;
-  const n = Number(v);
-  if (!Number.isFinite(n) || n <= 0) throw new ConfigError(`${where} must be a positive number`);
-  return Math.floor(n);
-}
-function ollamaBase(env) {
-  const h = env.OLLAMA_HOST?.trim();
-  if (!h) return void 0;
-  const withProto = /^https?:\/\//.test(h) ? h : `http://${h}`;
-  return withProto.replace("://0.0.0.0", "://127.0.0.1");
-}
-function buildProvider(raw, ctx, where) {
-  const { env, warn } = ctx;
-  const { name, baseUrl: aliasBase } = normName(raw.name, where);
-  const d = DEFAULTS[name];
-  const fileBase = str(raw.baseUrl ?? raw.base_url ?? raw.baseURL, `${where}.baseUrl`);
-  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? (name === "ollama" ? ollamaBase(env) : void 0) ?? d.baseUrl).replace(/\/+$/, "");
-  let model = str(raw.model, `${where}.model`);
-  if (!model) model = name === "openai" && baseUrl === OPENROUTER_BASE ? "qwen/qwen3-coder" : d.model;
-  const baseTrusted = ctx.trusted || ctx.baseOverride !== void 0 || fileBase === void 0 || isOfficialHost(name, baseUrl);
-  const withhold = (what) => warn(`${where}: not sending ${what} to ${baseUrl}, a base URL set by the repository config. Pass --base-url or --config to allow it.`);
-  const fileKeys = raw.keys !== void 0 ? expandKeys(raw.keys, env, `${where}.keys`, ctx.trusted, warn) : [];
-  let keys;
-  if (ctx.keyOverride?.length) {
-    keys = baseTrusted ? ctx.keyOverride : fileKeys;
-    if (!baseTrusted) withhold("--keys");
-  } else if (fileKeys.length) {
-    keys = fileKeys;
-  } else {
-    const fromEnv = defaultKeysFor(name, baseUrl, env);
-    keys = baseTrusted ? fromEnv : [];
-    if (!baseTrusted && fromEnv.length) withhold("API keys from the environment");
-  }
-  const timeoutSec = posInt(raw.timeout, `${where}.timeout`);
-  const p = {
-    name,
-    model,
-    baseUrl,
-    keys,
-    timeoutMs: timeoutSec ? timeoutSec * 1e3 : d.timeoutMs,
-    maxTokens: posInt(raw.maxTokens ?? raw.max_tokens, `${where}.maxTokens`) ?? DEFAULT_MAX_TOKENS
-  };
-  if (raw.command !== void 0 && raw.command !== null && raw.command !== "") {
-    warn(`${where}: ignoring "command" from the config file; set CODEWOLF_CLAUDE_BIN or pass --claude-bin instead`);
-  }
-  if (name === "claude-code") {
-    const command = ctx.claudeBin?.trim() || env.CODEWOLF_CLAUDE_BIN?.trim();
-    if (command) p.command = command;
-  }
-  return p;
-}
-function autoChain(env) {
-  const chain = [];
-  if (envKeys(env, "ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY").length) chain.push({ name: "anthropic" });
-  if (envKeys(env, "OPENAI_API_KEYS", "OPENAI_API_KEY").length) chain.push({ name: "openai" });
-  if (envKeys(env, "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY").length) chain.push({ name: "openrouter" });
-  if (envKeys(env, "GEMINI_API_KEYS", "GEMINI_API_KEY", "GOOGLE_API_KEY").length) chain.push({ name: "gemini" });
-  chain.push({ name: "ollama" });
-  return chain;
-}
-function parseSeverity(v, where) {
-  const s2 = str(v, where)?.toLowerCase();
-  if (!s2) return void 0;
-  if (s2 === "none" || s2 === "off" || s2 === "never") return "none";
-  if (s2 === "high") return "major";
-  if (s2 === "low") return "minor";
-  if (!SEVERITIES.includes(s2)) throw new ConfigError(`${where} must be one of ${SEVERITIES.join(", ")}, none`);
-  return s2;
-}
-function parseProfile(v, where) {
-  const s2 = str(v, where)?.toLowerCase();
-  if (!s2) return void 0;
-  if (s2 !== "quiet" && s2 !== "chill" && s2 !== "assertive") throw new ConfigError(`${where} must be quiet, chill or assertive`);
-  return s2;
-}
-function asObject(v, where) {
-  if (v === void 0 || v === null) return {};
-  if (typeof v !== "object" || Array.isArray(v)) throw new ConfigError(`${where} must be a mapping`);
-  return v;
-}
-function stringList(v, where) {
-  if (v === void 0 || v === null) return [];
-  if (typeof v === "string") return [v];
-  if (!Array.isArray(v) || v.some((x) => typeof x !== "string")) throw new ConfigError(`${where} must be a list of strings`);
-  return v;
-}
-var stderrWarn = (m) => {
-  process.stderr.write(`codewolf: warning: ${m}
-`);
-};
-function bool(v, where, dflt) {
-  if (v === void 0 || v === null) return dflt;
-  if (typeof v === "boolean") return v;
-  if (v === "true" || v === "false") return v === "true";
-  throw new ConfigError(`${where} must be true or false`);
-}
-function resolveConfig(raw, overrides = {}, opts = {}) {
-  const env = opts.env ?? process.env;
-  const cfg = asObject(raw, "config");
-  const review2 = asObject(cfg.review, "review");
-  const rawProviders = cfg.providers === void 0 || cfg.providers === null ? [] : cfg.providers;
-  if (!Array.isArray(rawProviders)) throw new ConfigError("providers must be a list");
-  const chainRaw = rawProviders.map((p, i) => {
-    if (typeof p === "string") return { name: p };
-    return asObject(p, `providers[${i}]`);
-  });
-  const keyOverride = overrides.keys !== void 0 ? expandKeys(overrides.keys, env, "--keys") : void 0;
-  const warn = opts.warn ?? stderrWarn;
-  const baseOverride = overrides.baseUrl || env.CODEWOLF_BASE_URL?.trim() || void 0;
-  let chain;
-  if (overrides.provider) {
-    const want = normName(overrides.provider, "--provider");
-    const match = chainRaw.find((p) => {
-      try {
-        return normName(p.name, "").name === want.name;
-      } catch {
-        return false;
-      }
-    });
-    chain = [{ ...match ?? {}, name: match ? match.name : overrides.provider }];
-    if (want.baseUrl && !overrides.baseUrl && !match) chain[0].baseUrl = want.baseUrl;
-  } else {
-    chain = chainRaw.length ? chainRaw : autoChain(env);
-  }
-  if (overrides.model) chain[0] = { ...chain[0], model: overrides.model };
-  const providers = chain.map((p, i) => buildProvider(p, {
-    env,
-    warn,
-    trusted: opts.trusted === true,
-    baseOverride: i === 0 ? baseOverride : void 0,
-    keyOverride: i === 0 ? keyOverride : void 0,
-    claudeBin: overrides.claudeBin
-  }, i === 0 && overrides.provider ? "--provider" : `providers[${i}]`));
-  for (const p of providers) for (const k of p.keys) registerSecret(k);
-  const pathInstructions = [];
-  const pi = review2.pathInstructions ?? review2.path_instructions ?? cfg.pathInstructions;
-  if (pi !== void 0 && pi !== null) {
-    if (!Array.isArray(pi)) throw new ConfigError("review.pathInstructions must be a list");
-    pi.forEach((e, i) => {
-      const o = asObject(e, `review.pathInstructions[${i}]`);
-      const p = str(o.path, `review.pathInstructions[${i}].path`);
-      const ins = str(o.instructions, `review.pathInstructions[${i}].instructions`);
-      if (!p || !ins) throw new ConfigError(`review.pathInstructions[${i}] needs path and instructions`);
-      pathInstructions.push({ path: p, instructions: ins });
-    });
-  }
-  const toolsRaw = cfg.tools;
-  const toolsDefault = toolsRaw === false ? false : true;
-  const tools = typeof toolsRaw === "object" && toolsRaw !== null ? asObject(toolsRaw, "tools") : {};
-  const guidelinesOn = bool(review2.guidelines, "review.guidelines", true);
-  const root = path3.resolve(opts.root ?? (opts.configPath ? path3.dirname(opts.configPath) : process.cwd()));
-  const resolved = {
-    profile: parseProfile(overrides.profile, "--profile") ?? parseProfile(cfg.profile, "profile") ?? "chill",
-    language: str(overrides.language, "--language") ?? str(cfg.language, "language") ?? "en",
-    providers,
-    review: {
-      exclude: [...DEFAULT_EXCLUDES, ...stringList(review2.exclude ?? cfg.exclude, "review.exclude")],
-      pathInstructions,
-      failOn: parseSeverity(overrides.failOn, "--fail-on") ?? parseSeverity(review2.failOn ?? review2.fail_on ?? cfg.failOn, "review.failOn") ?? "none",
-      concurrency: posInt(review2.concurrency, "review.concurrency") ?? 4,
-      maxChunkTokens: posInt(review2.maxChunkTokens ?? review2.max_chunk_tokens, "review.maxChunkTokens") ?? 12e3,
-      guidelines: guidelinesOn
-    },
-    tools: {
-      ruff: bool(tools.ruff, "tools.ruff", toolsDefault),
-      eslint: bool(tools.eslint, "tools.eslint", toolsDefault),
-      semgrep: bool(tools.semgrep, "tools.semgrep", toolsDefault),
-      gitleaks: bool(tools.gitleaks, "tools.gitleaks", toolsDefault)
-    },
-    learnings: opts.learnings ?? readLearnings(root),
-    guidelines: guidelinesOn ? readGuidelines(root) : "",
-    root
-  };
-  if (opts.configPath) resolved.configPath = opts.configPath;
-  return resolved;
-}
-function findConfigFile(cwd) {
-  let dir = path3.resolve(cwd);
-  for (; ; ) {
-    for (const name of CONFIG_FILENAMES) {
-      const p = path3.join(dir, name);
-      if (existsSync2(p)) return p;
-    }
-    const up = path3.dirname(dir);
-    if (up === dir) return void 0;
-    dir = up;
-  }
-}
-function readConfigFile(file) {
-  let text;
-  try {
-    text = readFileSync3(file, "utf8");
-  } catch (e) {
-    throw new ConfigError(`cannot read config ${file}: ${e.message}`);
-  }
-  try {
-    return (0, import_yaml.parse)(text.replace(/^\uFEFF/, "")) ?? {};
-  } catch (e) {
-    throw new ConfigError(`invalid YAML in ${file}: ${e.message}`);
-  }
-}
-function loadConfig(opts = {}) {
-  const cwd = opts.cwd ?? process.cwd();
-  let file;
-  if (opts.configPath) {
-    file = path3.resolve(cwd, opts.configPath);
-    if (!existsSync2(file)) throw new ConfigError(`config file not found: ${file}`);
-  } else {
-    file = findConfigFile(cwd);
-  }
-  const raw = file ? readConfigFile(file) : {};
-  const ro = { root: opts.root ?? (file && !opts.configPath ? path3.dirname(file) : cwd) };
-  if (opts.env) ro.env = opts.env;
-  if (opts.trusted) ro.trusted = true;
-  if (opts.warn) ro.warn = opts.warn;
-  if (file) ro.configPath = file;
-  return resolveConfig(raw, opts.overrides ?? {}, ro);
-}
+// src/cli/state.ts
+import { spawnSync as spawnSync3 } from "node:child_process";
+import { readFileSync as readFileSync5 } from "node:fs";
+import path6 from "node:path";
 
 // src/core/diff.ts
 var HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
@@ -8286,17 +7829,37 @@ function globToRegExp(pattern) {
   cache.set(pattern, out);
   return out;
 }
-function matchGlob(path7, pattern) {
-  return globToRegExp(pattern).test(path7.replace(/\\/g, "/").replace(/^\.\//, ""));
+function matchGlob(path9, pattern) {
+  return globToRegExp(pattern).test(path9.replace(/\\/g, "/").replace(/^\.\//, ""));
 }
-function isExcluded(path7, patterns) {
+function isExcluded(path9, patterns) {
   let excluded = false;
   for (const raw of patterns) {
     const neg = raw.startsWith("!");
     const pat = neg ? raw.slice(1) : raw;
-    if (pat && matchGlob(path7, pat)) excluded = !neg;
+    if (pat && matchGlob(path9, pat)) excluded = !neg;
   }
   return excluded;
+}
+
+// src/shared/mask.ts
+var known = /* @__PURE__ */ new Set();
+function maskKey(key) {
+  if (!key) return "(none)";
+  if (key.length <= 8) return "***";
+  const dash = key.indexOf("-");
+  const prefix = dash > 0 && dash <= 6 ? key.slice(0, dash + 1) : key.slice(0, Math.min(3, key.length - 8));
+  return `${prefix}...${key.slice(-4)}`;
+}
+function registerSecret(value) {
+  if (value && value.length >= 4) known.add(value);
+}
+function redact(text) {
+  let out = text;
+  for (const s2 of [...known].sort((a, b) => b.length - a.length)) {
+    if (out.includes(s2)) out = out.split(s2).join(maskKey(s2));
+  }
+  return out;
 }
 
 // src/shared/log.ts
@@ -8314,15 +7877,20 @@ function errorMessage(err) {
   return String(err);
 }
 
+// src/shared/types.ts
+var SEVERITIES = ["critical", "major", "minor", "nit"];
+var CATEGORIES = ["bug", "security", "performance", "maintainability", "style", "test"];
+var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code"];
+
 // src/providers/http.ts
 var ProviderError = class extends Error {
   name = "ProviderError";
   kind;
   status;
   retryAfterSec;
-  constructor(message, kind, status, retryAfterSec) {
+  constructor(message, kind2, status, retryAfterSec) {
     super(redact(message));
-    this.kind = kind;
+    this.kind = kind2;
     this.status = status;
     this.retryAfterSec = retryAfterSec;
   }
@@ -8375,8 +7943,8 @@ async function postJson(url, headers, body, opts) {
     throw new ProviderError(`network error reading response: ${e.message}`, "server");
   }
   if (!res.ok) {
-    const kind = classifyStatus(res.status);
-    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get("retry-after")));
+    const kind2 = classifyStatus(res.status);
+    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind2, res.status, parseRetryAfter(res.headers.get("retry-after")));
   }
   try {
     return JSON.parse(text);
@@ -8387,19 +7955,19 @@ async function postJson(url, headers, body, opts) {
 
 // src/providers/claude-code.ts
 import { spawn } from "node:child_process";
-import { existsSync as existsSync3 } from "node:fs";
-import path4 from "node:path";
+import { existsSync } from "node:fs";
+import path2 from "node:path";
 var SAFE_ARG = /^[\w.:@/\-[\]]+$/;
 function whichSync(cmd, env = process.env) {
   const isWin = process.platform === "win32";
   const exts = isWin ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean) : [""];
   const hasExt = isWin && /\.[a-z0-9]+$/i.test(cmd);
   const candidates2 = hasExt ? [cmd] : exts.map((e) => cmd + e.toLowerCase());
-  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync3(c));
-  for (const dir of (env.PATH ?? env.Path ?? "").split(path4.delimiter).filter(Boolean)) {
+  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync(c));
+  for (const dir of (env.PATH ?? env.Path ?? "").split(path2.delimiter).filter(Boolean)) {
     for (const c of candidates2) {
-      const full = path4.join(dir, c);
-      if (existsSync3(full)) return full;
+      const full = path2.join(dir, c);
+      if (existsSync(full)) return full;
     }
   }
   return void 0;
@@ -8430,8 +7998,8 @@ function parseClaudeOutput(stdout) {
   const obj = Array.isArray(data) ? [...data].reverse().find((x) => x && x.type === "result") : data;
   if (!obj || typeof obj.result !== "string") throw new ProviderError("claude-code output has no result field", "server");
   if (obj.is_error) {
-    const kind = /rate|limit|quota|usage/i.test(obj.result) ? "rate" : /log ?in|auth|credential/i.test(obj.result) ? "auth" : "server";
-    throw new ProviderError(`claude-code error: ${obj.result.slice(0, 200)}`, kind);
+    const kind2 = /rate|limit|quota|usage/i.test(obj.result) ? "rate" : /log ?in|auth|credential/i.test(obj.result) ? "auth" : "server";
+    throw new ProviderError(`claude-code error: ${obj.result.slice(0, 200)}`, kind2);
   }
   return obj.result;
 }
@@ -8786,15 +8354,15 @@ function closeTruncated(s2) {
   let body = inStr ? s2 + '"' : s2.slice(0, Math.max(lastSafe, 1));
   body = body.replace(/,\s*$/, "").replace(/,\s*"[^"]*"\s*:?\s*$/, "").replace(/\{\s*"[^"]*"\s*:?\s*$/, "{").replace(/:\s*$/, ": null");
   const open = [];
-  let str2 = false;
+  let str3 = false;
   for (let i = 0; i < body.length; i++) {
     const c = body[i];
-    if (str2) {
+    if (str3) {
       if (c === "\\") i++;
-      else if (c === '"') str2 = false;
+      else if (c === '"') str3 = false;
       continue;
     }
-    if (c === '"') str2 = true;
+    if (c === '"') str3 = true;
     else if (c === "{" || c === "[") open.push(c === "{" ? "}" : "]");
     else if (c === "}" || c === "]") open.pop();
   }
@@ -8840,9 +8408,9 @@ function nextStart(s2, from) {
 
 // src/core/linters.ts
 import { spawn as spawn2 } from "node:child_process";
-import { existsSync as existsSync4, mkdtempSync, readFileSync as readFileSync4, rmSync } from "node:fs";
+import { existsSync as existsSync2, mkdtempSync, readFileSync as readFileSync2, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import path5 from "node:path";
+import path3 from "node:path";
 
 // src/core/fingerprint.ts
 import { createHash } from "node:crypto";
@@ -8898,7 +8466,7 @@ function toolFindings(tool, hits, files, root) {
   const byPath = new Map(files.map((f) => [f.path, f]));
   const out = [];
   for (const h of hits) {
-    const rel = (path5.isAbsolute(h.file) ? path5.relative(root, h.file) : h.file).replace(/\\/g, "/").replace(/^\.\//, "");
+    const rel = (path3.isAbsolute(h.file) ? path3.relative(root, h.file) : h.file).replace(/\\/g, "/").replace(/^\.\//, "");
     const f = byPath.get(rel);
     if (!f) continue;
     const added = f.hunks.some((hk) => hk.lines.some((l) => l.type === "add" && l.newLine === h.line));
@@ -8946,7 +8514,7 @@ var JS = /\.(m|c)?(j|t)sx?$/i;
 async function runLinters(files, config, log = () => {
 }) {
   const root = config.root;
-  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync4(path5.join(root, f.path))).slice(0, MAX_FILES);
+  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync2(path3.join(root, f.path))).slice(0, MAX_FILES);
   if (!present.length) return [];
   const rel = (re) => present.filter((f) => re.test(f.path)).map((f) => `./${f.path}`);
   const jobs = [];
@@ -8963,16 +8531,16 @@ async function runLinters(files, config, log = () => {
     const r = await exec("eslint", ["--format", "json", "--no-error-on-unmatched-pattern", ...js], root);
     return r.stdout.trim().startsWith("[") ? parseEslint(r.stdout) : [];
   });
-  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync4(path5.join(root, c)));
+  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync2(path3.join(root, c)));
   if (semgrepCfg) job("semgrep", async () => parseSemgrep((await exec("semgrep", ["scan", "--json", "--quiet", "--metrics=off", "--config", semgrepCfg, ...present.map((f) => `./${f.path}`)], root)).stdout));
   job("gitleaks", async () => {
-    const dir = mkdtempSync(path5.join(tmpdir(), "cw-gitleaks-"));
+    const dir = mkdtempSync(path3.join(tmpdir(), "cw-gitleaks-"));
     try {
       const hits = [];
       for (const f of present) {
-        const report = path5.join(dir, "r.json");
+        const report = path3.join(dir, "r.json");
         await exec("gitleaks", ["detect", "--no-git", "--no-banner", "--exit-code", "0", "--report-format", "json", "--report-path", report, "--source", `./${f.path}`], root);
-        if (existsSync4(report)) hits.push(...parseGitleaks(readFileSync4(report, "utf8")).map((h) => ({ ...h, file: f.path })));
+        if (existsSync2(report)) hits.push(...parseGitleaks(readFileSync2(report, "utf8")).map((h) => ({ ...h, file: f.path })));
         rmSync(report, { force: true });
       }
       return hits;
@@ -9083,7 +8651,7 @@ function reindent(suggestion, original) {
 }
 function normalizeModelOutput(raw, files) {
   const o = Array.isArray(raw) ? { findings: raw } : raw && typeof raw === "object" ? raw : {};
-  const out = { summary: s(o.summary ?? o.overview), walkthrough: [], findings: [], dropped: 0 };
+  const out = { summary: s(o.summary ?? o.overview), walkthrough: [], findings: [], outside: [], dropped: 0 };
   const wt = Array.isArray(o.walkthrough) ? o.walkthrough : [];
   for (const w of wt) {
     if (!w || typeof w !== "object") continue;
@@ -9107,14 +8675,11 @@ function normalizeModelOutput(raw, files) {
     }
     const ok = commentableLines(file);
     const line = parsed[0];
-    if (!ok.has(line)) {
-      out.dropped++;
-      continue;
-    }
+    const inDiff = ok.has(line);
     let endLine = parseLine(e.endLine ?? e.end_line)?.[0] ?? parsed[1];
     if (endLine !== void 0) {
       let valid = endLine > line;
-      for (let n = line; valid && n <= endLine; n++) if (!ok.has(n)) valid = false;
+      for (let n = line; inDiff && valid && n <= endLine; n++) if (!ok.has(n)) valid = false;
       if (!valid) endLine = void 0;
     }
     const body = s(e.body ?? e.description ?? e.message ?? e.comment ?? e.explanation);
@@ -9150,7 +8715,10 @@ function normalizeModelOutput(raw, files) {
     }
     const effort = s(e.effort).toLowerCase();
     if (effort === "quick" || effort === "heavy") finding.effort = effort;
-    out.findings.push(finding);
+    if (s(e.kind).toLowerCase() === "refactor") finding.kind = "refactor";
+    const cwe = s(e.cwe).toUpperCase();
+    if (finding.category === "security" && /^CWE-\d{1,5}$/.test(cwe)) finding.cwe = cwe;
+    (inDiff ? out.findings : out.outside).push(finding);
   }
   const diagram = typeof o.diagram === "string" ? stripFences(o.diagram).trim() : "";
   if (/^sequenceDiagram\b/.test(diagram)) out.diagram = diagram;
@@ -9187,12 +8755,14 @@ Rules:
 - severity: critical = exploitable vulnerability, data loss or corruption, crash on a common path, exposed secret. major = real bug or security weakness that will bite under realistic use. minor = edge-case bug, notable inefficiency, or a maintainability problem likely to cause a bug. nit = polish with no behavior impact.
 - category: exactly one of bug, security, performance, maintainability, style, test.
 - effort: "quick" when the fix is small and local, "heavy" when it needs a design change or touches many places.
+- kind: add "kind": "refactor" when the finding is a structural improvement rather than a defect; otherwise leave it out.
+- cwe: on a security finding, add the matching CWE id (for example "CWE-89") when you are sure of it; otherwise leave it out.
 - If nothing is wrong, return an empty findings list. An empty list is the right answer for good code.
 
 ${PROFILE_RULES[profile]}
 
 Reply with one JSON object and nothing else (no markdown fences, no prose):
-{"summary": "...", "walkthrough": [{"file": "...", "change": "..."}], "findings": [{"file": "...", "line": 12, "endLine": 14, "severity": "major", "category": "bug", "title": "...", "body": "...", "suggestion": "...", "effort": "quick", "rewrite": {"language": "...", "reason": "...", "code": "..."}}], "diagram": "..."}
+{"summary": "...", "walkthrough": [{"file": "...", "change": "..."}], "findings": [{"file": "...", "line": 12, "endLine": 14, "severity": "major", "category": "bug", "title": "...", "body": "...", "suggestion": "...", "effort": "quick", "kind": "refactor", "cwe": "CWE-89", "rewrite": {"language": "...", "reason": "...", "code": "..."}}], "diagram": "..."}
 - summary: one to three sentences on what the change does and its main risk, for someone who has not read it.
 - walkthrough: one entry per file with one sentence on what changed in it.
 - title: under 80 characters, names the problem (for example "SQL query built from user input"), not the fix.
@@ -9253,7 +8823,7 @@ ${body}
 function repairPrompt(badOutput) {
   return {
     system: "You convert malformed model output into valid JSON. Output one JSON object only, no fences, no prose.",
-    prompt: `The text below was supposed to be a JSON object with keys "summary" (string), "walkthrough" (array of {"file","change"}) and "findings" (array of {"file","line","endLine"?,"severity","category","title","body","suggestion"?,"effort"?,"rewrite"?}). Rewrite it as valid JSON with exactly that shape, keeping the content. If a part cannot be recovered, drop it.
+    prompt: `The text below was supposed to be a JSON object with keys "summary" (string), "walkthrough" (array of {"file","change"}) and "findings" (array of {"file","line","endLine"?,"severity","category","title","body","suggestion"?,"effort"?,"kind"?,"cwe"?,"rewrite"?}). Rewrite it as valid JSON with exactly that shape, keeping the content. If a part cannot be recovered, drop it.
 
 <text>
 ${badOutput.slice(0, 6e4)}
@@ -9515,6 +9085,7 @@ async function review(files, config, opts = {}) {
     lintersOn ? runLinters(keep, config, (m) => log("debug", m)).catch(() => []) : Promise.resolve([])
   ]);
   const findings = [...scanSecrets(keep), ...toolHits];
+  const outside = [];
   const walk = /* @__PURE__ */ new Map();
   const summaries = [];
   let diagram;
@@ -9522,6 +9093,7 @@ async function review(files, config, opts = {}) {
     if (!r) continue;
     providerUsed.set(r.provider, (providerUsed.get(r.provider) ?? 0) + 1);
     findings.push(...r.review.findings);
+    outside.push(...r.review.outside);
     for (const w of r.review.walkthrough) walk.set(w.file, walk.has(w.file) ? `${walk.get(w.file)} ${w.change}` : w.change);
     if (r.review.summary) summaries.push(r.review.summary);
     diagram ??= r.review.diagram;
@@ -9537,31 +9109,840 @@ async function review(files, config, opts = {}) {
       summary = summaries.join(" ");
     }
   }
-  if (!summary) summary = keep.length ? `Reviewed ${keep.length} file(s).` : "No reviewable changes.";
-  const final = applyProfile(dedupe(findings), config.profile).sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line).map((f) => ({ ...f, agentPrompt: agentPrompt(f) }));
-  const shown = files.filter((f) => !isExcluded(f.path, config.review.exclude));
-  const walkthrough = shown.map((f) => ({ file: f.path, change: walk.get(f.path) ?? defaultChange(f) }));
-  const bySeverity = { critical: 0, major: 0, minor: 0, nit: 0 };
-  for (const f of final) bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
   const top = [...providerUsed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   const [pname, pmodel] = top ? top.split("\0") : [first?.name ?? "none", first?.model ?? ""];
+  return buildResult(files, keep, config, { findings, outside, walk, summary, ...diagram ? { diagram } : {}, provider: { name: pname ?? "none", model: pmodel ?? "" }, warnings }, opts.suppressed);
+}
+function finalize(list, config, suppressed2) {
+  return applyProfile(dedupe(suppressed2?.size ? list.filter((f) => !suppressed2.has(f.fingerprint)) : list), config.profile).sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line).map((f) => ({ ...f, kind: f.kind ?? (f.severity === "nit" ? "nitpick" : "issue"), agentPrompt: agentPrompt(f) }));
+}
+function buildResult(files, keep, config, c, suppressed2) {
+  const summary = c.summary || (keep.length ? `Reviewed ${keep.length} file(s).` : "No reviewable changes.");
+  const final = finalize(c.findings, config, suppressed2);
+  const seen = new Set(final.map((f) => f.fingerprint));
+  const outsideDiff = finalize(c.outside, config, suppressed2).filter((f) => !seen.has(f.fingerprint));
+  const shown = files.filter((f) => !isExcluded(f.path, config.review.exclude));
+  const walkthrough = shown.map((f) => ({ file: f.path, change: c.walk.get(f.path) ?? defaultChange(f) }));
   const result = {
     summary,
     walkthrough,
     findings: final,
-    stats: { files: shown.length, findings: final.length, bySeverity },
-    provider: { name: pname ?? "none", model: pmodel ?? "" },
+    outsideDiff,
+    stats: { files: shown.length, findings: final.length, bySeverity: countSeverities(final) },
+    provider: c.provider,
     effort: estimateEffort(keep, final)
   };
-  if (diagram) result.diagram = diagram;
-  if (warnings.length) result.warnings = warnings;
+  if (c.diagram) result.diagram = c.diagram;
+  if (c.warnings.length) result.warnings = c.warnings;
   return result;
+}
+function countSeverities(findings) {
+  const bySeverity = { critical: 0, major: 0, minor: 0, nit: 0 };
+  for (const f of findings) bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
+  return bySeverity;
+}
+
+// src/core/learnings.ts
+import { appendFileSync, existsSync as existsSync3, mkdirSync, readFileSync as readFileSync3 } from "node:fs";
+import path4 from "node:path";
+function learningsPath(root) {
+  return path4.join(root, ".codewolf", "learnings.md");
+}
+function readLearnings(root) {
+  const file = learningsPath(root);
+  if (!existsSync3(file)) return [];
+  let text;
+  try {
+    text = readFileSync3(file, "utf8");
+  } catch {
+    return [];
+  }
+  return text.replace(/^\uFEFF/, "").split(/\r?\n/).map((l) => l.trim().replace(/^(?:[-*+]|\d+[.)])\s+/, "").trim()).filter((l) => l && !l.startsWith("#") && !l.startsWith("<!--"));
+}
+function appendLearning(root, text) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (!clean) throw new Error("learning text is empty");
+  const file = learningsPath(root);
+  mkdirSync(path4.dirname(file), { recursive: true });
+  let prefix = "";
+  if (!existsSync3(file)) prefix = "# CodeWolf learnings\n\n<!-- Reviewer preferences for this repo, one per line. CodeWolf adds them to every review prompt. -->\n\n";
+  else {
+    const cur = readFileSync3(file, "utf8");
+    if (cur.length && !cur.endsWith("\n")) prefix = "\n";
+  }
+  appendFileSync(file, `${prefix}- ${clean}
+`);
+  return file;
+}
+var GUIDELINE_FILES = ["CLAUDE.md", "AGENTS.md", ".cursorrules", ".github/copilot-instructions.md"];
+var GUIDELINES_CAP = 4e3;
+function readGuidelines(root, cap = GUIDELINES_CAP) {
+  const parts = [];
+  let used = 0;
+  for (const name of GUIDELINE_FILES) {
+    const file = path4.join(root, name);
+    if (!existsSync3(file)) continue;
+    let text;
+    try {
+      text = readFileSync3(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    } catch {
+      continue;
+    }
+    if (!text) continue;
+    const room = cap - used - name.length - 8;
+    if (room <= 200) break;
+    const body = text.length > room ? text.slice(0, room).replace(/\n[^\n]*$/, "") + "\n[...truncated]" : text;
+    parts.push(`From ${name}:
+${body}`);
+    used += body.length + name.length + 8;
+  }
+  return parts.join("\n\n");
+}
+
+// src/core/store.ts
+import { spawnSync as spawnSync2 } from "node:child_process";
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync4, renameSync, rmSync as rmSync2, writeFileSync } from "node:fs";
+import path5 from "node:path";
+var STATUSES = ["open", "dismissed", "fixed"];
+function stateDir(root) {
+  const r = spawnSync2("git", ["rev-parse", "--git-path", "codewolf"], { cwd: root, encoding: "utf8", windowsHide: true });
+  const out = r.status === 0 ? r.stdout.trim() : "";
+  return out ? path5.resolve(root, out) : null;
+}
+function readJson(file) {
+  try {
+    return JSON.parse(readFileSync4(file, "utf8"));
+  } catch (e) {
+    return e.code === "ENOENT" ? void 0 : null;
+  }
+}
+function writeJson(dir, name, value) {
+  mkdirSync2(dir, { recursive: true });
+  const file = path5.join(dir, name);
+  const tmp = `${file}.${process.pid}.tmp`;
+  writeFileSync(tmp, JSON.stringify(value, null, 2) + "\n");
+  renameSync(tmp, file);
+}
+var emptyStore = () => ({ version: 1, head: null, reviewedAt: "", findings: [] });
+var warnedCorrupt = false;
+function validFinding(x) {
+  const f = x;
+  return !!f && typeof f === "object" && typeof f.id === "string" && typeof f.fingerprint === "string" && typeof f.file === "string" && Number.isInteger(f.line) && f.line > 0 && typeof f.title === "string" && typeof f.snippet === "string" && STATUSES.includes(f.status);
+}
+function readStore(root) {
+  const dir = stateDir(root);
+  if (!dir) return emptyStore();
+  const raw = readJson(path5.join(dir, "findings.json"));
+  if (raw === void 0) return emptyStore();
+  if (!raw || raw.version !== 1 || !Array.isArray(raw.findings) || !raw.findings.every(validFinding)) {
+    if (!warnedCorrupt) process.stderr.write("codewolf: warning: the findings store is corrupt; starting from an empty one\n");
+    warnedCorrupt = true;
+    return emptyStore();
+  }
+  return { version: 1, head: typeof raw.head === "string" ? raw.head : null, reviewedAt: String(raw.reviewedAt ?? ""), findings: raw.findings };
+}
+function writeStore(root, s2) {
+  const dir = stateDir(root);
+  if (!dir) throw new Error("not inside a git repository; the findings store lives in the git dir");
+  writeJson(dir, "findings.json", s2);
+}
+function relocate(f, fileText) {
+  const lines = fileText.split(/\r?\n/);
+  if (lines.at(-1) === "") lines.pop();
+  if (!f.snippet.trim()) return lines[f.line - 1] === f.snippet ? f.line : null;
+  let best = null;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i] !== f.snippet) continue;
+    if (best === null || Math.abs(i + 1 - f.line) < Math.abs(best - f.line)) best = i + 1;
+  }
+  return best;
+}
+function readSuppressed(dir) {
+  const raw = readJson(path5.join(dir, "suppressed.json"));
+  return raw && raw.version === 1 && Array.isArray(raw.items) ? { version: 1, items: raw.items.filter((i) => i && typeof i.fingerprint === "string") } : { version: 1, items: [] };
+}
+function suppressed(root) {
+  const dir = stateDir(root);
+  return new Set(dir ? readSuppressed(dir).items.map((i) => i.fingerprint) : []);
+}
+function addSuppressed(root, fingerprints, reason) {
+  const dir = stateDir(root);
+  if (!dir) throw new Error("not inside a git repository; suppressions live in the git dir");
+  const s2 = readSuppressed(dir);
+  const have = new Set(s2.items.map((i) => i.fingerprint));
+  const at = (/* @__PURE__ */ new Date()).toISOString();
+  for (const fp of fingerprints) if (!have.has(fp)) s2.items.push({ fingerprint: fp, ...reason ? { reason } : {}, at });
+  writeJson(dir, "suppressed.json", s2);
+}
+function readCheckpoint(root) {
+  const dir = stateDir(root);
+  const raw = dir ? readJson(path5.join(dir, "checkpoint.json")) : void 0;
+  return raw && raw.version === 1 && raw.files && typeof raw.files === "object" ? raw : null;
+}
+function writeCheckpoint(root, c) {
+  const dir = stateDir(root);
+  if (dir) writeJson(dir, "checkpoint.json", c);
+}
+function clearCheckpoint(root) {
+  const dir = stateDir(root);
+  if (dir) rmSync2(path5.join(dir, "checkpoint.json"), { force: true });
+}
+function newId(fp, taken) {
+  for (const n of [8, 12, fp.length]) {
+    const id = fp.slice(0, n);
+    const owner = taken.get(id);
+    if (owner === void 0 || owner === fp) return id;
+  }
+  return fp;
+}
+function mergeStore(prev, found, reviewed, snippetOf, head) {
+  const byFp = new Map(prev.findings.map((f) => [f.fingerprint, f]));
+  const taken = new Map(prev.findings.map((f) => [f.id, f.fingerprint]));
+  const seen = /* @__PURE__ */ new Set();
+  const out = [];
+  for (const f of found) {
+    if (seen.has(f.fingerprint)) continue;
+    seen.add(f.fingerprint);
+    const old = byFp.get(f.fingerprint);
+    const id = old?.id ?? newId(f.fingerprint, taken);
+    taken.set(id, f.fingerprint);
+    out.push({ ...f, id, status: old?.status === "dismissed" ? "dismissed" : "open", snippet: snippetOf(f) });
+  }
+  for (const f of prev.findings) {
+    if (seen.has(f.fingerprint)) continue;
+    out.push(f.status === "open" && reviewed.has(f.file) ? { ...f, status: "fixed" } : f);
+  }
+  return { version: 1, head, reviewedAt: (/* @__PURE__ */ new Date()).toISOString(), findings: out };
+}
+
+// src/cli/state.ts
+var rank2 = (s2) => SEVERITIES.indexOf(s2);
+function blobIds(root, paths, committed) {
+  const out = {};
+  if (!paths.length) return out;
+  try {
+    if (committed) {
+      const want = new Set(paths);
+      for (const rec of git(["ls-tree", "-r", "-z", "HEAD"], root).split("\0")) {
+        const m = rec.match(/^\d+ blob ([0-9a-f]+)\t(.*)$/s);
+        if (m && want.has(m[2])) out[m[2]] = m[1];
+      }
+      return out;
+    }
+    const r = spawnSync3("git", ["hash-object", "--stdin-paths"], { cwd: root, input: paths.join("\n") + "\n", encoding: "utf8", windowsHide: true });
+    const ids = r.status === 0 ? r.stdout.trim().split("\n") : [];
+    if (ids.length === paths.length) paths.forEach((p, i) => out[p] = ids[i]);
+  } catch {
+  }
+  return out;
+}
+function headSha(root) {
+  try {
+    return git(["rev-parse", "--verify", "--quiet", "HEAD"], root).trim() || null;
+  } catch {
+    return null;
+  }
+}
+function strip(f) {
+  const { id: _id, status: _status, snippet: _snippet, ...rest } = f;
+  return rest;
+}
+function prepareReview(scope, all, config, cwd, opts) {
+  const repo = repoRoot(cwd) ?? null;
+  const root = scope.kind === "file" ? null : repo;
+  const incremental = root !== null && scope.kind !== "staged" && scope.kind !== "file";
+  const keep = reviewableFiles(all, config.review.exclude).keep;
+  const hashes = incremental ? blobIds(root, keep.map((f) => f.path), scope.kind === "committed") : {};
+  const cp = incremental && !opts.fresh ? readCheckpoint(root) : null;
+  const skipped = cp ? keep.filter((f) => hashes[f.path] && cp.files[f.path] === hashes[f.path]).map((f) => f.path) : [];
+  const skip = new Set(skipped);
+  const carried = skipped.length ? readStore(root).findings.filter((f) => f.status === "open" && skip.has(f.file)).map(strip) : [];
+  if (skipped.length) {
+    opts.log("info", `skipped ${skipped.length} file(s) unchanged since the last review${carried.length ? `, ${carried.length} open finding(s) on them carried over` : ""} (--fresh reviews everything)`);
+  }
+  const files = all.filter((f) => !skip.has(f.path));
+  const tokens = Math.round(reviewableFiles(files, config.review.exclude).keep.reduce((n, f) => n + f.patch.length, 0) / 4);
+  const limit = config.review.maxChunkTokens * config.review.concurrency * 4;
+  if (tokens > limit) {
+    opts.log("warn", `this change is large (about ${tokens} tokens, over ${limit}); reviewing it anyway. Smaller reviews are sharper: try --staged, a path-limited diff (git diff <base> -- <path> | codewolf review --diff -), or splitting the commit`);
+  }
+  return {
+    scope,
+    all,
+    files,
+    skipped,
+    root,
+    incremental,
+    head: root ? headSha(root) : null,
+    hashes,
+    carried,
+    suppressed: repo ? suppressed(repo) : /* @__PURE__ */ new Set()
+  };
+}
+function fileLine(root, file, line) {
+  if (!isSafePath(file)) return "";
+  try {
+    return readFileSync5(path6.join(root, file), "utf8").split(/\r?\n/)[line - 1] ?? "";
+  } catch {
+    return "";
+  }
+}
+function recordReview(prep, result, config, log) {
+  const have = new Set([...result.findings, ...result.outsideDiff ?? []].map((f) => f.fingerprint));
+  const extra = prep.carried.filter((f) => !have.has(f.fingerprint) && !prep.suppressed.has(f.fingerprint));
+  let out = result;
+  if (extra.length) {
+    const findings = [...result.findings, ...extra].sort((a, b) => rank2(a.severity) - rank2(b.severity) || a.file.localeCompare(b.file) || a.line - b.line);
+    out = { ...result, findings, stats: { ...result.stats, findings: findings.length, bySeverity: countSeverities(findings) } };
+  }
+  const root = prep.root;
+  if (!root) return out;
+  try {
+    const byPath = new Map(prep.all.map((f) => [f.path, f]));
+    const snippetOf = (f) => {
+      const d = byPath.get(f.file);
+      return (d && newLineText(d, f.line)) ?? fileLine(root, f.file, f.line);
+    };
+    const reviewed = new Set(reviewableFiles(prep.files, config.review.exclude).keep.map((f) => f.path));
+    writeStore(root, mergeStore(readStore(root), [...out.findings, ...out.outsideDiff ?? []], reviewed, snippetOf, prep.head));
+    if (prep.incremental) writeCheckpoint(root, { version: 1, head: prep.head, files: prep.hashes });
+  } catch (e) {
+    log("warn", `could not save review state: ${errorMessage(e)}`);
+  }
+  return out;
+}
+function stateRoot(cwd) {
+  const root = repoRoot(cwd);
+  if (!root || !stateDir(root)) throw new Error("not inside a git repository; CodeWolf keeps findings in the git dir, so this command needs one");
+  return root;
+}
+function currentLine(root, f) {
+  if (!isSafePath(f.file)) return f.line;
+  try {
+    return relocate(f, readFileSync5(path6.join(root, f.file), "utf8")) ?? f.line;
+  } catch {
+    return f.line;
+  }
+}
+function cmdFindings(v, cwd) {
+  const root = stateRoot(cwd);
+  if (v.clear) {
+    writeStore(root, emptyStore());
+    clearCheckpoint(root);
+    process.stdout.write("cleared the findings store; the next review covers every changed file\n");
+    return 0;
+  }
+  const list = readStore(root).findings.filter((f) => v.all || f.status === "open").map((f) => ({ ...f, line: currentLine(root, f) }));
+  if (v.json) {
+    process.stdout.write(JSON.stringify(list, null, 2) + "\n");
+    return 0;
+  }
+  if (!list.length) {
+    process.stdout.write(v.all ? "no stored findings. run codewolf review first\n" : "no open findings\n");
+    return 0;
+  }
+  const rows = list.map((f) => [f.id, `${f.file}:${f.line}`, f.severity, f.kind ?? "issue", ...v.all ? [f.status] : [], f.title.replace(/\s*\r?\n\s*/g, " ")].join(" "));
+  process.stdout.write(rows.join("\n") + "\n");
+  return 0;
+}
+function cmdDismiss(ids, v, cwd) {
+  if (!ids.length) throw new Error('usage: codewolf dismiss <id...> [--reason "<text>"] [--learn]');
+  const reason = v.reason?.replace(/\s+/g, " ").trim();
+  if (v.learn && !reason) throw new Error('--learn needs --reason "<what to stop flagging and why>"');
+  const root = stateRoot(cwd);
+  const store = readStore(root);
+  const picked = ids.map((id) => store.findings.find((f) => f.id === id || f.fingerprint === id));
+  const unknown = ids.filter((_, i) => !picked[i]);
+  if (unknown.length) throw new Error(`unknown finding id(s): ${unknown.join(", ")} (see codewolf findings --all)`);
+  const fps = new Set(picked.map((f) => f.fingerprint));
+  writeStore(root, { ...store, findings: store.findings.map((f) => fps.has(f.fingerprint) ? { ...f, status: "dismissed" } : f) });
+  addSuppressed(root, [...fps], reason);
+  const learned = v.learn && reason ? appendLearning(root, reason) : void 0;
+  process.stdout.write(`dismissed ${fps.size} finding(s); future reviews will not report them${learned ? `. learned: saved to ${learned}` : ""}
+`);
+  return 0;
+}
+
+// src/cli/template.ts
+var INIT_TEMPLATE = `# CodeWolf configuration. Every key is optional; CLI flags override this file.
+# Docs: https://github.com/za3ter123/codewolf
+
+# quiet = critical only, chill = critical + major and a few minor, assertive = everything including nits
+profile: chill
+
+# Language for summaries and comments
+language: en
+
+# Providers are tried in order. When every key of one provider is rate limited or rejected,
+# CodeWolf falls through to the next. keys accepts literal keys or env:NAME (comma or newline list).
+providers:
+  - name: anthropic
+    model: claude-sonnet-5-5
+    keys: [env:ANTHROPIC_API_KEYS]
+  # Any OpenAI-compatible server: OpenAI, OpenRouter, Groq, Together, LM Studio, vLLM
+  # - name: openai
+  #   baseUrl: https://openrouter.ai/api/v1
+  #   model: qwen/qwen3-coder
+  #   keys: [env:OPENROUTER_API_KEY]
+  # - name: gemini
+  #   model: gemini-2.5-flash
+  #   keys: [env:GEMINI_API_KEYS]
+  # Your Claude subscription through the local Claude Code CLI, no API key
+  # - name: claude-code
+  # Local and free
+  - name: ollama
+    model: qwen2.5-coder:7b
+    # baseUrl: http://127.0.0.1:11434
+    # timeout: 900          # seconds
+
+review:
+  # Added to the built-in excludes (lockfiles, dist/, minified files, binaries). Prefix with ! to re-include.
+  exclude: []
+  # Extra instructions for matching paths
+  pathInstructions: []
+  #  - path: "src/api/**"
+  #    instructions: "Check authorization on every handler."
+  # Exit 1 when a finding is at or above this severity: critical | major | minor | nit | none
+  failOn: none
+  # Include CLAUDE.md, AGENTS.md, .cursorrules and .github/copilot-instructions.md as project guidelines
+  guidelines: true
+  # concurrency: 4
+  # maxChunkTokens: 12000
+
+# Local linters fused into the review when installed. Set one to false to skip it.
+tools:
+  ruff: true
+  eslint: true
+  semgrep: true
+  gitleaks: true
+`;
+
+// src/core/config.ts
+var import_yaml = __toESM(require_dist(), 1);
+import { existsSync as existsSync4, readFileSync as readFileSync6 } from "node:fs";
+import path7 from "node:path";
+var ConfigError = class extends Error {
+  name = "ConfigError";
+};
+var CONFIG_FILENAMES = [".codewolf.yaml", ".codewolf.yml"];
+var DEFAULT_EXCLUDES = [
+  "**/package-lock.json",
+  "**/npm-shrinkwrap.json",
+  "**/yarn.lock",
+  "**/pnpm-lock.yaml",
+  "**/bun.lockb",
+  "**/bun.lock",
+  "**/*.lock",
+  "**/go.sum",
+  "**/composer.lock",
+  "**/Gemfile.lock",
+  "**/Pipfile.lock",
+  "**/poetry.lock",
+  "**/Cargo.lock",
+  "dist/**",
+  "**/node_modules/**",
+  "**/*.min.js",
+  "**/*.min.css",
+  "**/*.map",
+  "**/*.snap",
+  "**/*.{png,jpg,jpeg,gif,bmp,ico,webp,avif,tiff,psd}",
+  "**/*.{pdf,zip,gz,tgz,bz2,xz,7z,rar,jar,war,whl}",
+  "**/*.{exe,dll,so,dylib,a,o,obj,lib,class,pyc,wasm,bin,dat}",
+  "**/*.{woff,woff2,ttf,otf,eot}",
+  "**/*.{mp3,mp4,mov,avi,mkv,wav,flac,ogg,webm}",
+  "**/*.{sqlite,db}"
+];
+var DEFAULTS = {
+  anthropic: { baseUrl: "https://api.anthropic.com", model: "claude-sonnet-5-5", timeoutMs: 18e4 },
+  openai: { baseUrl: "https://api.openai.com/v1", model: "gpt-5-mini", timeoutMs: 18e4 },
+  gemini: { baseUrl: "https://generativelanguage.googleapis.com", model: "gemini-2.5-flash", timeoutMs: 18e4 },
+  ollama: { baseUrl: "http://127.0.0.1:11434", model: "qwen2.5-coder:7b", timeoutMs: 9e5 },
+  "claude-code": { baseUrl: "", model: "", timeoutMs: 9e5 }
+};
+var OPENROUTER_BASE = "https://openrouter.ai/api/v1";
+var DEFAULT_MAX_TOKENS = 8192;
+function splitList(v) {
+  return v.split(/[,\n\r]+/).map((s2) => s2.trim()).filter(Boolean);
+}
+function expandKeys(entries, env, where, allowEnv = true, warn = () => {
+}) {
+  if (entries === void 0 || entries === null) return [];
+  const list = typeof entries === "string" ? splitList(entries) : Array.isArray(entries) ? entries : null;
+  if (!list) throw new ConfigError(`${where}: keys must be a list or a comma separated string`);
+  const out = [];
+  for (const e of list) {
+    if (typeof e !== "string") throw new ConfigError(`${where}: every key must be a string`);
+    const t = e.trim();
+    if (t.startsWith("env:")) {
+      if (allowEnv) out.push(...splitList(env[t.slice(4).trim()] ?? ""));
+      else warn(`${where}: ignoring ${t} from the repository config; env references only work in a file passed with --config`);
+    } else if (t) out.push(...splitList(t));
+  }
+  return [...new Set(out)];
+}
+function envKeys(env, ...names) {
+  const out = [];
+  for (const n of names) out.push(...splitList(env[n] ?? ""));
+  return [...new Set(out)];
+}
+function isOpenAIHost(baseUrl) {
+  try {
+    return new URL(baseUrl).hostname === "api.openai.com";
+  } catch {
+    return false;
+  }
+}
+function defaultKeysFor(name, baseUrl, env) {
+  switch (name) {
+    case "anthropic":
+      return envKeys(env, "ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY", "CODEWOLF_API_KEYS");
+    case "gemini":
+      return envKeys(env, "GEMINI_API_KEYS", "GEMINI_API_KEY", "GOOGLE_API_KEY", "CODEWOLF_API_KEYS");
+    case "openai":
+      if (baseUrl.includes("openrouter.ai")) return envKeys(env, "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY", "CODEWOLF_API_KEYS");
+      if (isOpenAIHost(baseUrl)) return envKeys(env, "OPENAI_API_KEYS", "OPENAI_API_KEY", "CODEWOLF_API_KEYS");
+      return envKeys(env, "CODEWOLF_API_KEYS");
+    default:
+      return [];
+  }
+}
+var OFFICIAL_HOSTS = {
+  anthropic: ["api.anthropic.com"],
+  gemini: ["generativelanguage.googleapis.com"],
+  openai: ["api.openai.com", "openrouter.ai"],
+  ollama: [],
+  "claude-code": []
+};
+function isOfficialHost(name, baseUrl) {
+  try {
+    const u = new URL(baseUrl);
+    return u.protocol === "https:" && OFFICIAL_HOSTS[name].includes(u.hostname);
+  } catch {
+    return false;
+  }
+}
+function normName(raw, where) {
+  if (typeof raw !== "string" || !raw.trim()) throw new ConfigError(`${where}: provider name is required`);
+  const n = raw.trim().toLowerCase();
+  if (n === "openrouter") return { name: "openai", baseUrl: OPENROUTER_BASE };
+  if (n === "claude" || n === "claudecode" || n === "claude_code") return { name: "claude-code" };
+  if (n === "openai-compatible" || n === "openai_compatible") return { name: "openai" };
+  if (!PROVIDER_NAMES.includes(n)) {
+    throw new ConfigError(`${where}: unknown provider "${raw}" (expected one of ${PROVIDER_NAMES.join(", ")}, openrouter)`);
+  }
+  return { name: n };
+}
+function str(v, where) {
+  if (v === void 0 || v === null || v === "") return void 0;
+  if (typeof v !== "string" && typeof v !== "number") throw new ConfigError(`${where} must be a string`);
+  return String(v).trim();
+}
+function posInt(v, where) {
+  if (v === void 0 || v === null || v === "") return void 0;
+  const n = Number(v);
+  if (!Number.isFinite(n) || n <= 0) throw new ConfigError(`${where} must be a positive number`);
+  return Math.floor(n);
+}
+function ollamaBase(env) {
+  const h = env.OLLAMA_HOST?.trim();
+  if (!h) return void 0;
+  const withProto = /^https?:\/\//.test(h) ? h : `http://${h}`;
+  return withProto.replace("://0.0.0.0", "://127.0.0.1");
+}
+function buildProvider(raw, ctx, where) {
+  const { env, warn } = ctx;
+  const { name, baseUrl: aliasBase } = normName(raw.name, where);
+  const d = DEFAULTS[name];
+  const fileBase = str(raw.baseUrl ?? raw.base_url ?? raw.baseURL, `${where}.baseUrl`);
+  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? (name === "ollama" ? ollamaBase(env) : void 0) ?? d.baseUrl).replace(/\/+$/, "");
+  let model = str(raw.model, `${where}.model`);
+  if (!model) model = name === "openai" && baseUrl === OPENROUTER_BASE ? "qwen/qwen3-coder" : d.model;
+  const baseTrusted = ctx.trusted || ctx.baseOverride !== void 0 || fileBase === void 0 || isOfficialHost(name, baseUrl);
+  const withhold = (what) => warn(`${where}: not sending ${what} to ${baseUrl}, a base URL set by the repository config. Pass --base-url or --config to allow it.`);
+  const fileKeys = raw.keys !== void 0 ? expandKeys(raw.keys, env, `${where}.keys`, ctx.trusted, warn) : [];
+  let keys;
+  if (ctx.keyOverride?.length) {
+    keys = baseTrusted ? ctx.keyOverride : fileKeys;
+    if (!baseTrusted) withhold("--keys");
+  } else if (fileKeys.length) {
+    keys = fileKeys;
+  } else {
+    const fromEnv = defaultKeysFor(name, baseUrl, env);
+    keys = baseTrusted ? fromEnv : [];
+    if (!baseTrusted && fromEnv.length) withhold("API keys from the environment");
+  }
+  const timeoutSec = posInt(raw.timeout, `${where}.timeout`);
+  const p = {
+    name,
+    model,
+    baseUrl,
+    keys,
+    timeoutMs: timeoutSec ? timeoutSec * 1e3 : d.timeoutMs,
+    maxTokens: posInt(raw.maxTokens ?? raw.max_tokens, `${where}.maxTokens`) ?? DEFAULT_MAX_TOKENS
+  };
+  if (raw.command !== void 0 && raw.command !== null && raw.command !== "") {
+    warn(`${where}: ignoring "command" from the config file; set CODEWOLF_CLAUDE_BIN or pass --claude-bin instead`);
+  }
+  if (name === "claude-code") {
+    const command = ctx.claudeBin?.trim() || env.CODEWOLF_CLAUDE_BIN?.trim();
+    if (command) p.command = command;
+  }
+  return p;
+}
+function autoChain(env) {
+  const chain = [];
+  if (envKeys(env, "ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY").length) chain.push({ name: "anthropic" });
+  if (envKeys(env, "OPENAI_API_KEYS", "OPENAI_API_KEY").length) chain.push({ name: "openai" });
+  if (envKeys(env, "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY").length) chain.push({ name: "openrouter" });
+  if (envKeys(env, "GEMINI_API_KEYS", "GEMINI_API_KEY", "GOOGLE_API_KEY").length) chain.push({ name: "gemini" });
+  chain.push({ name: "ollama" });
+  return chain;
+}
+function parseSeverity(v, where) {
+  const s2 = str(v, where)?.toLowerCase();
+  if (!s2) return void 0;
+  if (s2 === "none" || s2 === "off" || s2 === "never") return "none";
+  if (s2 === "high") return "major";
+  if (s2 === "low") return "minor";
+  if (!SEVERITIES.includes(s2)) throw new ConfigError(`${where} must be one of ${SEVERITIES.join(", ")}, none`);
+  return s2;
+}
+function parseProfile(v, where) {
+  const s2 = str(v, where)?.toLowerCase();
+  if (!s2) return void 0;
+  if (s2 !== "quiet" && s2 !== "chill" && s2 !== "assertive") throw new ConfigError(`${where} must be quiet, chill or assertive`);
+  return s2;
+}
+function asObject(v, where) {
+  if (v === void 0 || v === null) return {};
+  if (typeof v !== "object" || Array.isArray(v)) throw new ConfigError(`${where} must be a mapping`);
+  return v;
+}
+function stringList(v, where) {
+  if (v === void 0 || v === null) return [];
+  if (typeof v === "string") return [v];
+  if (!Array.isArray(v) || v.some((x) => typeof x !== "string")) throw new ConfigError(`${where} must be a list of strings`);
+  return v;
+}
+var stderrWarn = (m) => {
+  process.stderr.write(`codewolf: warning: ${m}
+`);
+};
+function bool(v, where, dflt) {
+  if (v === void 0 || v === null) return dflt;
+  if (typeof v === "boolean") return v;
+  if (v === "true" || v === "false") return v === "true";
+  throw new ConfigError(`${where} must be true or false`);
+}
+function resolveConfig(raw, overrides = {}, opts = {}) {
+  const env = opts.env ?? process.env;
+  const cfg = asObject(raw, "config");
+  const review2 = asObject(cfg.review, "review");
+  const rawProviders = cfg.providers === void 0 || cfg.providers === null ? [] : cfg.providers;
+  if (!Array.isArray(rawProviders)) throw new ConfigError("providers must be a list");
+  const chainRaw = rawProviders.map((p, i) => {
+    if (typeof p === "string") return { name: p };
+    return asObject(p, `providers[${i}]`);
+  });
+  const keyOverride = overrides.keys !== void 0 ? expandKeys(overrides.keys, env, "--keys") : void 0;
+  const warn = opts.warn ?? stderrWarn;
+  const baseOverride = overrides.baseUrl || env.CODEWOLF_BASE_URL?.trim() || void 0;
+  let chain;
+  if (overrides.provider) {
+    const want = normName(overrides.provider, "--provider");
+    const match = chainRaw.find((p) => {
+      try {
+        return normName(p.name, "").name === want.name;
+      } catch {
+        return false;
+      }
+    });
+    chain = [{ ...match ?? {}, name: match ? match.name : overrides.provider }];
+    if (want.baseUrl && !overrides.baseUrl && !match) chain[0].baseUrl = want.baseUrl;
+  } else {
+    chain = chainRaw.length ? chainRaw : autoChain(env);
+  }
+  if (overrides.model) chain[0] = { ...chain[0], model: overrides.model };
+  const providers = chain.map((p, i) => buildProvider(p, {
+    env,
+    warn,
+    trusted: opts.trusted === true,
+    baseOverride: i === 0 ? baseOverride : void 0,
+    keyOverride: i === 0 ? keyOverride : void 0,
+    claudeBin: overrides.claudeBin
+  }, i === 0 && overrides.provider ? "--provider" : `providers[${i}]`));
+  for (const p of providers) for (const k of p.keys) registerSecret(k);
+  const pathInstructions = [];
+  const pi = review2.pathInstructions ?? review2.path_instructions ?? cfg.pathInstructions;
+  if (pi !== void 0 && pi !== null) {
+    if (!Array.isArray(pi)) throw new ConfigError("review.pathInstructions must be a list");
+    pi.forEach((e, i) => {
+      const o = asObject(e, `review.pathInstructions[${i}]`);
+      const p = str(o.path, `review.pathInstructions[${i}].path`);
+      const ins = str(o.instructions, `review.pathInstructions[${i}].instructions`);
+      if (!p || !ins) throw new ConfigError(`review.pathInstructions[${i}] needs path and instructions`);
+      pathInstructions.push({ path: p, instructions: ins });
+    });
+  }
+  const toolsRaw = cfg.tools;
+  const toolsDefault = toolsRaw === false ? false : true;
+  const tools = typeof toolsRaw === "object" && toolsRaw !== null ? asObject(toolsRaw, "tools") : {};
+  const guidelinesOn = bool(review2.guidelines, "review.guidelines", true);
+  const root = path7.resolve(opts.root ?? (opts.configPath ? path7.dirname(opts.configPath) : process.cwd()));
+  const resolved = {
+    profile: parseProfile(overrides.profile, "--profile") ?? parseProfile(cfg.profile, "profile") ?? "chill",
+    language: str(overrides.language, "--language") ?? str(cfg.language, "language") ?? "en",
+    providers,
+    review: {
+      exclude: [...DEFAULT_EXCLUDES, ...stringList(review2.exclude ?? cfg.exclude, "review.exclude")],
+      pathInstructions,
+      failOn: parseSeverity(overrides.failOn, "--fail-on") ?? parseSeverity(review2.failOn ?? review2.fail_on ?? cfg.failOn, "review.failOn") ?? "none",
+      concurrency: posInt(review2.concurrency, "review.concurrency") ?? 4,
+      maxChunkTokens: posInt(review2.maxChunkTokens ?? review2.max_chunk_tokens, "review.maxChunkTokens") ?? 12e3,
+      guidelines: guidelinesOn
+    },
+    tools: {
+      ruff: bool(tools.ruff, "tools.ruff", toolsDefault),
+      eslint: bool(tools.eslint, "tools.eslint", toolsDefault),
+      semgrep: bool(tools.semgrep, "tools.semgrep", toolsDefault),
+      gitleaks: bool(tools.gitleaks, "tools.gitleaks", toolsDefault)
+    },
+    learnings: opts.learnings ?? readLearnings(root),
+    guidelines: guidelinesOn ? readGuidelines(root) : "",
+    root
+  };
+  if (opts.configPath) resolved.configPath = opts.configPath;
+  return resolved;
+}
+function findConfigFile(cwd) {
+  let dir = path7.resolve(cwd);
+  for (; ; ) {
+    for (const name of CONFIG_FILENAMES) {
+      const p = path7.join(dir, name);
+      if (existsSync4(p)) return p;
+    }
+    const up = path7.dirname(dir);
+    if (up === dir) return void 0;
+    dir = up;
+  }
+}
+function readConfigFile(file) {
+  let text;
+  try {
+    text = readFileSync6(file, "utf8");
+  } catch (e) {
+    throw new ConfigError(`cannot read config ${file}: ${e.message}`);
+  }
+  try {
+    return (0, import_yaml.parse)(text.replace(/^\uFEFF/, "")) ?? {};
+  } catch (e) {
+    throw new ConfigError(`invalid YAML in ${file}: ${e.message}`);
+  }
+}
+function loadConfig(opts = {}) {
+  const cwd = opts.cwd ?? process.cwd();
+  let file;
+  if (opts.configPath) {
+    file = path7.resolve(cwd, opts.configPath);
+    if (!existsSync4(file)) throw new ConfigError(`config file not found: ${file}`);
+  } else {
+    file = findConfigFile(cwd);
+  }
+  const raw = file ? readConfigFile(file) : {};
+  const ro = { root: opts.root ?? (file && !opts.configPath ? path7.dirname(file) : cwd) };
+  if (opts.env) ro.env = opts.env;
+  if (opts.trusted) ro.trusted = true;
+  if (opts.warn) ro.warn = opts.warn;
+  if (file) ro.configPath = file;
+  return resolveConfig(raw, opts.overrides ?? {}, ro);
+}
+
+// src/core/host.ts
+var str2 = { type: "string" };
+var int = { type: "integer", minimum: 1 };
+var ANSWER_SCHEMA = {
+  type: "object",
+  required: ["findings"],
+  properties: {
+    summary: str2,
+    walkthrough: { type: "array", items: { type: "object", required: ["file", "change"], properties: { file: str2, change: str2 } } },
+    findings: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["file", "line", "severity", "category", "title", "body"],
+        properties: {
+          file: str2,
+          line: int,
+          endLine: int,
+          severity: { enum: ["critical", "major", "minor", "nit"] },
+          category: { enum: ["bug", "security", "performance", "maintainability", "style", "test"] },
+          title: str2,
+          body: str2,
+          suggestion: str2,
+          effort: { enum: ["quick", "heavy"] },
+          kind: { enum: ["refactor"] },
+          cwe: { type: "string", pattern: "^CWE-\\d+$" },
+          rewrite: { type: "object", required: ["language", "reason", "code"], properties: { language: str2, reason: str2, code: str2 } }
+        }
+      }
+    },
+    diagram: str2
+  }
+};
+var HOST_NOTE = `Host-agent mode: you, the coding agent that ran \`codewolf packet\`, are the reviewer. Review every entry of "chunks" (each "diff" uses the format described above), then write ONE JSON answer covering all chunks, shaped like "schema", and pass it to \`codewolf ingest\` with the same scope flags you gave \`codewolf packet\`. "builtin" lists what deterministic scanners already found; do not repeat those. Apply "learnings" (team preferences, they override your defaults) and "guidelines" (repository rules) as a reviewer would.`;
+async function builtinFindings(keep, config, linters, log) {
+  const on = linters && Object.values(config.tools).some(Boolean);
+  const tools = on ? await runLinters(keep, config, (m) => log("debug", m)).catch(() => []) : [];
+  return [...scanSecrets(keep), ...tools];
+}
+async function buildPacket(files, config, opts = {}) {
+  const { keep } = reviewableFiles(files, config.review.exclude);
+  const ins = instructionsFor(keep.map((f) => f.path), config.review.pathInstructions);
+  const instructions = [systemPrompt(config.profile, config.language), HOST_NOTE];
+  if (ins.length) instructions.push(`Extra instructions for specific paths:
+${ins.join("\n")}`);
+  const builtin = (await builtinFindings(keep, config, opts.linters !== false, opts.log ?? (() => {
+  }))).filter((f) => !opts.suppressed?.has(f.fingerprint));
+  return {
+    version: 1,
+    instructions: instructions.join("\n\n"),
+    chunks: chunkFiles(keep, config.review.maxChunkTokens).map((c, i) => ({ id: `c${i + 1}`, files: c.paths, diff: c.body })),
+    builtin,
+    learnings: config.learnings,
+    guidelines: config.guidelines,
+    schema: ANSWER_SCHEMA
+  };
+}
+async function ingestAnswer(text, files, config, opts = {}) {
+  const raw = extractJson(text);
+  if (raw === void 0) throw new Error('the answer is not valid JSON; expected {"summary", "walkthrough", "findings": [...]}');
+  const log = opts.log ?? (() => {
+  });
+  const { keep } = reviewableFiles(files, config.review.exclude);
+  const answer = normalizeModelOutput(raw, keep);
+  const warnings = [];
+  if (answer.dropped) {
+    warnings.push(`dropped ${answer.dropped} finding(s) on files outside the diff or malformed`);
+    log("warn", warnings[0]);
+  }
+  const walk = new Map(answer.walkthrough.map((w) => [w.file, w.change]));
+  const builtin = await builtinFindings(keep, config, opts.linters !== false, log);
+  return buildResult(files, keep, config, {
+    findings: [...builtin, ...answer.findings],
+    outside: answer.outside,
+    walk,
+    summary: answer.summary,
+    ...answer.diagram ? { diagram: answer.diagram } : {},
+    provider: { name: "host-agent", model: "" },
+    warnings
+  }, opts.suppressed);
 }
 
 // package.json
 var package_default = {
   name: "codewolf",
-  version: "0.1.0",
+  version: "0.2.0",
   description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
   type: "module",
   license: "MIT",
@@ -9616,6 +9997,10 @@ Usage:
   codewolf learn "<text>"             Teach a reviewer preference (.codewolf/learnings.md)
   codewolf learnings                  List learned preferences
   codewolf providers [--check]        Show the provider chain and key counts; --check pings every key
+  codewolf packet [scope]             Print the review job as JSON for your own coding agent (no API key needed)
+  codewolf ingest <file|-> [scope]    Validate your agent's JSON answer and print it like review (same scope flags)
+  codewolf findings [--all] [--json] [--clear]   List open findings from the last reviews (--all adds dismissed, fixed)
+  codewolf dismiss <id...> [--reason "<text>"] [--learn]   Stop reporting findings; --learn saves the reason
   codewolf --version | --help
 
 Scope (pick one):
@@ -9638,6 +10023,7 @@ Options:
   --fail-on <sev>      Exit 1 if any finding is at or above: critical | major | minor | nit | none
   --claude-bin <path>  Claude Code binary for the claude-code provider (or CODEWOLF_CLAUDE_BIN)
   --no-tools           Do not run local linters (ruff, eslint, semgrep, gitleaks)
+  --fresh              Review every changed file, ignoring the incremental checkpoint
   --verbose            Debug logs on stderr
 
 Exit codes: 0 ok, 1 --fail-on threshold hit (or --agent found critical/major), 2 error.
@@ -9666,7 +10052,13 @@ var OPTIONS = {
   "no-tools": { type: "boolean" },
   verbose: { type: "boolean" },
   version: { type: "boolean", short: "v" },
-  help: { type: "boolean", short: "h" }
+  help: { type: "boolean", short: "h" },
+  fresh: { type: "boolean" },
+  all: { type: "boolean" },
+  json: { type: "boolean" },
+  clear: { type: "boolean" },
+  reason: { type: "string" },
+  learn: { type: "boolean" }
 };
 var UsageError = class extends Error {
 };
@@ -9703,53 +10095,75 @@ function scopeFrom(v) {
   if (v.committed) return { kind: "committed" };
   return { kind: "uncommitted" };
 }
-async function cmdReview(v, cwd) {
-  const log = stderrLogger(v.verbose ? "debug" : "info");
-  let format = process.stdout.isTTY ? "pretty" : "plain";
-  if (v.format) {
-    if (!["pretty", "plain", "markdown", "json"].includes(v.format)) throw new UsageError(`unknown --format ${v.format}`);
-    format = v.format;
-  }
+async function loadReview(v, cwd, log) {
   const config = configFor(v, cwd);
   const scope = scopeFrom(v);
   let patch;
   if (scope.kind === "file") {
     if (scope.path === "-") patch = await readStdin();
     else {
-      const p = path6.resolve(cwd, scope.path);
+      const p = path8.resolve(cwd, scope.path);
       if (!existsSync5(p)) throw new UsageError(`diff file not found: ${scope.path}`);
-      patch = readFileSync5(p, "utf8");
+      patch = readFileSync7(p, "utf8");
     }
   } else {
     patch = collectDiff(scope, cwd);
   }
-  const files = parseDiff(patch);
-  if (!files.length) log("info", "no changes to review");
+  return { config, prep: prepareReview(scope, parseDiff(patch), config, cwd, { fresh: v.fresh === true, log }) };
+}
+async function readAnswer(from, v, cwd) {
+  if (from === "-") {
+    if (v.diff === "-") throw new UsageError("ingest - and --diff - cannot both read stdin");
+    return readStdin();
+  }
+  const p = path8.resolve(cwd, from);
+  if (!existsSync5(p)) throw new UsageError(`answer file not found: ${from}`);
+  return readFileSync7(p, "utf8");
+}
+async function cmdPacket(v, cwd) {
+  const log = stderrLogger(v.verbose ? "debug" : "info");
+  const { config, prep } = await loadReview(v, cwd, log);
+  const packet = await buildPacket(prep.files, config, { linters: !v["no-tools"], log, suppressed: prep.suppressed });
+  process.stdout.write(JSON.stringify(packet, null, 2) + "\n");
+  return 0;
+}
+async function cmdReview(v, cwd, answerFrom) {
+  const log = stderrLogger(v.verbose ? "debug" : "info");
+  let format = process.stdout.isTTY ? "pretty" : "plain";
+  if (v.format) {
+    if (!["pretty", "plain", "markdown", "json"].includes(v.format)) throw new UsageError(`unknown --format ${v.format}`);
+    format = v.format;
+  }
+  const answer = answerFrom === void 0 ? void 0 : await readAnswer(answerFrom, v, cwd);
+  const { config, prep } = await loadReview(v, cwd, log);
+  const files = prep.files;
+  if (!prep.all.length) log("info", "no changes to review");
   else log("debug", `reviewing ${files.length} file(s) with ${config.providers.map((p) => p.name).join(" -> ")}`);
   const ac = new AbortController();
   const onSig = () => ac.abort(new Error("interrupted"));
   process.once("SIGINT", onSig);
   let result;
   try {
-    result = await review(files, config, { signal: ac.signal, log, linters: !v["no-tools"] });
+    result = answer === void 0 ? await review(files, config, { signal: ac.signal, log, linters: !v["no-tools"], suppressed: prep.suppressed }) : await ingestAnswer(answer, prep.all, config, { log, linters: !v["no-tools"], suppressed: prep.suppressed });
   } finally {
     process.off("SIGINT", onSig);
   }
-  const rank2 = (s2) => SEVERITIES.indexOf(s2);
+  result = recordReview(prep, result, config, log);
+  const rank3 = (s2) => SEVERITIES.indexOf(s2);
   if (v.agent) {
     process.stdout.write(formatNdjson(result));
-    return result.findings.some((f) => rank2(f.severity) <= rank2("major")) ? 1 : 0;
+    return result.findings.some((f) => rank3(f.severity) <= rank3("major")) ? 1 : 0;
   }
   const color = format === "pretty" && process.stdout.isTTY === true && !process.env.NO_COLOR;
   process.stdout.write(formatResult(result, format, color));
   const failOn = config.review.failOn;
-  if (failOn !== "none" && result.findings.some((f) => rank2(f.severity) <= rank2(failOn))) return 1;
+  if (failOn !== "none" && result.findings.some((f) => rank3(f.severity) <= rank3(failOn))) return 1;
   return 0;
 }
 function cmdInit(v, cwd) {
-  const file = path6.join(cwd, ".codewolf.yaml");
+  const file = path8.join(cwd, ".codewolf.yaml");
   if (existsSync5(file) && !v.force) throw new UsageError(`${file} already exists (use --force to overwrite)`);
-  writeFileSync(file, INIT_TEMPLATE);
+  writeFileSync2(file, INIT_TEMPLATE);
   process.stdout.write(`wrote ${file}
 `);
   return 0;
@@ -9834,6 +10248,15 @@ Run codewolf --help for usage.
         return cmdLearnings(cwd);
       case "providers":
         return await cmdProviders(v, cwd);
+      case "packet":
+        return await cmdPacket(v, cwd);
+      case "ingest":
+        if (!rest[0]) throw new UsageError("usage: codewolf ingest <answer.json|-> [scope flags]");
+        return await cmdReview(v, cwd, rest[0]);
+      case "findings":
+        return cmdFindings(v, cwd);
+      case "dismiss":
+        return cmdDismiss(rest, v, cwd);
       case "version":
         process.stdout.write(`codewolf ${VERSION}
 `);

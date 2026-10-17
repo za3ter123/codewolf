@@ -1,6 +1,6 @@
 // Public engine API. Builder B (GitHub Action) imports from here; keep names stable.
 export type {
-  Category, ConfigOverrides, DiffFile, Effort, Finding, Hunk, HunkLine, PathInstruction, Profile, ProviderConfig,
+  Category, ConfigOverrides, DiffFile, Effort, Finding, Hunk, HunkLine, Kind, PathInstruction, Profile, ProviderConfig,
   ProviderName, ResolvedConfig, ReviewResult, Severity,
 } from '../shared/types.ts';
 export { CATEGORIES, PROVIDER_NAMES, SEVERITIES } from '../shared/types.ts';

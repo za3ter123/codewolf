@@ -58,8 +58,9 @@ test('--diff - reads stdin; plain format is one block per finding plus a tail li
   const r = await runCli(reviewArgs(srv.url, '--diff', '-', '--format', 'plain'), { input: FIXTURE_DIFF });
   await srv.close();
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, /^src\/app\.py:13 critical security SQL injection via f-string query\nuser_id is interpolated into SQL\.\nsuggestion:\n    cur\.execute/m);
-  assert.match(r.stdout, /src\/app\.py:15 critical security Hardcoded AWS access key id/);
+  assert.match(r.stdout, /^src\/app\.py:13 critical issue security SQL injection via f-string query\nuser_id is interpolated into SQL\.\nsuggestion:\n    cur\.execute/m);
+  assert.match(r.stdout, /src\/app\.py:15 critical issue security Hardcoded AWS access key id/);
+  assert.match(r.stdout, /outside the diff \(1,[^\n]*\n\nsrc\/app\.py:999 major issue bug HALLUCINATED_LINE/);
   assert.match(r.stdout, /codewolf: 2 finding\(s\) \(2 critical\) in 1 file\(s\) via openai\/fake\n$/);
 });
 

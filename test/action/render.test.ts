@@ -227,3 +227,13 @@ test('command access: default lets contributors and the PR author in, a strict l
   assert.equal(commandAllowed(strict, 'NONE', true), false, 'the author is only allowed when AUTHOR is listed');
   assert.equal(commandAllowed(strict, 'MEMBER', false), true);
 });
+
+test('kind and cwe show in inline bodies and lists; outside-diff findings get their own collapsed summary section', () => {
+  assert.equal(renderFindingBody(finding({ kind: 'issue', cwe: 'CWE-89', effort: 'quick' })).split('\n')[0], '_security · critical · issue · CWE-89 · quick_');
+  const off = finding({ line: 99, fingerprint: 'o9', kind: 'refactor', title: 'Off the hunks' });
+  const sha = 'a'.repeat(40);
+  const body = renderSummary({ result: result({ outsideDiff: [off] }), headSha: sha, reviewedSha: sha, paused: false, bodyFingerprints: [], skippedFiles: [] });
+  assert.ok(body.includes('<summary>Findings on unchanged lines of changed files (1)</summary>'));
+  assert.ok(body.includes('`src/app.py:99` _security · critical · refactor_ **Off the hunks**'));
+  assert.ok(!renderSummary({ result: result(), headSha: sha, paused: false, bodyFingerprints: [], skippedFiles: [] }).includes('unchanged lines'));
+});

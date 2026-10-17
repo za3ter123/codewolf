@@ -32,12 +32,14 @@ Rules:
 - severity: critical = exploitable vulnerability, data loss or corruption, crash on a common path, exposed secret. major = real bug or security weakness that will bite under realistic use. minor = edge-case bug, notable inefficiency, or a maintainability problem likely to cause a bug. nit = polish with no behavior impact.
 - category: exactly one of bug, security, performance, maintainability, style, test.
 - effort: "quick" when the fix is small and local, "heavy" when it needs a design change or touches many places.
+- kind: add "kind": "refactor" when the finding is a structural improvement rather than a defect; otherwise leave it out.
+- cwe: on a security finding, add the matching CWE id (for example "CWE-89") when you are sure of it; otherwise leave it out.
 - If nothing is wrong, return an empty findings list. An empty list is the right answer for good code.
 
 ${PROFILE_RULES[profile]}
 
 Reply with one JSON object and nothing else (no markdown fences, no prose):
-{"summary": "...", "walkthrough": [{"file": "...", "change": "..."}], "findings": [{"file": "...", "line": 12, "endLine": 14, "severity": "major", "category": "bug", "title": "...", "body": "...", "suggestion": "...", "effort": "quick", "rewrite": {"language": "...", "reason": "...", "code": "..."}}], "diagram": "..."}
+{"summary": "...", "walkthrough": [{"file": "...", "change": "..."}], "findings": [{"file": "...", "line": 12, "endLine": 14, "severity": "major", "category": "bug", "title": "...", "body": "...", "suggestion": "...", "effort": "quick", "kind": "refactor", "cwe": "CWE-89", "rewrite": {"language": "...", "reason": "...", "code": "..."}}], "diagram": "..."}
 - summary: one to three sentences on what the change does and its main risk, for someone who has not read it.
 - walkthrough: one entry per file with one sentence on what changed in it.
 - title: under 80 characters, names the problem (for example "SQL query built from user input"), not the fix.
@@ -107,7 +109,7 @@ export function userPrompt(body: string, paths: string[], ctx: PromptContext): s
 export function repairPrompt(badOutput: string): { system: string; prompt: string } {
   return {
     system: 'You convert malformed model output into valid JSON. Output one JSON object only, no fences, no prose.',
-    prompt: `The text below was supposed to be a JSON object with keys "summary" (string), "walkthrough" (array of {"file","change"}) and "findings" (array of {"file","line","endLine"?,"severity","category","title","body","suggestion"?,"effort"?,"rewrite"?}). Rewrite it as valid JSON with exactly that shape, keeping the content. If a part cannot be recovered, drop it.\n\n<text>\n${badOutput.slice(0, 60_000)}\n</text>`,
+    prompt: `The text below was supposed to be a JSON object with keys "summary" (string), "walkthrough" (array of {"file","change"}) and "findings" (array of {"file","line","endLine"?,"severity","category","title","body","suggestion"?,"effort"?,"kind"?,"cwe"?,"rewrite"?}). Rewrite it as valid JSON with exactly that shape, keeping the content. If a part cannot be recovered, drop it.\n\n<text>\n${badOutput.slice(0, 60_000)}\n</text>`,
   };
 }
 

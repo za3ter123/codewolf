@@ -105,11 +105,26 @@ Exit codes: `0` review done, `1` the `--fail-on` threshold was hit, `2` error. L
 The `plain` format is what coding agents read. One block per finding:
 
 ```text
-src/app.py:13 critical security SQL injection via f-string query
+src/app.py:13 critical issue security SQL injection via f-string query
 user_id is interpolated into SQL.
 suggestion:
     cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
 ```
+
+The second word after the location is the kind: `issue`, `refactor` or `nitpick`. Findings the model placed on unchanged lines of a changed file are listed after an `outside the diff` line; they never change the exit code.
+
+### Host-agent mode, findings and incremental reviews
+
+```text
+codewolf packet [scope]                       The review job as JSON for your own coding agent; no key, no network
+codewolf ingest <answer.json|-> [scope]       Validate the agent's answer and print it like review (same exit codes)
+codewolf findings [--all] [--json] [--clear]  Open findings from past reviews, moved to their current line
+codewolf dismiss <id...> [--reason "<text>"] [--learn]
+                                              Stop reporting findings; --learn also saves the reason as a learning
+--fresh                                       Review every changed file, ignoring the checkpoint
+```
+
+With no API key, your agent can be the reviewer: `codewolf packet` hands it our review prompt and the numbered diff, the agent writes a JSON answer, and `codewolf ingest` puts that answer through the same filters as a model reply (findings on files outside the diff are dropped). Reviews remember what they saw, in the git directory and never in your work tree: files unchanged since the last review are skipped (their open findings still count), and `--staged` and `--diff` always review everything.
 
 ## GitHub Action
 

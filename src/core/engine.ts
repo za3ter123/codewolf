@@ -22,6 +22,8 @@ export interface ReviewOptions {
   chain?: Chain;
   /** Run external linters (default true; each tool still obeys config.tools). */
   linters?: boolean;
+  /** Fingerprints the user dismissed; dropped from the result. */
+  suppressed?: Set<string>;
 }
 
 export interface Chunk { files: DiffFile[]; body: string; paths: string[] }
@@ -197,6 +199,7 @@ export async function review(files: DiffFile[], config: ResolvedConfig, opts: Re
   ]);
 
   const findings: Finding[] = [...scanSecrets(keep), ...toolHits];
+  const outside: Finding[] = [];
   const walk = new Map<string, string>();
   const summaries: string[] = [];
   let diagram: string | undefined;
@@ -204,6 +207,7 @@ export async function review(files: DiffFile[], config: ResolvedConfig, opts: Re
     if (!r) continue;
     providerUsed.set(r.provider, (providerUsed.get(r.provider) ?? 0) + 1);
     findings.push(...r.review.findings);
+    outside.push(...r.review.outside);
     for (const w of r.review.walkthrough) walk.set(w.file, walk.has(w.file) ? `${walk.get(w.file)} ${w.change}` : w.change);
     if (r.review.summary) summaries.push(r.review.summary);
     diagram ??= r.review.diagram;
@@ -220,28 +224,54 @@ export async function review(files: DiffFile[], config: ResolvedConfig, opts: Re
       summary = summaries.join(' ');
     }
   }
-  if (!summary) summary = keep.length ? `Reviewed ${keep.length} file(s).` : 'No reviewable changes.';
-
-  const final = applyProfile(dedupe(findings), config.profile)
-    .sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line)
-    .map((f) => ({ ...f, agentPrompt: agentPrompt(f) }));
-
-  const shown = files.filter((f) => !isExcluded(f.path, config.review.exclude));
-  const walkthrough = shown.map((f) => ({ file: f.path, change: walk.get(f.path) ?? defaultChange(f) }));
-  const bySeverity: Record<string, number> = { critical: 0, major: 0, minor: 0, nit: 0 };
-  for (const f of final) bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
 
   const top = [...providerUsed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   const [pname, pmodel] = top ? top.split('\u0000') : [first?.name ?? 'none', first?.model ?? ''];
+  return buildResult(files, keep, config, { findings, outside, walk, summary, ...(diagram ? { diagram } : {}), provider: { name: pname ?? 'none', model: pmodel ?? '' }, warnings }, opts.suppressed);
+}
+
+export interface Collected {
+  findings: Finding[];
+  outside: Finding[];
+  walk: Map<string, string>;
+  summary: string;
+  diagram?: string;
+  provider: { name: string; model: string };
+  warnings: string[];
+}
+
+/** Suppression, dedupe, profile, order, kind and agent prompt; shared by findings and the outside-diff bucket. */
+function finalize(list: Finding[], config: ResolvedConfig, suppressed: Set<string> | undefined): Finding[] {
+  return applyProfile(dedupe(suppressed?.size ? list.filter((f) => !suppressed.has(f.fingerprint)) : list), config.profile)
+    .sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line)
+    .map((f) => ({ ...f, kind: f.kind ?? (f.severity === 'nit' ? 'nitpick' : 'issue'), agentPrompt: agentPrompt(f) }));
+}
+
+/** The shared tail of `review` and host-agent `ingest`: collected model and scanner output to a ReviewResult. */
+export function buildResult(files: DiffFile[], keep: DiffFile[], config: ResolvedConfig, c: Collected, suppressed?: Set<string>): ReviewResult {
+  const summary = c.summary || (keep.length ? `Reviewed ${keep.length} file(s).` : 'No reviewable changes.');
+  const final = finalize(c.findings, config, suppressed);
+  const seen = new Set(final.map((f) => f.fingerprint));
+  const outsideDiff = finalize(c.outside, config, suppressed).filter((f) => !seen.has(f.fingerprint));
+
+  const shown = files.filter((f) => !isExcluded(f.path, config.review.exclude));
+  const walkthrough = shown.map((f) => ({ file: f.path, change: c.walk.get(f.path) ?? defaultChange(f) }));
   const result: ReviewResult = {
     summary,
     walkthrough,
     findings: final,
-    stats: { files: shown.length, findings: final.length, bySeverity },
-    provider: { name: pname ?? 'none', model: pmodel ?? '' },
+    outsideDiff,
+    stats: { files: shown.length, findings: final.length, bySeverity: countSeverities(final) },
+    provider: c.provider,
     effort: estimateEffort(keep, final),
   };
-  if (diagram) result.diagram = diagram;
-  if (warnings.length) result.warnings = warnings;
+  if (c.diagram) result.diagram = c.diagram;
+  if (c.warnings.length) result.warnings = c.warnings;
   return result;
+}
+
+export function countSeverities(findings: Finding[]): Record<string, number> {
+  const bySeverity: Record<string, number> = { critical: 0, major: 0, minor: 0, nit: 0 };
+  for (const f of findings) bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
+  return bySeverity;
 }

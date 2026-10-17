@@ -12,8 +12,19 @@ test('drops findings on lines or files outside the diff (anti-hallucination)', (
   assert.equal(r.findings[0]!.line, 13);
   assert.equal(r.findings[0]!.source, 'llm');
   assert.equal(r.findings[0]!.effort, 'quick');
-  assert.equal(r.dropped, 2);
+  assert.equal(r.dropped, 1, 'the unknown file is dropped');
+  assert.deepEqual(r.outside.map((f) => [f.title, f.line]), [['HALLUCINATED_LINE', 999]], 'a known file off the hunks goes to the outside bucket');
   assert.equal(r.walkthrough[0]!.file, 'src/app.py');
+});
+
+test('kind: only "refactor" is taken from the model; cwe is kept only when valid on security findings', () => {
+  const r = normalizeModelOutput({ findings: [
+    { file: 'src/app.py', line: 12, severity: 'minor', category: 'maintainability', title: 'a', body: 'b', kind: 'refactor' },
+    { file: 'src/app.py', line: 13, severity: 'critical', category: 'security', title: 'c', body: 'b', kind: 'nitpick', cwe: 'cwe-89' },
+    { file: 'src/app.py', line: 14, severity: 'major', category: 'security', title: 'd', body: 'b', cwe: 'CWE-89; rm -rf' },
+    { file: 'src/app.py', line: 14, severity: 'major', category: 'bug', title: 'e', body: 'b', cwe: 'CWE-20' },
+  ] }, files);
+  assert.deepEqual(r.findings.map((f) => [f.kind, f.cwe]), [['refactor', undefined], [undefined, 'CWE-89'], [undefined, undefined], [undefined, undefined]]);
 });
 
 test('matches a path by unique suffix but never guesses between two candidates', () => {

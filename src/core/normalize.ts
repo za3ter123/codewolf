@@ -77,6 +77,8 @@ export interface ModelReview {
   summary: string;
   walkthrough: { file: string; change: string }[];
   findings: Finding[];
+  /** On a file in the diff but on a line outside every hunk. */
+  outside: Finding[];
   diagram?: string;
   dropped: number;
 }
@@ -86,7 +88,7 @@ type Obj = Record<string, unknown>;
 /** Validate one chunk's parsed model output against the diff files it was given (anti-hallucination filter). */
 export function normalizeModelOutput(raw: unknown, files: DiffFile[]): ModelReview {
   const o: Obj = Array.isArray(raw) ? { findings: raw } : raw && typeof raw === 'object' ? (raw as Obj) : {};
-  const out: ModelReview = { summary: s(o.summary ?? o.overview), walkthrough: [], findings: [], dropped: 0 };
+  const out: ModelReview = { summary: s(o.summary ?? o.overview), walkthrough: [], findings: [], outside: [], dropped: 0 };
 
   const wt = Array.isArray(o.walkthrough) ? o.walkthrough : [];
   for (const w of wt) {
@@ -106,11 +108,11 @@ export function normalizeModelOutput(raw: unknown, files: DiffFile[]): ModelRevi
     if (!file || !parsed) { out.dropped++; continue; }
     const ok = commentableLines(file);
     const line = parsed[0];
-    if (!ok.has(line)) { out.dropped++; continue; }
+    const inDiff = ok.has(line);
     let endLine = parseLine(e.endLine ?? e.end_line)?.[0] ?? parsed[1];
     if (endLine !== undefined) {
       let valid = endLine > line;
-      for (let n = line; valid && n <= endLine; n++) if (!ok.has(n)) valid = false;
+      for (let n = line; inDiff && valid && n <= endLine; n++) if (!ok.has(n)) valid = false;
       if (!valid) endLine = undefined;
     }
     const body = s(e.body ?? e.description ?? e.message ?? e.comment ?? e.explanation);
@@ -144,7 +146,10 @@ export function normalizeModelOutput(raw: unknown, files: DiffFile[]): ModelRevi
     }
     const effort = s(e.effort).toLowerCase();
     if (effort === 'quick' || effort === 'heavy') finding.effort = effort as Effort;
-    out.findings.push(finding);
+    if (s(e.kind).toLowerCase() === 'refactor') finding.kind = 'refactor';
+    const cwe = s(e.cwe).toUpperCase();
+    if (finding.category === 'security' && /^CWE-\d{1,5}$/.test(cwe)) finding.cwe = cwe;
+    (inDiff ? out.findings : out.outside).push(finding);
   }
 
   const diagram = typeof o.diagram === 'string' ? stripFences(o.diagram).trim() : '';

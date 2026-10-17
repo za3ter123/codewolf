@@ -40,13 +40,14 @@ Exit codes: 0 review done, 1 the `--fail-on` threshold was hit, 2 CodeWolf faile
 One block per finding:
 
 ```text
-src/app.py:13 critical security SQL injection via f-string query
+src/app.py:13 critical issue security SQL injection via f-string query
 user_id is interpolated into SQL.
 suggestion:
     cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
 ```
 
-- First line: `file:line severity category title`. Severity is one of `critical`, `major`, `minor`, `nit`. Category is one of `bug`, `security`, `performance`, `maintainability`, `style`, `test`.
+- First line: `file:line severity kind category title`. Severity is one of `critical`, `major`, `minor`, `nit`. Kind is `issue`, `refactor` or `nitpick`. Category is one of `bug`, `security`, `performance`, `maintainability`, `style`, `test`.
+- Blocks after a line starting `outside the diff` point at unchanged lines of changed files. They never count toward the exit code; check them before acting.
 - Then the explanation.
 - Then an optional suggestion: replacement text for that line (or line range).
 - The last line is a tally such as `codewolf: 2 finding(s) (1 critical, 1 nit) in 3 file(s) via anthropic/claude-sonnet-5-5`, or `codewolf: no findings ...`.

@@ -1,7 +1,7 @@
 {
   "name": "codewolf",
   "displayName": "CodeWolf",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Open-source AI code review inside Claude Code. Runs codewolf review on your changes, fixes critical and major findings, and re-runs until clean.",
   "author": {
     "name": "CodeWolf contributors",

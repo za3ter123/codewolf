@@ -285,7 +285,7 @@ export function agentPromptFor(f: Finding): string {
 }
 
 export function renderFindingBody(f: Finding): string {
-  const head = [f.category, f.severity, f.effort].filter(Boolean).join(' · ');
+  const head = [f.category, f.severity, f.kind, f.cwe, f.effort].filter(Boolean).join(' · ');
   const parts = [`_${head}_`, '', `**${oneLine(f.title)}**`, '', prose(f.body)];
   if (typeof f.suggestion === 'string') parts.push('', fence(f.suggestion, 'suggestion'));
   if (f.rewrite) {
@@ -355,7 +355,7 @@ function findingList(fs: Finding[]): string[] {
   const out: string[] = [];
   for (const f of fs) {
     const label = sourceLabel(f.source);
-    out.push(`- \`${loc(f)}\` _${f.category} · ${f.severity}_ **${cell(f.title)}**${label ? ` (${label})` : ''}`);
+    out.push(`- \`${loc(f)}\` _${[f.category, f.severity, f.kind].filter(Boolean).join(' · ')}_ **${cell(f.title)}**${label ? ` (${label})` : ''}`);
     const body = prose(f.body);
     if (body) out.push('  ' + body.replace(/\r?\n/g, '\n  '));
     if (typeof f.suggestion === 'string') out.push('', fence(f.suggestion, '').split('\n').map((l) => '  ' + l).join('\n'));
@@ -419,6 +419,8 @@ export function renderSummary(s: SummaryInput): string {
   }
   const counts = countBySeverity(result.findings);
   out.push('### Findings', '', `| ${SEVERITY_ORDER.join(' | ')} |`, `| ${SEVERITY_ORDER.map(() => '---').join(' | ')} |`, `| ${SEVERITY_ORDER.map((k) => counts[k]).join(' | ')} |`, '');
+  // never inline, never counted above: the model pointed at an unchanged line of a changed file
+  if (result.outsideDiff?.length) out.push(...details(`Findings on unchanged lines of changed files (${result.outsideDiff.length})`, findingList(result.outsideDiff)));
   if (s.skippedFiles.length) out.push(`Not reviewed (binary or too large for the GitHub API): ${s.skippedFiles.map((f) => '`' + f + '`').join(', ')}.`, '');
   if (result.warnings?.length) out.push(...details('Warnings', result.warnings.map((w) => `- ${cell(w)}`)));
   if (s.paused) out.push('Automatic reviews are paused on this pull request. Comment `@codewolf resume` to turn them back on.', '');

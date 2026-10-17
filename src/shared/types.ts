@@ -4,6 +4,7 @@ export type Severity = 'critical' | 'major' | 'minor' | 'nit';
 export type Category = 'bug' | 'security' | 'performance' | 'maintainability' | 'style' | 'test';
 export type Profile = 'quiet' | 'chill' | 'assertive';
 export type Effort = 'quick' | 'heavy';
+export type Kind = 'issue' | 'refactor' | 'nitpick';
 export type ProviderName = 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'claude-code';
 
 export const SEVERITIES: readonly Severity[] = ['critical', 'major', 'minor', 'nit'];
@@ -52,12 +53,18 @@ export interface Finding {
   effort?: Effort;
   /** Deterministic instruction a coding agent can act on. */
   agentPrompt?: string;
+  /** Default: 'nitpick' for nit severity, else 'issue'; the model may mark a finding 'refactor'. */
+  kind?: Kind;
+  /** CWE id ("CWE-89") on security findings, validated. */
+  cwe?: string;
 }
 
 export interface ReviewResult {
   summary: string;
   walkthrough: { file: string; change: string }[];
   findings: Finding[];
+  /** Model findings on a changed file but outside every hunk: shown separately, never inline, never in the exit code. */
+  outsideDiff?: Finding[];
   stats: { files: number; findings: number; bySeverity: Record<string, number> };
   provider: { name: string; model: string };
   /** Human review effort estimate: score 1 (trivial) to 5 (very heavy), and minutes. */
