@@ -17,6 +17,7 @@
   },
   "scripts": {
     "build": "tsc --noEmit && node scripts/build.mjs",
+    "start": "node dist/cli.js",
     "typecheck": "tsc --noEmit",
     "test": "node --test \"test/**/*.test.ts\" \"test/**/*.test.mjs\""
   },
