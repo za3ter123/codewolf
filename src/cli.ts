@@ -4,7 +4,14 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { collectDiff, repoRoot } from './cli/git.ts';
 import type { DiffScope } from './cli/git.ts';
+import { detectAgent } from './cli/agent.ts';
+import { cmdApply } from './cli/apply.ts';
+import { cmdDoctor } from './cli/doctor.ts';
+import { cmdFix } from './cli/fix.ts';
 import { formatNdjson, formatResult } from './cli/format.ts';
+import { cmdHook } from './cli/hook.ts';
+import { cmdInstall } from './cli/install.ts';
+import { cmdPr } from './cli/pr.ts';
 import type { Format } from './cli/format.ts';
 import { INIT_TEMPLATE } from './cli/template.ts';
 import { loadConfig } from './core/config.ts';
@@ -26,6 +33,18 @@ Usage:
   codewolf learn "<text>"             Teach a reviewer preference (.codewolf/learnings.md)
   codewolf learnings                  List learned preferences
   codewolf providers [--check]        Show the provider chain and key counts; --check pings every key
+  codewolf fix [<id...> | --all | --nits] [--to <target>]
+                                      Hand stored open findings to an agent as one fix prompt (stdin only).
+                                      Targets: print | claude | codex | opencode | gemini | clipboard
+  codewolf apply <id...> [--dry-run]  Write a stored finding's suggestion into its file
+  codewolf install [<agent...> | --all] [--project | --user] [--yes] [--force]
+                                      Install the CodeWolf command/skill into claude, codex, cursor, gemini,
+                                      opencode or agents. Prints the plan; writes only with --yes
+  codewolf hook install|uninstall|status
+                                      Opt-in post-commit hook: background review, never blocks a commit
+  codewolf doctor                     Check node, git, config, providers (masked keys), Ollama, claude, linters
+  codewolf pr <number|url> [--repo owner/name] [--json]
+                                      Print CodeWolf's comments on a GitHub PR as fix prompts (read-only)
   codewolf --version | --help
 
 Scope (pick one):
@@ -36,7 +55,8 @@ Scope (pick one):
   --diff <file|->      Review a patch file, or stdin with -
 
 Options:
-  --format <f>         pretty | plain | markdown | json   (default: pretty on a TTY, plain otherwise)
+  --format <f>         pretty | plain | markdown | json   (default: pretty on a TTY, plain otherwise or inside
+                       a coding agent: Claude Code, Codex, Cursor, Gemini CLI, opencode, aider)
   --agent              NDJSON for coding agents: one finding per line, then a summary line;
                        exit 1 if any critical or major finding remains
   --provider <name>    anthropic | openai | gemini | ollama | claude-code | openrouter
@@ -64,6 +84,8 @@ const OPTIONS = {
   uncommitted: { type: 'boolean' }, committed: { type: 'boolean' },
   'claude-bin': { type: 'string' },
   check: { type: 'boolean' }, force: { type: 'boolean' }, 'no-tools': { type: 'boolean' }, verbose: { type: 'boolean' },
+  all: { type: 'boolean' }, nits: { type: 'boolean' }, to: { type: 'string' }, 'dry-run': { type: 'boolean' },
+  project: { type: 'boolean' }, user: { type: 'boolean' }, yes: { type: 'boolean' }, json: { type: 'boolean' }, repo: { type: 'string' },
   version: { type: 'boolean', short: 'v' }, help: { type: 'boolean', short: 'h' },
 } as const;
 
@@ -107,7 +129,7 @@ function scopeFrom(v: Values): DiffScope | { kind: 'file'; path: string } {
 
 async function cmdReview(v: Values, cwd: string): Promise<number> {
   const log = stderrLogger(v.verbose ? 'debug' : 'info');
-  let format: Format = process.stdout.isTTY ? 'pretty' : 'plain';
+  let format: Format = process.stdout.isTTY && !detectAgent(process.env) ? 'pretty' : 'plain';
   if (v.format) {
     if (!['pretty', 'plain', 'markdown', 'json'].includes(v.format)) throw new UsageError(`unknown --format ${v.format}`);
     format = v.format as Format;
@@ -223,6 +245,12 @@ export async function main(argv: string[], cwd = process.cwd()): Promise<number>
       case 'learn': return cmdLearn(rest.join(' '), cwd);
       case 'learnings': return cmdLearnings(cwd);
       case 'providers': return await cmdProviders(v, cwd);
+      case 'fix': return await cmdFix(rest, v, cwd);
+      case 'apply': return cmdApply(rest, v, cwd);
+      case 'install': return cmdInstall(rest, v, cwd);
+      case 'hook': return cmdHook(rest[0], cwd);
+      case 'doctor': return await cmdDoctor({ config: v.config, overrides: overridesFrom(v) }, cwd);
+      case 'pr': return await cmdPr(rest[0], v, cwd);
       case 'version': process.stdout.write(`codewolf ${VERSION}\n`); return 0;
       default: throw new UsageError(`unknown command "${cmd}". Run codewolf --help for usage.`);
     }

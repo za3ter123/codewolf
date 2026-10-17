@@ -9261,7 +9261,7 @@ async function review(files, config, opts = {}) {
 // package.json
 var package_default = {
   name: "codewolf",
-  version: "0.1.0",
+  version: "0.2.0",
   description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
   type: "module",
   license: "MIT",

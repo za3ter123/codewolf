@@ -113,17 +113,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path7) {
-      const ctrl = callVisitor(key, node, visitor, path7);
+    function visit_(key, node, visitor, path12) {
+      const ctrl = callVisitor(key, node, visitor, path12);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path7, ctrl);
-        return visit_(key, ctrl, visitor, path7);
+        replaceNode(key, path12, ctrl);
+        return visit_(key, ctrl, visitor, path12);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path7 = Object.freeze(path7.concat(node));
+          path12 = Object.freeze(path12.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path7);
+            const ci = visit_(i, node.items[i], visitor, path12);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -134,13 +134,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path7 = Object.freeze(path7.concat(node));
-          const ck = visit_("key", node.key, visitor, path7);
+          path12 = Object.freeze(path12.concat(node));
+          const ck = visit_("key", node.key, visitor, path12);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path7);
+          const cv = visit_("value", node.value, visitor, path12);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -161,17 +161,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path7) {
-      const ctrl = await callVisitor(key, node, visitor, path7);
+    async function visitAsync_(key, node, visitor, path12) {
+      const ctrl = await callVisitor(key, node, visitor, path12);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path7, ctrl);
-        return visitAsync_(key, ctrl, visitor, path7);
+        replaceNode(key, path12, ctrl);
+        return visitAsync_(key, ctrl, visitor, path12);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path7 = Object.freeze(path7.concat(node));
+          path12 = Object.freeze(path12.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path7);
+            const ci = await visitAsync_(i, node.items[i], visitor, path12);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -182,13 +182,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path7 = Object.freeze(path7.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path7);
+          path12 = Object.freeze(path12.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path12);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path7);
+          const cv = await visitAsync_("value", node.value, visitor, path12);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -215,23 +215,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path7) {
+    function callVisitor(key, node, visitor, path12) {
       if (typeof visitor === "function")
-        return visitor(key, node, path7);
+        return visitor(key, node, path12);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path7);
+        return visitor.Map?.(key, node, path12);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path7);
+        return visitor.Seq?.(key, node, path12);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path7);
+        return visitor.Pair?.(key, node, path12);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path7);
+        return visitor.Scalar?.(key, node, path12);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path7);
+        return visitor.Alias?.(key, node, path12);
       return void 0;
     }
-    function replaceNode(key, path7, node) {
-      const parent = path7[path7.length - 1];
+    function replaceNode(key, path12, node) {
+      const parent = path12[path12.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -843,10 +843,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path7, value) {
+    function collectionFromPath(schema, path12, value) {
       let v = value;
-      for (let i = path7.length - 1; i >= 0; --i) {
-        const k = path7[i];
+      for (let i = path12.length - 1; i >= 0; --i) {
+        const k = path12[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -865,7 +865,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path7) => path7 == null || typeof path7 === "object" && !!path7[Symbol.iterator]().next().done;
+    var isEmptyPath = (path12) => path12 == null || typeof path12 === "object" && !!path12[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -895,11 +895,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path7, value) {
-        if (isEmptyPath(path7))
+      addIn(path12, value) {
+        if (isEmptyPath(path12))
           this.add(value);
         else {
-          const [key, ...rest] = path7;
+          const [key, ...rest] = path12;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -913,8 +913,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path7) {
-        const [key, ...rest] = path7;
+      deleteIn(path12) {
+        const [key, ...rest] = path12;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -928,8 +928,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path7, keepScalar) {
-        const [key, ...rest] = path7;
+      getIn(path12, keepScalar) {
+        const [key, ...rest] = path12;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -947,8 +947,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path7) {
-        const [key, ...rest] = path7;
+      hasIn(path12) {
+        const [key, ...rest] = path12;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -958,8 +958,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path7, value) {
-        const [key, ...rest] = path7;
+      setIn(path12, value) {
+        const [key, ...rest] = path12;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -3474,9 +3474,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path7, value) {
+      addIn(path12, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path7, value);
+          this.contents.addIn(path12, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -3551,14 +3551,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path7) {
-        if (Collection.isEmptyPath(path7)) {
+      deleteIn(path12) {
+        if (Collection.isEmptyPath(path12)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path7) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path12) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -3573,10 +3573,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path7, keepScalar) {
-        if (Collection.isEmptyPath(path7))
+      getIn(path12, keepScalar) {
+        if (Collection.isEmptyPath(path12))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path7, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path12, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -3587,10 +3587,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path7) {
-        if (Collection.isEmptyPath(path7))
+      hasIn(path12) {
+        if (Collection.isEmptyPath(path12))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path7) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path12) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3607,13 +3607,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path7, value) {
-        if (Collection.isEmptyPath(path7)) {
+      setIn(path12, value) {
+        if (Collection.isEmptyPath(path12)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path7), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path12), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path7, value);
+          this.contents.setIn(path12, value);
         }
       }
       /**
@@ -5574,9 +5574,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path7) => {
+    visit.itemAtPath = (cst, path12) => {
       let item = cst;
-      for (const [field, index] of path7) {
+      for (const [field, index] of path12) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -5585,23 +5585,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path7) => {
-      const parent = visit.itemAtPath(cst, path7.slice(0, -1));
-      const field = path7[path7.length - 1][0];
+    visit.parentCollection = (cst, path12) => {
+      const parent = visit.itemAtPath(cst, path12.slice(0, -1));
+      const field = path12[path12.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path7, item, visitor) {
-      let ctrl = visitor(item, path7);
+    function _visit(path12, item, visitor) {
+      let ctrl = visitor(item, path12);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path7.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path12.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5612,10 +5612,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path7);
+            ctrl = ctrl(item, path12);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path7) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path12) : ctrl;
     }
     exports.visit = visit;
   }
@@ -7367,8 +7367,8 @@ var require_dist = __commonJS({
 });
 
 // src/cli.ts
-import { existsSync as existsSync5, readFileSync as readFileSync5, writeFileSync } from "node:fs";
-import path6 from "node:path";
+import { existsSync as existsSync8, readFileSync as readFileSync10, writeFileSync as writeFileSync6 } from "node:fs";
+import path11 from "node:path";
 import { parseArgs } from "node:util";
 
 // src/cli/git.ts
@@ -7476,147 +7476,150 @@ function collectDiff(scope, cwd) {
   return [tracked.replace(/\n?$/, "\n"), ...extra].join("").replace(/^\n$/, "");
 }
 
-// src/cli/format.ts
-function loc(f) {
-  return `${f.file}:${f.line}${f.endLine ? `-${f.endLine}` : ""}`;
+// src/cli/agent.ts
+function detectAgent(env, isTTY = process.stdout.isTTY === true) {
+  if (env.CLAUDECODE || env.CLAUDE_CODE_ENTRYPOINT) return "claude";
+  if (env.CURSOR_AGENT) return "cursor";
+  if (env.GEMINI_CLI) return "gemini";
+  if (env.OPENCODE) return "opencode";
+  if (!isTTY && (env.CODEX_SANDBOX || env.CODEX_HOME)) return "codex";
+  if (!isTTY && Object.keys(env).some((k) => k.startsWith("AIDER_") && env[k])) return "aider";
+  return null;
 }
-function counts(r) {
-  const parts = Object.entries(r.stats.bySeverity).filter(([, n]) => n > 0).map(([s2, n]) => `${n} ${s2}`);
-  return parts.length ? ` (${parts.join(", ")})` : "";
+
+// src/cli/apply.ts
+import { lstatSync as lstatSync2, readFileSync as readFileSync3, realpathSync, writeFileSync as writeFileSync2 } from "node:fs";
+import path3 from "node:path";
+
+// src/core/store.ts
+import { spawnSync as spawnSync2 } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync as readFileSync2, renameSync, writeFileSync } from "node:fs";
+import path2 from "node:path";
+var warnedCorrupt = false;
+function stateDir(root) {
+  const r = spawnSync2("git", ["rev-parse", "--git-path", "codewolf"], { cwd: root, encoding: "utf8", windowsHide: true });
+  if (r.error || r.status !== 0 || !r.stdout.trim()) return null;
+  const dir = path2.resolve(root, r.stdout.trim());
+  mkdirSync(dir, { recursive: true });
+  return dir;
 }
-function via(r) {
-  return r.provider.model ? `${r.provider.name}/${r.provider.model}` : r.provider.name;
+var empty = () => ({ version: 1, head: null, reviewedAt: "", findings: [] });
+function readStore(root) {
+  const dir = stateDir(root);
+  const file = dir && path2.join(dir, "findings.json");
+  if (!file || !existsSync(file)) return empty();
+  try {
+    const s2 = JSON.parse(readFileSync2(file, "utf8"));
+    if (s2?.version !== 1 || !Array.isArray(s2.findings)) throw new Error("bad shape");
+    return s2;
+  } catch {
+    if (!warnedCorrupt) {
+      warnedCorrupt = true;
+      process.stderr.write(`codewolf: warn: ${file} is corrupt; starting with an empty findings store
+`);
+    }
+    return empty();
+  }
 }
-function formatPlain(r) {
-  const blocks = r.findings.map((f) => {
-    const lines = [`${loc(f)} ${f.severity} ${f.category} ${f.title}`, f.body];
-    if (f.suggestion !== void 0) lines.push("suggestion:", f.suggestion);
-    if (f.rewrite) lines.push(`rewrite (${f.rewrite.language}): ${f.rewrite.reason}`);
-    return lines.join("\n");
+function writeStore(root, s2) {
+  const dir = stateDir(root);
+  if (!dir) throw new Error("not inside a git repository: the findings store is disabled");
+  const file = path2.join(dir, "findings.json");
+  const tmp = `${file}.${process.pid}.tmp`;
+  writeFileSync(tmp, JSON.stringify(s2, null, 2) + "\n");
+  renameSync(tmp, file);
+}
+function relocate(f, fileText) {
+  const lines = fileText.split("\n").map((l) => l.replace(/\r$/, ""));
+  let best = null;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i] !== f.snippet) continue;
+    if (best === null || Math.abs(i + 1 - f.line) < Math.abs(best - f.line)) best = i + 1;
+  }
+  return best;
+}
+
+// src/cli/apply.ts
+function repoFile(root, rel) {
+  if (!rel || path3.isAbsolute(rel) || /^([a-z]:|[\\/])/i.test(rel) || rel.split(/[\\/]/).includes("..")) throw new Error(`unsafe path in finding: ${rel}`);
+  const realRoot = realpathSync(root);
+  let abs;
+  try {
+    abs = realpathSync(path3.join(realRoot, rel));
+  } catch {
+    throw new Error(`file not found: ${rel}`);
+  }
+  const r = path3.relative(realRoot, abs);
+  if (!r || r === ".." || r.startsWith(".." + path3.sep) || path3.isAbsolute(r)) throw new Error(`path escapes the repository: ${rel}`);
+  if (!lstatSync2(abs).isFile()) throw new Error(`not a regular file: ${rel}`);
+  return abs;
+}
+function openStore(cwd) {
+  const root = repoRoot(cwd);
+  if (!root) throw new Error("not inside a git repository: the findings store is disabled");
+  return { root, store: readStore(root) };
+}
+function byIds(store, ids) {
+  return ids.map((id) => {
+    const f = store.findings.find((x) => x.id === id);
+    if (!f) throw new Error(`no stored finding with id ${id} (run codewolf findings)`);
+    return f;
   });
-  const tail = r.findings.length ? `codewolf: ${r.findings.length} finding(s)${counts(r)} in ${r.stats.files} file(s) via ${via(r)}` : `codewolf: no findings in ${r.stats.files} file(s) via ${via(r)}`;
-  return [...blocks, tail].join("\n\n") + "\n";
 }
-var mdCell = (s2) => s2.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
-function fence(code, lang = "") {
-  const ticks = code.includes("```") ? "````" : "```";
-  return `${ticks}${lang}
-${code}
-${ticks}`;
-}
-function formatMarkdown(r) {
-  const out = ["# CodeWolf review", "", r.summary, ""];
-  out.push(`Review effort: ${r.effort.score}/5, about ${r.effort.minutes} min. Model: ${via(r)}.`, "");
-  if (r.walkthrough.length) {
-    out.push("## Walkthrough", "", "| File | Change |", "| --- | --- |");
-    for (const w of r.walkthrough) out.push(`| \`${mdCell(w.file)}\` | ${mdCell(w.change)} |`);
-    out.push("");
+function applyOne(root, f, dryRun) {
+  if (typeof f.suggestion !== "string") return "it has no suggestion";
+  let abs;
+  try {
+    abs = repoFile(root, f.file);
+  } catch (e) {
+    return e.message;
   }
-  if (r.diagram) out.push("## Flow", "", fence(r.diagram, "mermaid"), "");
-  out.push(`## Findings: ${r.findings.length}${counts(r)}`, "");
-  for (const f of r.findings) {
-    out.push(`### ${f.severity} / ${f.category}: ${f.title}`, "", `\`${loc(f)}\`${f.source !== "llm" ? ` (${f.source})` : ""}`, "", f.body, "");
-    if (f.suggestion !== void 0) out.push("Suggested replacement:", "", fence(f.suggestion), "");
-    if (f.rewrite) out.push(`Rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`, "", fence(f.rewrite.code, f.rewrite.language.toLowerCase()), "");
+  const text = readFileSync3(abs, "utf8");
+  const eol = text.includes("\r\n") ? "\r\n" : "\n";
+  const lines = text.split("\n").map((l) => l.replace(/\r$/, ""));
+  const start = relocate(f, text);
+  if (start === null) return "its line changed since the review (snippet not found)";
+  const end = start + Math.max(0, (f.endLine ?? f.line) - f.line);
+  if (lines[start - 1] !== f.snippet || end > lines.length) return "the target text no longer matches";
+  const replacement = f.suggestion === "" ? [] : f.suggestion.replace(/\r?\n$/, "").split(/\r?\n/);
+  const old = lines.slice(start - 1, end);
+  if (dryRun) {
+    process.stdout.write([`--- ${f.file}:${start}${end > start ? "-" + end : ""} (${f.id})`, ...old.map((l) => `-${l}`), ...replacement.map((l) => `+${l}`)].join("\n") + "\n");
+    return null;
   }
-  if (r.warnings?.length) out.push("## Warnings", "", ...r.warnings.map((w) => `- ${w}`), "");
-  return out.join("\n");
+  lines.splice(start - 1, end - start + 1, ...replacement);
+  writeFileSync2(abs, lines.join(eol));
+  process.stdout.write(`applied ${f.id} to ${f.file}:${start}
+`);
+  return null;
 }
-var C = { reset: "\x1B[0m", bold: "\x1B[1m", dim: "\x1B[2m", red: "\x1B[31m", yellow: "\x1B[33m", cyan: "\x1B[36m", gray: "\x1B[90m", green: "\x1B[32m" };
-var SEV_COLOR = { critical: C.red, major: C.yellow, minor: C.cyan, nit: C.gray };
-function formatPretty(r, color) {
-  const c = (code, s2) => color ? `${code}${s2}${C.reset}` : s2;
-  const out = [c(C.bold, "CodeWolf review"), r.summary, ""];
-  for (const w of r.walkthrough) out.push(`  ${c(C.dim, w.file)}  ${w.change}`);
-  if (r.walkthrough.length) out.push("");
-  for (const f of r.findings) {
-    out.push(`${c(SEV_COLOR[f.severity] ?? "", f.severity.toUpperCase().padEnd(8))} ${c(C.bold, f.title)}`);
-    out.push(`         ${c(C.dim, `${loc(f)} ${f.category}${f.source !== "llm" ? ` ${f.source}` : ""}`)}`);
-    for (const l of f.body.split("\n")) out.push(`         ${l}`);
-    if (f.suggestion !== void 0) for (const l of f.suggestion.split("\n")) out.push(`         ${c(C.green, `+ ${l}`)}`);
-    if (f.rewrite) out.push(`         ${c(C.dim, `rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`)}`);
-    out.push("");
+function cmdApply(ids, opts, cwd) {
+  if (!ids.length) throw new Error("usage: codewolf apply <id...> [--dry-run]");
+  const { root, store } = openStore(cwd);
+  let failed = 0;
+  for (const f of byIds(store, ids)) {
+    const err = applyOne(root, f, !!opts["dry-run"]);
+    if (err) {
+      failed++;
+      process.stderr.write(`codewolf: refused ${f.id} (${f.file}:${f.line}): ${err}; file untouched
+`);
+      continue;
+    }
+    if (!opts["dry-run"]) f.status = "fixed";
   }
-  out.push(r.findings.length ? `${r.findings.length} finding(s)${counts(r)}` : c(C.green, "No findings."));
-  out.push(c(C.dim, `${r.stats.files} file(s), effort ${r.effort.score}/5 (~${r.effort.minutes} min), ${via(r)}`));
-  return out.join("\n") + "\n";
-}
-function formatNdjson(r) {
-  const lines = r.findings.map((f) => JSON.stringify({ type: "finding", ...f }));
-  lines.push(JSON.stringify({ type: "summary", summary: r.summary, stats: r.stats, effort: r.effort, provider: r.provider, walkthrough: r.walkthrough, ...r.warnings?.length ? { warnings: r.warnings } : {} }));
-  return lines.join("\n") + "\n";
-}
-function formatResult(r, format, color) {
-  switch (format) {
-    case "json":
-      return JSON.stringify(r, null, 2) + "\n";
-    case "markdown":
-      return formatMarkdown(r);
-    case "pretty":
-      return formatPretty(r, color);
-    default:
-      return formatPlain(r);
-  }
+  if (!opts["dry-run"]) writeStore(root, store);
+  return failed ? 2 : 0;
 }
 
-// src/cli/template.ts
-var INIT_TEMPLATE = `# CodeWolf configuration. Every key is optional; CLI flags override this file.
-# Docs: https://github.com/za3ter123/codewolf
-
-# quiet = critical only, chill = critical + major and a few minor, assertive = everything including nits
-profile: chill
-
-# Language for summaries and comments
-language: en
-
-# Providers are tried in order. When every key of one provider is rate limited or rejected,
-# CodeWolf falls through to the next. keys accepts literal keys or env:NAME (comma or newline list).
-providers:
-  - name: anthropic
-    model: claude-sonnet-5-5
-    keys: [env:ANTHROPIC_API_KEYS]
-  # Any OpenAI-compatible server: OpenAI, OpenRouter, Groq, Together, LM Studio, vLLM
-  # - name: openai
-  #   baseUrl: https://openrouter.ai/api/v1
-  #   model: qwen/qwen3-coder
-  #   keys: [env:OPENROUTER_API_KEY]
-  # - name: gemini
-  #   model: gemini-2.5-flash
-  #   keys: [env:GEMINI_API_KEYS]
-  # Your Claude subscription through the local Claude Code CLI, no API key
-  # - name: claude-code
-  # Local and free
-  - name: ollama
-    model: qwen2.5-coder:7b
-    # baseUrl: http://127.0.0.1:11434
-    # timeout: 900          # seconds
-
-review:
-  # Added to the built-in excludes (lockfiles, dist/, minified files, binaries). Prefix with ! to re-include.
-  exclude: []
-  # Extra instructions for matching paths
-  pathInstructions: []
-  #  - path: "src/api/**"
-  #    instructions: "Check authorization on every handler."
-  # Exit 1 when a finding is at or above this severity: critical | major | minor | nit | none
-  failOn: none
-  # Include CLAUDE.md, AGENTS.md, .cursorrules and .github/copilot-instructions.md as project guidelines
-  guidelines: true
-  # concurrency: 4
-  # maxChunkTokens: 12000
-
-# Local linters fused into the review when installed. Set one to false to skip it.
-tools:
-  ruff: true
-  eslint: true
-  semgrep: true
-  gitleaks: true
-`;
+// src/cli/doctor.ts
+import { spawnSync as spawnSync3 } from "node:child_process";
+import { unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
+import path7 from "node:path";
 
 // src/core/config.ts
 var import_yaml = __toESM(require_dist(), 1);
-import { existsSync as existsSync2, readFileSync as readFileSync3 } from "node:fs";
-import path3 from "node:path";
+import { existsSync as existsSync3, readFileSync as readFileSync5 } from "node:fs";
+import path5 from "node:path";
 
 // src/shared/mask.ts
 var known = /* @__PURE__ */ new Set();
@@ -7644,17 +7647,17 @@ var CATEGORIES = ["bug", "security", "performance", "maintainability", "style", 
 var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code"];
 
 // src/core/learnings.ts
-import { appendFileSync, existsSync, mkdirSync, readFileSync as readFileSync2 } from "node:fs";
-import path2 from "node:path";
+import { appendFileSync, existsSync as existsSync2, mkdirSync as mkdirSync2, readFileSync as readFileSync4 } from "node:fs";
+import path4 from "node:path";
 function learningsPath(root) {
-  return path2.join(root, ".codewolf", "learnings.md");
+  return path4.join(root, ".codewolf", "learnings.md");
 }
 function readLearnings(root) {
   const file = learningsPath(root);
-  if (!existsSync(file)) return [];
+  if (!existsSync2(file)) return [];
   let text;
   try {
-    text = readFileSync2(file, "utf8");
+    text = readFileSync4(file, "utf8");
   } catch {
     return [];
   }
@@ -7664,11 +7667,11 @@ function appendLearning(root, text) {
   const clean = text.replace(/\s+/g, " ").trim();
   if (!clean) throw new Error("learning text is empty");
   const file = learningsPath(root);
-  mkdirSync(path2.dirname(file), { recursive: true });
+  mkdirSync2(path4.dirname(file), { recursive: true });
   let prefix = "";
-  if (!existsSync(file)) prefix = "# CodeWolf learnings\n\n<!-- Reviewer preferences for this repo, one per line. CodeWolf adds them to every review prompt. -->\n\n";
+  if (!existsSync2(file)) prefix = "# CodeWolf learnings\n\n<!-- Reviewer preferences for this repo, one per line. CodeWolf adds them to every review prompt. -->\n\n";
   else {
-    const cur = readFileSync2(file, "utf8");
+    const cur = readFileSync4(file, "utf8");
     if (cur.length && !cur.endsWith("\n")) prefix = "\n";
   }
   appendFileSync(file, `${prefix}- ${clean}
@@ -7681,11 +7684,11 @@ function readGuidelines(root, cap = GUIDELINES_CAP) {
   const parts = [];
   let used = 0;
   for (const name of GUIDELINE_FILES) {
-    const file = path2.join(root, name);
-    if (!existsSync(file)) continue;
+    const file = path4.join(root, name);
+    if (!existsSync2(file)) continue;
     let text;
     try {
-      text = readFileSync2(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+      text = readFileSync4(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
     } catch {
       continue;
     }
@@ -7968,7 +7971,7 @@ function resolveConfig(raw, overrides = {}, opts = {}) {
   const toolsDefault = toolsRaw === false ? false : true;
   const tools = typeof toolsRaw === "object" && toolsRaw !== null ? asObject(toolsRaw, "tools") : {};
   const guidelinesOn = bool(review2.guidelines, "review.guidelines", true);
-  const root = path3.resolve(opts.root ?? (opts.configPath ? path3.dirname(opts.configPath) : process.cwd()));
+  const root = path5.resolve(opts.root ?? (opts.configPath ? path5.dirname(opts.configPath) : process.cwd()));
   const resolved = {
     profile: parseProfile(overrides.profile, "--profile") ?? parseProfile(cfg.profile, "profile") ?? "chill",
     language: str(overrides.language, "--language") ?? str(cfg.language, "language") ?? "en",
@@ -7995,13 +7998,13 @@ function resolveConfig(raw, overrides = {}, opts = {}) {
   return resolved;
 }
 function findConfigFile(cwd) {
-  let dir = path3.resolve(cwd);
+  let dir = path5.resolve(cwd);
   for (; ; ) {
     for (const name of CONFIG_FILENAMES) {
-      const p = path3.join(dir, name);
-      if (existsSync2(p)) return p;
+      const p = path5.join(dir, name);
+      if (existsSync3(p)) return p;
     }
-    const up = path3.dirname(dir);
+    const up = path5.dirname(dir);
     if (up === dir) return void 0;
     dir = up;
   }
@@ -8009,7 +8012,7 @@ function findConfigFile(cwd) {
 function readConfigFile(file) {
   let text;
   try {
-    text = readFileSync3(file, "utf8");
+    text = readFileSync5(file, "utf8");
   } catch (e) {
     throw new ConfigError(`cannot read config ${file}: ${e.message}`);
   }
@@ -8023,19 +8026,961 @@ function loadConfig(opts = {}) {
   const cwd = opts.cwd ?? process.cwd();
   let file;
   if (opts.configPath) {
-    file = path3.resolve(cwd, opts.configPath);
-    if (!existsSync2(file)) throw new ConfigError(`config file not found: ${file}`);
+    file = path5.resolve(cwd, opts.configPath);
+    if (!existsSync3(file)) throw new ConfigError(`config file not found: ${file}`);
   } else {
     file = findConfigFile(cwd);
   }
   const raw = file ? readConfigFile(file) : {};
-  const ro = { root: opts.root ?? (file && !opts.configPath ? path3.dirname(file) : cwd) };
+  const ro = { root: opts.root ?? (file && !opts.configPath ? path5.dirname(file) : cwd) };
   if (opts.env) ro.env = opts.env;
   if (opts.trusted) ro.trusted = true;
   if (opts.warn) ro.warn = opts.warn;
   if (file) ro.configPath = file;
   return resolveConfig(raw, opts.overrides ?? {}, ro);
 }
+
+// src/providers/claude-code.ts
+import { spawn } from "node:child_process";
+import { existsSync as existsSync4 } from "node:fs";
+import path6 from "node:path";
+
+// src/providers/http.ts
+var ProviderError = class extends Error {
+  name = "ProviderError";
+  kind;
+  status;
+  retryAfterSec;
+  constructor(message, kind, status, retryAfterSec) {
+    super(redact(message));
+    this.kind = kind;
+    this.status = status;
+    this.retryAfterSec = retryAfterSec;
+  }
+};
+var MAX_RETRY_AFTER_SEC = 3600;
+function parseRetryAfter(v, now = Date.now()) {
+  if (!v) return void 0;
+  const t = v.trim();
+  if (/^\d+(\.\d+)?$/.test(t)) return Math.min(Math.ceil(Number(t)), MAX_RETRY_AFTER_SEC);
+  const d = Date.parse(t);
+  if (Number.isNaN(d)) return void 0;
+  return Math.min(Math.max(0, Math.ceil((d - now) / 1e3)), MAX_RETRY_AFTER_SEC);
+}
+function classifyStatus(status) {
+  if (status === 429) return "rate";
+  if (status === 401 || status === 403) return "auth";
+  if (status === 408 || status === 409 || status >= 500) return "server";
+  return "client";
+}
+function errorText(body) {
+  try {
+    const j = JSON.parse(body);
+    const m = typeof j.error === "string" ? j.error : j.error?.message ?? j.message;
+    if (m) return String(m).slice(0, 300);
+  } catch {
+  }
+  return body.replace(/\s+/g, " ").trim().slice(0, 300);
+}
+async function postJson(url, headers, body, opts) {
+  const timeout = AbortSignal.timeout(opts.timeoutMs);
+  const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
+  let res;
+  try {
+    res = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body), signal });
+  } catch (e) {
+    if (opts.signal?.aborted) throw e;
+    if (timeout.aborted) throw new ProviderError(`timed out after ${Math.round(opts.timeoutMs / 1e3)}s`, "timeout");
+    const err = e;
+    const code = err.cause?.code ?? "";
+    const detail = err.cause?.message ?? err.message;
+    if (code === "ECONNREFUSED" || code === "ENOTFOUND" || code === "EAI_AGAIN") throw new ProviderError(`cannot reach ${new URL(url).host}: ${detail}`, "unavailable");
+    throw new ProviderError(`network error: ${detail}`, "server");
+  }
+  let text;
+  try {
+    text = await res.text();
+  } catch (e) {
+    if (opts.signal?.aborted) throw e;
+    if (timeout.aborted) throw new ProviderError(`timed out after ${Math.round(opts.timeoutMs / 1e3)}s`, "timeout");
+    throw new ProviderError(`network error reading response: ${e.message}`, "server");
+  }
+  if (!res.ok) {
+    const kind = classifyStatus(res.status);
+    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get("retry-after")));
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new ProviderError(`response is not JSON: ${text.slice(0, 120)}`, "server", res.status);
+  }
+}
+
+// src/providers/claude-code.ts
+var SAFE_ARG = /^[\w.:@/\-[\]]+$/;
+function whichSync(cmd, env = process.env) {
+  const isWin = process.platform === "win32";
+  const exts = isWin ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean) : [""];
+  const hasExt = isWin && /\.[a-z0-9]+$/i.test(cmd);
+  const candidates2 = hasExt ? [cmd] : exts.map((e) => cmd + e.toLowerCase());
+  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync4(c));
+  for (const dir of (env.PATH ?? env.Path ?? "").split(path6.delimiter).filter(Boolean)) {
+    for (const c of candidates2) {
+      const full = path6.join(dir, c);
+      if (existsSync4(full)) return full;
+    }
+  }
+  return void 0;
+}
+function resolveSpawn(command, args) {
+  if (/\.(c|m)?js$/i.test(command)) return { file: process.execPath, args: [command, ...args], verbatim: false };
+  const found = whichSync(command);
+  if (!found) throw new ProviderError(`claude-code: "${command}" not found on PATH (install Claude Code or set provider command)`, "unavailable");
+  if (process.platform === "win32" && /\.(cmd|bat)$/i.test(found)) {
+    const quoted = args.map((a) => `"${a.replace(/"/g, '""')}"`).join(" ");
+    return { file: process.env.ComSpec ?? "cmd.exe", args: ["/d", "/s", "/c", `""${found}" ${quoted}"`], verbatim: true };
+  }
+  return { file: found, args, verbatim: false };
+}
+function parseClaudeOutput(stdout) {
+  const t = stdout.trim();
+  let data;
+  try {
+    data = JSON.parse(t);
+  } catch {
+    const last = t.split(/\r?\n/).filter(Boolean).pop() ?? "";
+    try {
+      data = JSON.parse(last);
+    } catch {
+      throw new ProviderError(`claude-code printed non-JSON output: ${t.slice(0, 160)}`, "server");
+    }
+  }
+  const obj = Array.isArray(data) ? [...data].reverse().find((x) => x && x.type === "result") : data;
+  if (!obj || typeof obj.result !== "string") throw new ProviderError("claude-code output has no result field", "server");
+  if (obj.is_error) {
+    const kind = /rate|limit|quota|usage/i.test(obj.result) ? "rate" : /log ?in|auth|credential/i.test(obj.result) ? "auth" : "server";
+    throw new ProviderError(`claude-code error: ${obj.result.slice(0, 200)}`, kind);
+  }
+  return obj.result;
+}
+function runClaudeCode(p, req) {
+  const args = ["-p", "--output-format", "json", "--no-session-persistence", "--strict-mcp-config", "--setting-sources", ""];
+  if (p.model) {
+    if (!SAFE_ARG.test(p.model)) throw new ProviderError(`claude-code: invalid model name "${p.model}"`, "client");
+    args.push("--model", p.model);
+  }
+  args.push("--tools", "");
+  const spec = resolveSpawn(p.command ?? "claude", args);
+  const env = { ...process.env };
+  delete env.CLAUDECODE;
+  const input = `<reviewer_instructions>
+${req.system}
+</reviewer_instructions>
+
+${req.prompt}`;
+  return new Promise((resolve, reject) => {
+    const child = spawn(spec.file, spec.args, { env, windowsHide: true, windowsVerbatimArguments: spec.verbatim, stdio: ["pipe", "pipe", "pipe"] });
+    let out = "", err = "", done = false;
+    const finish2 = (fn) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      req.signal?.removeEventListener("abort", onAbort);
+      fn();
+    };
+    const timer = setTimeout(() => {
+      child.kill();
+      finish2(() => reject(new ProviderError(`claude-code timed out after ${Math.round(p.timeoutMs / 1e3)}s`, "timeout")));
+    }, p.timeoutMs);
+    const onAbort = () => {
+      child.kill();
+      finish2(() => reject(req.signal.reason ?? new Error("aborted")));
+    };
+    req.signal?.addEventListener("abort", onAbort, { once: true });
+    child.stdout.setEncoding("utf8").on("data", (d) => out += d);
+    child.stderr.setEncoding("utf8").on("data", (d) => err += d);
+    child.on("error", (e) => finish2(() => reject(new ProviderError(`claude-code failed to start: ${e.message}`, e.code === "ENOENT" ? "unavailable" : "server"))));
+    child.on("close", (code) => finish2(() => {
+      if (code !== 0 && !out.trim()) {
+        reject(new ProviderError(`claude-code exited ${code}: ${err.trim().slice(0, 200)}`, "server"));
+        return;
+      }
+      try {
+        resolve(parseClaudeOutput(out));
+      } catch (e) {
+        reject(e);
+      }
+    }));
+    child.stdin.on("error", () => {
+    });
+    child.stdin.end(input);
+  });
+}
+
+// src/cli/doctor.ts
+var OLLAMA_DEFAULT = "http://127.0.0.1:11434";
+var OLLAMA_TIMEOUT_MS = 1e3;
+var MIN_NODE = 20;
+async function cmdDoctor(opts, cwd) {
+  const lines = [];
+  const add = (l, msg) => lines.push([l, msg]);
+  const major = Number(process.versions.node.split(".")[0]);
+  add(major >= MIN_NODE ? "OK" : "FAIL", `node ${process.versions.node}${major >= MIN_NODE ? "" : ` (needs ${MIN_NODE} or newer)`}`);
+  const gv = spawnSync3("git", ["--version"], { encoding: "utf8", windowsHide: true });
+  add(gv.status === 0 ? "OK" : "FAIL", gv.status === 0 ? gv.stdout.trim() : "git not found on PATH");
+  const root = gv.status === 0 ? repoRoot(cwd) : void 0;
+  add(root ? "OK" : "WARN", root ? `git repository ${root}` : "not inside a git repository (review --diff still works; local state is off)");
+  const file = opts.config ? path7.resolve(cwd, opts.config) : findConfigFile(cwd);
+  let config;
+  try {
+    const lo = { cwd, overrides: opts.overrides, root: root ?? cwd, warn: () => {
+    } };
+    if (opts.config) {
+      lo.configPath = opts.config;
+      lo.trusted = true;
+    }
+    config = loadConfig(lo);
+    if (!file) add("OK", "config: none found, using defaults and environment");
+    else if (opts.config) add("OK", `config ${file} (trusted: passed with --config)`);
+    else add("OK", `config ${file} (untrusted repo file: no env: refs, no commands, keys only to official hosts)`);
+  } catch (e) {
+    add("FAIL", `config: ${redact(e.message)}`);
+  }
+  for (const [i, p] of (config?.providers ?? []).entries()) {
+    const keys = p.keys.length ? `${p.keys.length} key(s): ${p.keys.map(maskKey).join(", ")}` : "no key";
+    const needsKey = p.name !== "ollama" && p.name !== "claude-code" && isOfficialHost(p.name, p.baseUrl);
+    add(needsKey && !p.keys.length ? "WARN" : "OK", `provider ${i + 1} ${p.name} model=${p.model || "(cli default)"}${p.baseUrl ? ` baseUrl=${p.baseUrl}` : ""} ${keys}`);
+  }
+  const ollama2 = (config?.providers.find((p) => p.name === "ollama")?.baseUrl || ollamaBase(process.env) || OLLAMA_DEFAULT).replace(/\/+$/, "");
+  try {
+    const res = await fetch(`${ollama2}/api/tags`, { signal: AbortSignal.timeout(OLLAMA_TIMEOUT_MS) });
+    await res.body?.cancel();
+    add(res.ok ? "OK" : "WARN", `ollama at ${ollama2} ${res.ok ? "reachable" : `answered ${res.status}`}`);
+  } catch {
+    add("WARN", `ollama not reachable at ${ollama2}`);
+  }
+  const claude = opts.overrides.claudeBin ?? process.env.CODEWOLF_CLAUDE_BIN ?? "claude";
+  const found = whichSync(claude);
+  add(found ? "OK" : "WARN", found ? `claude CLI ${found}` : `claude CLI "${claude}" not found (the claude-code provider and fix --to claude need it)`);
+  for (const tool of ["ruff", "eslint", "semgrep", "gitleaks"]) {
+    if (config && !config.tools[tool]) {
+      add("OK", `${tool} disabled in config`);
+      continue;
+    }
+    const at = whichSync(tool);
+    add(at ? "OK" : "WARN", at ? `${tool} ${at}` : `${tool} not found (optional linter, skipped in reviews)`);
+  }
+  if (!root) add("WARN", "state dir: unavailable outside a git repository");
+  else {
+    try {
+      const dir = stateDir(root);
+      if (!dir) throw new Error("git did not report a git dir");
+      const probe = path7.join(dir, `.doctor-${process.pid}`);
+      writeFileSync3(probe, "ok");
+      unlinkSync(probe);
+      add("OK", `state dir ${dir} writable`);
+    } catch (e) {
+      add("FAIL", `state dir not writable: ${e.message}`);
+    }
+  }
+  process.stdout.write(lines.map(([l, m]) => `${l.padEnd(4)} ${redact(m)}`).join("\n") + "\n");
+  return lines.some(([l]) => l === "FAIL") ? 1 : 0;
+}
+
+// src/cli/fix.ts
+import { spawn as spawn2 } from "node:child_process";
+import { readFileSync as readFileSync6 } from "node:fs";
+
+// src/action/render.ts
+function stripComments(text) {
+  return text.replace(/<!--[\s\S]*?(?:-->|$)/g, "");
+}
+function isBotAuthored(c) {
+  return c.user?.type === "Bot";
+}
+var HELP_TEXT = [
+  "CodeWolf commands (mention `@codewolf` followed by one of these):",
+  "",
+  "| Command | What it does |",
+  "| --- | --- |",
+  "| `review` | Review the commits pushed since the last review |",
+  "| `full review` | Review the whole pull request again from scratch |",
+  "| `pause` | Stop automatic reviews on this pull request |",
+  "| `resume` | Start automatic reviews again |",
+  "| `summary` | Regenerate the summary comment |",
+  "| `configuration` | Show the settings CodeWolf is using (keys are never shown) |",
+  "| `help` | Show this list |",
+  "",
+  "Anything else is treated as a question about the pull request."
+].join("\n");
+function oneLine(s2) {
+  return stripComments(s2).replace(/\s*\r?\n\s*/g, " ").trim();
+}
+function prose(s2) {
+  return stripComments(s2).trim();
+}
+var loc = (f) => `${f.file}:${f.line}${f.endLine && f.endLine > f.line ? "-" + f.endLine : ""}`;
+function agentPromptFor(f) {
+  if (f.agentPrompt?.trim()) return prose(f.agentPrompt);
+  const fix = typeof f.suggestion === "string" ? ` Replace those lines with:
+${f.suggestion.replace(/\n$/, "")}` : "";
+  return `In ${loc(f)}, fix this ${f.severity} ${f.category} issue: ${oneLine(f.title)}. ${oneLine(f.body)}${fix}`;
+}
+
+// src/cli/fix.ts
+var FIX_TARGETS = {
+  claude: { bin: "claude", args: ["-p"] },
+  codex: { bin: "codex", args: ["exec", "-"] },
+  opencode: { bin: "opencode", args: ["run"] },
+  gemini: { bin: "gemini", args: ["-p"] }
+};
+function clipboardCommands() {
+  if (process.platform === "win32") return [["clip", []]];
+  if (process.platform === "darwin") return [["pbcopy", []]];
+  return [["wl-copy", []], ["xclip", ["-selection", "clipboard"]]];
+}
+var HEADER = `Fix these code review findings from CodeWolf in this repository.
+For each one: open the file, check that the problem is real, and make the smallest change that fixes it.
+If a finding is wrong, leave that code alone and say why. Do not change unrelated code.
+When done, list each id with fixed or skipped and one line of why.`;
+function buildFixPrompt(root, findings) {
+  const items = findings.map((f, i) => {
+    let line = f.line;
+    try {
+      line = relocate(f, readFileSync6(repoFile(root, f.file), "utf8"));
+    } catch {
+    }
+    const moved = line === null ? " (the code at this line has changed since the review)" : "";
+    const at = line ?? f.line;
+    const shifted = { ...f, line: at, ...f.endLine ? { endLine: f.endLine + at - f.line } : {} };
+    return `${i + 1}. [${f.id}] ${agentPromptFor(shifted)}${moved}`;
+  });
+  return `${HEADER}
+
+${items.join("\n\n")}
+`;
+}
+function pipeTo(bin, args, text, showOutput) {
+  const spec = resolveSpawn(bin, args);
+  const env = { ...process.env };
+  delete env.CLAUDECODE;
+  return new Promise((resolve, reject) => {
+    const child = spawn2(spec.file, spec.args, { env, windowsHide: true, windowsVerbatimArguments: spec.verbatim, stdio: ["pipe", showOutput ? "inherit" : "ignore", "inherit"] });
+    child.on("error", reject);
+    child.on("close", (code) => resolve(code ?? 1));
+    child.stdin.on("error", () => {
+    });
+    child.stdin.end(text);
+  });
+}
+async function deliver(target, prompt, claudeBin) {
+  if (target === "clipboard") {
+    for (const [bin2, args] of clipboardCommands()) {
+      if (!whichSync(bin2)) continue;
+      try {
+        if (await pipeTo(bin2, args, prompt, false) === 0) {
+          process.stderr.write(`codewolf: fix prompt copied to the clipboard (${bin2})
+`);
+          return null;
+        }
+      } catch {
+      }
+    }
+    return "no clipboard tool worked";
+  }
+  const t = FIX_TARGETS[target];
+  const bin = target === "claude" ? claudeBin ?? process.env.CODEWOLF_CLAUDE_BIN ?? t.bin : t.bin;
+  if (!/\.(c|m)?js$/i.test(bin) && !whichSync(bin)) return `${bin} not found on PATH`;
+  try {
+    const code = await pipeTo(bin, t.args, prompt, true);
+    return code === 0 ? null : `${target} exited ${code}`;
+  } catch (e) {
+    return e.message;
+  }
+}
+async function cmdFix(ids, opts, cwd) {
+  if (ids.length && (opts.all || opts.nits)) throw new Error("give finding ids or --all / --nits, not both");
+  const targets = ["print", "clipboard", ...Object.keys(FIX_TARGETS)];
+  if (opts.to && !targets.includes(opts.to)) throw new Error(`unknown --to ${opts.to} (one of: ${targets.join(", ")})`);
+  const { root, store } = openStore(cwd);
+  const open = store.findings.filter((f) => f.status === "open");
+  const picked = ids.length ? byIds(store, ids).map((f) => {
+    if (f.status !== "open") throw new Error(`finding ${f.id} is ${f.status}`);
+    return f;
+  }) : open.filter((f) => opts.nits ? f.severity === "nit" : f.severity !== "nit");
+  if (!picked.length) {
+    process.stdout.write("codewolf: no open findings to fix\n");
+    return 0;
+  }
+  const prompt = buildFixPrompt(root, picked);
+  const target = opts.to ?? (!process.stdout.isTTY || detectAgent(process.env) ? "print" : Object.keys(FIX_TARGETS).find((t) => whichSync(FIX_TARGETS[t].bin)) ?? "print");
+  if (target !== "print") {
+    const err = await deliver(target, prompt, opts["claude-bin"]);
+    if (!err) return 0;
+    process.stderr.write(`codewolf: fix target ${target} failed (${err}); printing the prompt instead
+`);
+  }
+  process.stdout.write(prompt);
+  return 0;
+}
+
+// src/cli/format.ts
+function loc2(f) {
+  return `${f.file}:${f.line}${f.endLine ? `-${f.endLine}` : ""}`;
+}
+function counts(r) {
+  const parts = Object.entries(r.stats.bySeverity).filter(([, n]) => n > 0).map(([s2, n]) => `${n} ${s2}`);
+  return parts.length ? ` (${parts.join(", ")})` : "";
+}
+function via(r) {
+  return r.provider.model ? `${r.provider.name}/${r.provider.model}` : r.provider.name;
+}
+function formatPlain(r) {
+  const blocks = r.findings.map((f) => {
+    const lines = [`${loc2(f)} ${f.severity} ${f.category} ${f.title}`, f.body];
+    if (f.suggestion !== void 0) lines.push("suggestion:", f.suggestion);
+    if (f.rewrite) lines.push(`rewrite (${f.rewrite.language}): ${f.rewrite.reason}`);
+    return lines.join("\n");
+  });
+  const tail = r.findings.length ? `codewolf: ${r.findings.length} finding(s)${counts(r)} in ${r.stats.files} file(s) via ${via(r)}` : `codewolf: no findings in ${r.stats.files} file(s) via ${via(r)}`;
+  return [...blocks, tail].join("\n\n") + "\n";
+}
+var mdCell = (s2) => s2.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+function fence(code, lang = "") {
+  const ticks = code.includes("```") ? "````" : "```";
+  return `${ticks}${lang}
+${code}
+${ticks}`;
+}
+function formatMarkdown(r) {
+  const out = ["# CodeWolf review", "", r.summary, ""];
+  out.push(`Review effort: ${r.effort.score}/5, about ${r.effort.minutes} min. Model: ${via(r)}.`, "");
+  if (r.walkthrough.length) {
+    out.push("## Walkthrough", "", "| File | Change |", "| --- | --- |");
+    for (const w of r.walkthrough) out.push(`| \`${mdCell(w.file)}\` | ${mdCell(w.change)} |`);
+    out.push("");
+  }
+  if (r.diagram) out.push("## Flow", "", fence(r.diagram, "mermaid"), "");
+  out.push(`## Findings: ${r.findings.length}${counts(r)}`, "");
+  for (const f of r.findings) {
+    out.push(`### ${f.severity} / ${f.category}: ${f.title}`, "", `\`${loc2(f)}\`${f.source !== "llm" ? ` (${f.source})` : ""}`, "", f.body, "");
+    if (f.suggestion !== void 0) out.push("Suggested replacement:", "", fence(f.suggestion), "");
+    if (f.rewrite) out.push(`Rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`, "", fence(f.rewrite.code, f.rewrite.language.toLowerCase()), "");
+  }
+  if (r.warnings?.length) out.push("## Warnings", "", ...r.warnings.map((w) => `- ${w}`), "");
+  return out.join("\n");
+}
+var C = { reset: "\x1B[0m", bold: "\x1B[1m", dim: "\x1B[2m", red: "\x1B[31m", yellow: "\x1B[33m", cyan: "\x1B[36m", gray: "\x1B[90m", green: "\x1B[32m" };
+var SEV_COLOR = { critical: C.red, major: C.yellow, minor: C.cyan, nit: C.gray };
+function formatPretty(r, color) {
+  const c = (code, s2) => color ? `${code}${s2}${C.reset}` : s2;
+  const out = [c(C.bold, "CodeWolf review"), r.summary, ""];
+  for (const w of r.walkthrough) out.push(`  ${c(C.dim, w.file)}  ${w.change}`);
+  if (r.walkthrough.length) out.push("");
+  for (const f of r.findings) {
+    out.push(`${c(SEV_COLOR[f.severity] ?? "", f.severity.toUpperCase().padEnd(8))} ${c(C.bold, f.title)}`);
+    out.push(`         ${c(C.dim, `${loc2(f)} ${f.category}${f.source !== "llm" ? ` ${f.source}` : ""}`)}`);
+    for (const l of f.body.split("\n")) out.push(`         ${l}`);
+    if (f.suggestion !== void 0) for (const l of f.suggestion.split("\n")) out.push(`         ${c(C.green, `+ ${l}`)}`);
+    if (f.rewrite) out.push(`         ${c(C.dim, `rewrite in ${f.rewrite.language}: ${f.rewrite.reason}`)}`);
+    out.push("");
+  }
+  out.push(r.findings.length ? `${r.findings.length} finding(s)${counts(r)}` : c(C.green, "No findings."));
+  out.push(c(C.dim, `${r.stats.files} file(s), effort ${r.effort.score}/5 (~${r.effort.minutes} min), ${via(r)}`));
+  return out.join("\n") + "\n";
+}
+function formatNdjson(r) {
+  const lines = r.findings.map((f) => JSON.stringify({ type: "finding", ...f }));
+  lines.push(JSON.stringify({ type: "summary", summary: r.summary, stats: r.stats, effort: r.effort, provider: r.provider, walkthrough: r.walkthrough, ...r.warnings?.length ? { warnings: r.warnings } : {} }));
+  return lines.join("\n") + "\n";
+}
+function formatResult(r, format, color) {
+  switch (format) {
+    case "json":
+      return JSON.stringify(r, null, 2) + "\n";
+    case "markdown":
+      return formatMarkdown(r);
+    case "pretty":
+      return formatPretty(r, color);
+    default:
+      return formatPlain(r);
+  }
+}
+
+// src/cli/hook.ts
+import { chmodSync, existsSync as existsSync5, mkdirSync as mkdirSync3, readFileSync as readFileSync7, statSync, unlinkSync as unlinkSync2, writeFileSync as writeFileSync4 } from "node:fs";
+import path8 from "node:path";
+var BEGIN = "# >>> codewolf:managed post-commit (codewolf hook uninstall removes this block) >>>";
+var END = "# <<< codewolf:managed post-commit <<<";
+var BLOCK_RE = /\n?# >>> codewolf:managed post-commit[^\n]*\n[\s\S]*?# <<< codewolf:managed post-commit <<<\n?/;
+var SH_SHEBANG = /^#!\s*\S*\b(sh|bash|dash|zsh|ksh)\b|^#!\s*\S*env\s+(sh|bash|dash|zsh|ksh)\b/;
+var shq = (s2) => `'${s2.replace(/\\/g, "/").replace(/'/g, `'\\''`)}'`;
+function hookBlock(node, cli, out) {
+  return `${BEGIN}
+( ${shq(node)} ${shq(cli)} review --committed --format plain --fail-on none > ${shq(out)} 2>&1 < /dev/null & ) > /dev/null 2>&1
+${END}
+`;
+}
+function hookFile(root) {
+  return path8.join(path8.resolve(root, git(["rev-parse", "--git-path", "hooks"], root).trim()), "post-commit");
+}
+function cmdHook(sub, cwd) {
+  const root = repoRoot(cwd);
+  if (!root) throw new Error("not inside a git repository");
+  const file = hookFile(root);
+  const cur = existsSync5(file) ? readFileSync7(file, "utf8").replace(/\r\n/g, "\n") : null;
+  const ours = cur !== null && BLOCK_RE.test(cur);
+  switch (sub) {
+    case "install": {
+      const dir = stateDir(root);
+      if (!dir) throw new Error("cannot find the git dir for hook state");
+      const block = hookBlock(process.execPath, path8.resolve(process.argv[1] ?? ""), path8.join(dir, "last-hook-review.txt"));
+      let next;
+      if (cur === null) next = `#!/bin/sh
+${block}`;
+      else if (ours) next = cur.replace(BLOCK_RE, (m) => (m.startsWith("\n") ? "\n" : "") + block);
+      else {
+        const first = cur.split("\n", 1)[0];
+        if (first.startsWith("#!") && !SH_SHEBANG.test(first)) throw new Error(`${file} is not a shell script (${first}); add CodeWolf to it by hand`);
+        next = first.startsWith("#!") ? `${first}
+${block}${cur.slice(first.length + 1)}` : `${block}${cur}`;
+      }
+      mkdirSync3(path8.dirname(file), { recursive: true });
+      writeFileSync4(file, next);
+      try {
+        chmodSync(file, 493);
+      } catch {
+      }
+      process.stdout.write(`${ours ? "updated" : cur === null ? "installed" : "chained into existing"} post-commit hook: ${file}
+reviews land in ${path8.join(dir, "last-hook-review.txt")}
+`);
+      return 0;
+    }
+    case "uninstall": {
+      if (!ours) {
+        process.stdout.write("codewolf: no CodeWolf block in the post-commit hook; nothing to remove\n");
+        return 0;
+      }
+      const rest = cur.replace(BLOCK_RE, "\n").replace(/^\n/, "").replace(/\n{3,}/g, "\n\n");
+      if (/^(#![^\n]*)?\s*$/.test(rest)) unlinkSync2(file);
+      else writeFileSync4(file, rest);
+      process.stdout.write(`removed the CodeWolf block from ${file}
+`);
+      return 0;
+    }
+    case "status": {
+      const state = stateDir(root);
+      const last = state ? path8.join(state, "last-hook-review.txt") : null;
+      process.stdout.write(`post-commit hook: ${ours ? "installed" : cur === null ? "not installed" : "not installed (another hook exists; install will chain it)"}  ${file}
+`);
+      if (last && existsSync5(last)) process.stdout.write(`last hook review: ${last} (${statSync(last).mtime.toISOString()})
+`);
+      return 0;
+    }
+    default:
+      throw new Error("usage: codewolf hook install | uninstall | status");
+  }
+}
+
+// src/cli/install.ts
+import { existsSync as existsSync6, mkdirSync as mkdirSync4, readFileSync as readFileSync8, realpathSync as realpathSync2, writeFileSync as writeFileSync5 } from "node:fs";
+import { homedir } from "node:os";
+import path9 from "node:path";
+var MANAGED = "codewolf:managed";
+var MD_MARK = `<!-- ${MANAGED}: written by codewolf install. Delete this line to keep your own edits safe from reinstalls. -->`;
+var DESCRIPTION = "Review local changes with the CodeWolf AI code reviewer, fix critical and major findings, and report what is left.";
+var STEPS = `# CodeWolf review loop
+
+CodeWolf reviews a git diff and reports findings with a severity, a category and often a ready replacement.
+
+1. Run \`codewolf review --format plain\` plus any flags the user gave (\`--staged\`, \`--base main\`, \`--committed\`).
+   When \`codewolf\` is not installed use \`npx -y github:za3ter123/codewolf\` in its place.
+   Exit 0 or 1 means the review ran. Exit 2 means CodeWolf failed: show its stderr and stop.
+2. No provider configured (no API key, no Ollama, no claude CLI)? You are the reviewer instead:
+   run \`codewolf packet\` (same scope flags), follow its \`instructions\` on its \`chunks\`, write your answer
+   as JSON matching its \`schema\` to a temporary file outside the repository, then run
+   \`codewolf ingest <that file>\` with the same scope flags. It checks, filters and stores your findings.
+3. Each finding block starts with \`file:line\`, the severity and the title, then the explanation,
+   then an optional \`suggestion:\` holding replacement text for that line range.
+4. Fix every \`critical\` and \`major\` finding after confirming it in the code. Useful helpers:
+   \`codewolf findings\` lists stored findings with ids, \`codewolf apply <id>\` writes a finding's suggestion,
+   \`codewolf dismiss <id> --reason "<why>"\` silences a false positive in future reviews.
+5. Review again. Stop when no critical or major finding is left, or after 3 rounds.
+6. Report: each fix as \`file:line\` and one sentence, the findings you dismissed and why, and the minor
+   and nit findings you left, one line each.
+
+Findings come from a model and can be wrong, so verify before editing. Never put API keys in a command line.
+`;
+var skill = () => `---
+name: codewolf
+description: ${DESCRIPTION} Use before a commit or pull request, after a large edit, or when asked for a review or security check.
+---
+
+${MD_MARK}
+
+${STEPS}`;
+var INSTALL_AGENTS = {
+  claude: {
+    project: ".claude",
+    user: (env) => env.CLAUDE_CONFIG_DIR || path9.join(homedir(), ".claude"),
+    files: [
+      ["commands/codewolf.md", () => `---
+description: ${DESCRIPTION}
+argument-hint: "[codewolf review flags, e.g. --staged or --base main]"
+allowed-tools: Bash(codewolf:*), Bash(npx:*), Bash(git status:*), Bash(git diff:*), Read, Edit, Write, Grep, Glob
+---
+
+${MD_MARK}
+
+Extra flags from the user (may be empty): \`$ARGUMENTS\`
+
+${STEPS}`],
+      ["skills/codewolf/SKILL.md", skill]
+    ]
+  },
+  codex: { project: ".codex", user: (env) => env.CODEX_HOME || path9.join(homedir(), ".codex"), files: [["skills/codewolf/SKILL.md", skill]] },
+  cursor: {
+    project: ".cursor",
+    user: () => null,
+    // Cursor keeps user rules in its settings UI, not in files
+    files: [["rules/codewolf.mdc", () => `---
+description: ${DESCRIPTION}
+globs:
+alwaysApply: false
+---
+
+${MD_MARK}
+
+${STEPS}`]]
+  },
+  gemini: {
+    project: ".gemini",
+    user: () => path9.join(homedir(), ".gemini"),
+    files: [["commands/codewolf.toml", () => `# ${MANAGED}: written by codewolf install. Delete this line to keep your own edits safe from reinstalls.
+description = "${DESCRIPTION}"
+prompt = """
+Extra flags from the user (may be empty): {{args}}
+
+${STEPS}"""
+`]]
+  },
+  opencode: {
+    project: ".opencode",
+    user: (env) => path9.join(env.XDG_CONFIG_HOME || path9.join(homedir(), ".config"), "opencode"),
+    files: [["command/codewolf.md", () => `---
+description: ${DESCRIPTION}
+---
+
+${MD_MARK}
+
+Extra flags from the user (may be empty): $ARGUMENTS
+
+${STEPS}`]]
+  },
+  agents: { project: ".agents", user: () => path9.join(homedir(), ".agents"), files: [["skills/codewolf/SKILL.md", skill]] }
+};
+function nearestReal(p) {
+  let dir = path9.resolve(p);
+  const rest = [];
+  while (!existsSync6(dir)) {
+    const up = path9.dirname(dir);
+    if (up === dir) break;
+    rest.unshift(path9.basename(dir));
+    dir = up;
+  }
+  return path9.join(realpathSync2(dir), ...rest);
+}
+function inside(boundary, target) {
+  const r = path9.relative(nearestReal(boundary), nearestReal(target));
+  return !!r && r !== ".." && !r.startsWith(".." + path9.sep) && !path9.isAbsolute(r);
+}
+function cmdInstall(names, opts, cwd, env = process.env) {
+  if (opts.project && opts.user) throw new Error("choose --project or --user, not both");
+  const known2 = Object.keys(INSTALL_AGENTS);
+  let agents = opts.all ? known2 : names;
+  if (!agents.length) {
+    const here = detectAgent(env);
+    if (here && known2.includes(here)) agents = [here];
+    else throw new Error(`usage: codewolf install <agent...> | --all  [--project | --user] [--yes]   agents: ${known2.join(", ")}`);
+  }
+  for (const a of agents) if (!known2.includes(a)) throw new Error(`unknown agent "${a}" (one of: ${known2.join(", ")})`);
+  const scope = opts.user ? "user" : "project";
+  const root = scope === "project" ? repoRoot(cwd) : void 0;
+  if (scope === "project" && !root) throw new Error("project install needs a git repository (or use --user)");
+  const steps = [];
+  for (const a of agents) {
+    const t = INSTALL_AGENTS[a];
+    const base = scope === "user" ? t.user(env) : path9.join(root, t.project);
+    if (!base) {
+      process.stderr.write(`codewolf: ${a} has no user-level file to install; use --project
+`);
+      continue;
+    }
+    const boundary = scope === "user" ? base : root;
+    for (const [rel, make] of t.files) {
+      const file = path9.join(base, rel);
+      const content = make();
+      let action;
+      if (!inside(boundary, file)) action = "refused (outside the allowed dir)";
+      else if (!existsSync6(file)) action = "create";
+      else {
+        const cur = readFileSync8(file, "utf8");
+        action = cur === content ? "unchanged" : cur.includes(MANAGED) || opts.force ? "overwrite" : "skip (not ours, use --force)";
+      }
+      steps.push({ file, content, action });
+    }
+  }
+  for (const s2 of steps) process.stdout.write(`${s2.action.padEnd(10)} ${s2.file}
+`);
+  if (!opts.yes) {
+    process.stdout.write("codewolf: plan only, nothing written. Re-run with --yes to install.\n");
+    return 0;
+  }
+  for (const s2 of steps) {
+    if (s2.action !== "create" && s2.action !== "overwrite") continue;
+    mkdirSync4(path9.dirname(s2.file), { recursive: true });
+    writeFileSync5(s2.file, s2.content);
+  }
+  const blocked = steps.filter((s2) => s2.action.startsWith("skip") || s2.action.startsWith("refused")).length;
+  process.stdout.write(`codewolf: installed ${steps.filter((s2) => s2.action === "create" || s2.action === "overwrite").length} file(s)${blocked ? `, ${blocked} left alone` : ""}
+`);
+  return blocked ? 2 : 0;
+}
+
+// src/cli/pr.ts
+import { spawnSync as spawnSync4 } from "node:child_process";
+
+// src/action/github.ts
+var PER_PAGE = 100;
+var MAX_PAGES = 30;
+var TIMEOUT_MS = 3e4;
+var RETRIES = 2;
+var GitHubError = class extends Error {
+  status;
+  method;
+  path;
+  constructor(method, path12, status, detail) {
+    super(`GitHub API ${method} ${path12} failed with ${status}: ${detail}${hint(status, method)}`);
+    this.name = "GitHubError";
+    this.status = status;
+    this.method = method;
+    this.path = path12;
+  }
+};
+function hint(status, method) {
+  if (status === 401) return " (the github-token input is missing or invalid)";
+  if (status === 403 && method !== "GET") return ' (the token cannot write here: grant "pull-requests: write" in the workflow permissions; pull requests from forks get a read-only token)';
+  if (status === 404) return " (check the repository, the pull request number, and that the token can read this repository)";
+  return "";
+}
+var GitHub = class {
+  baseUrl;
+  #token;
+  constructor(baseUrl, token) {
+    this.baseUrl = baseUrl.replace(/\/+$/, "");
+    this.#token = token;
+  }
+  async request(method, path12, body) {
+    const res = await this.#send(method, path12, body);
+    if (res.status === 204) return void 0;
+    return await res.json();
+  }
+  /** GETs every page of a list endpoint. Stops on a short page, so it works with or without Link headers. */
+  async paginate(path12) {
+    const out = [];
+    const sep = path12.includes("?") ? "&" : "?";
+    for (let page = 1; page <= MAX_PAGES; page++) {
+      const res = await this.#send("GET", `${path12}${sep}per_page=${PER_PAGE}&page=${page}`);
+      const items = await res.json();
+      if (!Array.isArray(items)) throw new GitHubError("GET", path12, res.status, "expected a JSON array");
+      out.push(...items);
+      if (items.length < PER_PAGE) break;
+    }
+    return out;
+  }
+  async #send(method, path12, body) {
+    let lastErr;
+    for (let attempt = 0; attempt <= RETRIES; attempt++) {
+      let res;
+      try {
+        res = await fetch(this.baseUrl + path12, {
+          method,
+          headers: {
+            authorization: `Bearer ${this.#token}`,
+            accept: "application/vnd.github+json",
+            "x-github-api-version": "2022-11-28",
+            "user-agent": "codewolf-action",
+            ...body === void 0 ? {} : { "content-type": "application/json" }
+          },
+          body: body === void 0 ? void 0 : JSON.stringify(body),
+          signal: AbortSignal.timeout(TIMEOUT_MS)
+        });
+      } catch (err) {
+        lastErr = err;
+        if (attempt < RETRIES) {
+          await sleep(1e3 * (attempt + 1));
+          continue;
+        }
+        throw new Error(`GitHub API ${method} ${path12} failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      if (res.ok) return res;
+      const retryable = res.status >= 500 || res.status === 429 || res.status === 403 && res.headers.get("retry-after");
+      if (retryable && method === "GET" && attempt < RETRIES) {
+        const wait = Math.min(Number(res.headers.get("retry-after")) || attempt + 1, 30);
+        await res.body?.cancel();
+        await sleep(wait * 1e3);
+        continue;
+      }
+      throw new GitHubError(method, path12, res.status, await errorDetail(res));
+    }
+    throw lastErr instanceof Error ? lastErr : new Error(`GitHub API ${method} ${path12} failed`);
+  }
+};
+async function errorDetail(res) {
+  const text = await res.text().catch(() => "");
+  try {
+    const j = JSON.parse(text);
+    const extra = Array.isArray(j.errors) && j.errors.length ? " " + JSON.stringify(j.errors).slice(0, 500) : "";
+    return (j.message ?? res.statusText) + extra;
+  } catch {
+    return text.slice(0, 300) || res.statusText;
+  }
+}
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+// src/cli/pr.ts
+var NAME = /^(?!\.+$)[\w.-]+$/;
+var FP_RE = /<!-- codewolf:fp:([^\s>]+) -->/;
+function parsePrRef(ref, repo, cwd) {
+  const url = ref.match(/^https?:\/\/[^/]+\/([^/]+)\/([^/]+)\/pull\/(\d+)/);
+  let full = repo, num = ref;
+  if (url) {
+    full = `${url[1]}/${url[2]}`;
+    num = url[3];
+  }
+  if (!/^\d+$/.test(num)) throw new Error("usage: codewolf pr <number|url> [--repo owner/name] [--json]");
+  if (!full) {
+    let remote = "";
+    try {
+      remote = git(["remote", "get-url", "origin"], cwd).trim();
+    } catch {
+    }
+    const m = remote.match(/github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?\/?$/);
+    if (!m) throw new Error("cannot tell the repository; pass --repo owner/name or a PR URL");
+    full = `${m[1]}/${m[2]}`;
+  }
+  const [owner = "", name = ""] = full.split("/");
+  if (!NAME.test(owner) || !NAME.test(name) || full.split("/").length !== 2) throw new Error(`invalid repository "${full}" (expected owner/name)`);
+  return { owner, name, number: Number(num) };
+}
+function toItems(comments) {
+  const out = [];
+  for (const c of comments) {
+    const body = c.body ?? "";
+    const fp = body.match(FP_RE)?.[1];
+    if (!fp || !isBotAuthored(c)) continue;
+    const [category = "", severity = ""] = (body.match(/^_([^_\n]+)_/)?.[1] ?? "").split(" \xB7 ");
+    const title = body.match(/\*\*([^\n]+?)\*\*/)?.[1] ?? "";
+    const prompt = body.match(/Prompt for your coding agent<\/summary>\s*(`{3,})text\n([\s\S]*?)\n\1/)?.[2]?.trim();
+    const suggestion = body.match(/(`{3,})suggestion\n([\s\S]*?)\n\1/)?.[2];
+    const line = c.line ?? c.original_line ?? null;
+    const item = { file: c.path ?? "", line, severity, category, title, fingerprint: fp, prompt: prompt || `In ${c.path}:${line ?? "?"}, fix: ${title}` };
+    if (suggestion !== void 0) item.suggestion = suggestion;
+    if (c.html_url) item.url = c.html_url;
+    out.push(item);
+  }
+  return out;
+}
+async function fetchComments(owner, name, n, env) {
+  const token = env.GITHUB_TOKEN || env.GH_TOKEN;
+  if (token) return new GitHub(env.GITHUB_API_URL || "https://api.github.com", token).paginate(`/repos/${owner}/${name}/pulls/${n}/comments`);
+  let spec;
+  try {
+    spec = resolveSpawn("gh", ["api", `repos/${owner}/${name}/pulls/${n}/comments?per_page=100`, "--paginate", "--jq", ".[]"]);
+  } catch {
+    throw new Error("set GITHUB_TOKEN or GH_TOKEN, or install and log in to the gh CLI");
+  }
+  const r = spawnSync4(spec.file, spec.args, { encoding: "utf8", windowsHide: true, windowsVerbatimArguments: spec.verbatim, maxBuffer: 256 * 1024 * 1024 });
+  if (r.status !== 0) throw new Error(`gh api failed: ${(r.stderr || r.error?.message || "").trim().split("\n")[0]}`);
+  return r.stdout.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+}
+async function cmdPr(ref, opts, cwd, env = process.env) {
+  const { owner, name, number } = parsePrRef(ref ?? "", opts.repo, cwd);
+  const items = toItems(await fetchComments(owner, name, number, env));
+  if (opts.json) {
+    process.stdout.write(JSON.stringify(items, null, 2) + "\n");
+    return 0;
+  }
+  if (!items.length) {
+    process.stdout.write(`codewolf: no CodeWolf review comments on ${owner}/${name}#${number}
+`);
+    return 0;
+  }
+  const head = `Fix these CodeWolf review comments from pull request ${owner}/${name}#${number}. Check each one in the code first; skip and explain any that are wrong.`;
+  const blocks = items.map((it, i) => `${i + 1}. [${[it.severity, it.category].filter(Boolean).join(" ")}] ${it.file}:${it.line ?? "?"} ${it.title}
+${it.prompt}`);
+  process.stdout.write(`${head}
+
+${blocks.join("\n\n")}
+`);
+  return 0;
+}
+
+// src/cli/template.ts
+var INIT_TEMPLATE = `# CodeWolf configuration. Every key is optional; CLI flags override this file.
+# Docs: https://github.com/za3ter123/codewolf
+
+# quiet = critical only, chill = critical + major and a few minor, assertive = everything including nits
+profile: chill
+
+# Language for summaries and comments
+language: en
+
+# Providers are tried in order. When every key of one provider is rate limited or rejected,
+# CodeWolf falls through to the next. keys accepts literal keys or env:NAME (comma or newline list).
+providers:
+  - name: anthropic
+    model: claude-sonnet-5-5
+    keys: [env:ANTHROPIC_API_KEYS]
+  # Any OpenAI-compatible server: OpenAI, OpenRouter, Groq, Together, LM Studio, vLLM
+  # - name: openai
+  #   baseUrl: https://openrouter.ai/api/v1
+  #   model: qwen/qwen3-coder
+  #   keys: [env:OPENROUTER_API_KEY]
+  # - name: gemini
+  #   model: gemini-2.5-flash
+  #   keys: [env:GEMINI_API_KEYS]
+  # Your Claude subscription through the local Claude Code CLI, no API key
+  # - name: claude-code
+  # Local and free
+  - name: ollama
+    model: qwen2.5-coder:7b
+    # baseUrl: http://127.0.0.1:11434
+    # timeout: 900          # seconds
+
+review:
+  # Added to the built-in excludes (lockfiles, dist/, minified files, binaries). Prefix with ! to re-include.
+  exclude: []
+  # Extra instructions for matching paths
+  pathInstructions: []
+  #  - path: "src/api/**"
+  #    instructions: "Check authorization on every handler."
+  # Exit 1 when a finding is at or above this severity: critical | major | minor | nit | none
+  failOn: none
+  # Include CLAUDE.md, AGENTS.md, .cursorrules and .github/copilot-instructions.md as project guidelines
+  guidelines: true
+  # concurrency: 4
+  # maxChunkTokens: 12000
+
+# Local linters fused into the review when installed. Set one to false to skip it.
+tools:
+  ruff: true
+  eslint: true
+  semgrep: true
+  gitleaks: true
+`;
 
 // src/core/diff.ts
 var HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
@@ -8286,15 +9231,15 @@ function globToRegExp(pattern) {
   cache.set(pattern, out);
   return out;
 }
-function matchGlob(path7, pattern) {
-  return globToRegExp(pattern).test(path7.replace(/\\/g, "/").replace(/^\.\//, ""));
+function matchGlob(path12, pattern) {
+  return globToRegExp(pattern).test(path12.replace(/\\/g, "/").replace(/^\.\//, ""));
 }
-function isExcluded(path7, patterns) {
+function isExcluded(path12, patterns) {
   let excluded = false;
   for (const raw of patterns) {
     const neg = raw.startsWith("!");
     const pat = neg ? raw.slice(1) : raw;
-    if (pat && matchGlob(path7, pat)) excluded = !neg;
+    if (pat && matchGlob(path12, pat)) excluded = !neg;
   }
   return excluded;
 }
@@ -8312,181 +9257,6 @@ function stderrLogger(min = "info") {
 function errorMessage(err) {
   if (err instanceof Error) return err.message;
   return String(err);
-}
-
-// src/providers/http.ts
-var ProviderError = class extends Error {
-  name = "ProviderError";
-  kind;
-  status;
-  retryAfterSec;
-  constructor(message, kind, status, retryAfterSec) {
-    super(redact(message));
-    this.kind = kind;
-    this.status = status;
-    this.retryAfterSec = retryAfterSec;
-  }
-};
-var MAX_RETRY_AFTER_SEC = 3600;
-function parseRetryAfter(v, now = Date.now()) {
-  if (!v) return void 0;
-  const t = v.trim();
-  if (/^\d+(\.\d+)?$/.test(t)) return Math.min(Math.ceil(Number(t)), MAX_RETRY_AFTER_SEC);
-  const d = Date.parse(t);
-  if (Number.isNaN(d)) return void 0;
-  return Math.min(Math.max(0, Math.ceil((d - now) / 1e3)), MAX_RETRY_AFTER_SEC);
-}
-function classifyStatus(status) {
-  if (status === 429) return "rate";
-  if (status === 401 || status === 403) return "auth";
-  if (status === 408 || status === 409 || status >= 500) return "server";
-  return "client";
-}
-function errorText(body) {
-  try {
-    const j = JSON.parse(body);
-    const m = typeof j.error === "string" ? j.error : j.error?.message ?? j.message;
-    if (m) return String(m).slice(0, 300);
-  } catch {
-  }
-  return body.replace(/\s+/g, " ").trim().slice(0, 300);
-}
-async function postJson(url, headers, body, opts) {
-  const timeout = AbortSignal.timeout(opts.timeoutMs);
-  const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
-  let res;
-  try {
-    res = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body), signal });
-  } catch (e) {
-    if (opts.signal?.aborted) throw e;
-    if (timeout.aborted) throw new ProviderError(`timed out after ${Math.round(opts.timeoutMs / 1e3)}s`, "timeout");
-    const err = e;
-    const code = err.cause?.code ?? "";
-    const detail = err.cause?.message ?? err.message;
-    if (code === "ECONNREFUSED" || code === "ENOTFOUND" || code === "EAI_AGAIN") throw new ProviderError(`cannot reach ${new URL(url).host}: ${detail}`, "unavailable");
-    throw new ProviderError(`network error: ${detail}`, "server");
-  }
-  let text;
-  try {
-    text = await res.text();
-  } catch (e) {
-    if (opts.signal?.aborted) throw e;
-    if (timeout.aborted) throw new ProviderError(`timed out after ${Math.round(opts.timeoutMs / 1e3)}s`, "timeout");
-    throw new ProviderError(`network error reading response: ${e.message}`, "server");
-  }
-  if (!res.ok) {
-    const kind = classifyStatus(res.status);
-    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get("retry-after")));
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new ProviderError(`response is not JSON: ${text.slice(0, 120)}`, "server", res.status);
-  }
-}
-
-// src/providers/claude-code.ts
-import { spawn } from "node:child_process";
-import { existsSync as existsSync3 } from "node:fs";
-import path4 from "node:path";
-var SAFE_ARG = /^[\w.:@/\-[\]]+$/;
-function whichSync(cmd, env = process.env) {
-  const isWin = process.platform === "win32";
-  const exts = isWin ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean) : [""];
-  const hasExt = isWin && /\.[a-z0-9]+$/i.test(cmd);
-  const candidates2 = hasExt ? [cmd] : exts.map((e) => cmd + e.toLowerCase());
-  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync3(c));
-  for (const dir of (env.PATH ?? env.Path ?? "").split(path4.delimiter).filter(Boolean)) {
-    for (const c of candidates2) {
-      const full = path4.join(dir, c);
-      if (existsSync3(full)) return full;
-    }
-  }
-  return void 0;
-}
-function resolveSpawn(command, args) {
-  if (/\.(c|m)?js$/i.test(command)) return { file: process.execPath, args: [command, ...args], verbatim: false };
-  const found = whichSync(command);
-  if (!found) throw new ProviderError(`claude-code: "${command}" not found on PATH (install Claude Code or set provider command)`, "unavailable");
-  if (process.platform === "win32" && /\.(cmd|bat)$/i.test(found)) {
-    const quoted = args.map((a) => `"${a.replace(/"/g, '""')}"`).join(" ");
-    return { file: process.env.ComSpec ?? "cmd.exe", args: ["/d", "/s", "/c", `""${found}" ${quoted}"`], verbatim: true };
-  }
-  return { file: found, args, verbatim: false };
-}
-function parseClaudeOutput(stdout) {
-  const t = stdout.trim();
-  let data;
-  try {
-    data = JSON.parse(t);
-  } catch {
-    const last = t.split(/\r?\n/).filter(Boolean).pop() ?? "";
-    try {
-      data = JSON.parse(last);
-    } catch {
-      throw new ProviderError(`claude-code printed non-JSON output: ${t.slice(0, 160)}`, "server");
-    }
-  }
-  const obj = Array.isArray(data) ? [...data].reverse().find((x) => x && x.type === "result") : data;
-  if (!obj || typeof obj.result !== "string") throw new ProviderError("claude-code output has no result field", "server");
-  if (obj.is_error) {
-    const kind = /rate|limit|quota|usage/i.test(obj.result) ? "rate" : /log ?in|auth|credential/i.test(obj.result) ? "auth" : "server";
-    throw new ProviderError(`claude-code error: ${obj.result.slice(0, 200)}`, kind);
-  }
-  return obj.result;
-}
-function runClaudeCode(p, req) {
-  const args = ["-p", "--output-format", "json", "--no-session-persistence", "--strict-mcp-config", "--setting-sources", ""];
-  if (p.model) {
-    if (!SAFE_ARG.test(p.model)) throw new ProviderError(`claude-code: invalid model name "${p.model}"`, "client");
-    args.push("--model", p.model);
-  }
-  args.push("--tools", "");
-  const spec = resolveSpawn(p.command ?? "claude", args);
-  const env = { ...process.env };
-  delete env.CLAUDECODE;
-  const input = `<reviewer_instructions>
-${req.system}
-</reviewer_instructions>
-
-${req.prompt}`;
-  return new Promise((resolve, reject) => {
-    const child = spawn(spec.file, spec.args, { env, windowsHide: true, windowsVerbatimArguments: spec.verbatim, stdio: ["pipe", "pipe", "pipe"] });
-    let out = "", err = "", done = false;
-    const finish2 = (fn) => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      req.signal?.removeEventListener("abort", onAbort);
-      fn();
-    };
-    const timer = setTimeout(() => {
-      child.kill();
-      finish2(() => reject(new ProviderError(`claude-code timed out after ${Math.round(p.timeoutMs / 1e3)}s`, "timeout")));
-    }, p.timeoutMs);
-    const onAbort = () => {
-      child.kill();
-      finish2(() => reject(req.signal.reason ?? new Error("aborted")));
-    };
-    req.signal?.addEventListener("abort", onAbort, { once: true });
-    child.stdout.setEncoding("utf8").on("data", (d) => out += d);
-    child.stderr.setEncoding("utf8").on("data", (d) => err += d);
-    child.on("error", (e) => finish2(() => reject(new ProviderError(`claude-code failed to start: ${e.message}`, e.code === "ENOENT" ? "unavailable" : "server"))));
-    child.on("close", (code) => finish2(() => {
-      if (code !== 0 && !out.trim()) {
-        reject(new ProviderError(`claude-code exited ${code}: ${err.trim().slice(0, 200)}`, "server"));
-        return;
-      }
-      try {
-        resolve(parseClaudeOutput(out));
-      } catch (e) {
-        reject(e);
-      }
-    }));
-    child.stdin.on("error", () => {
-    });
-    child.stdin.end(input);
-  });
 }
 
 // src/providers/adapters.ts
@@ -8600,7 +9370,7 @@ var KeyPool = class {
     }).join("; ");
   }
 };
-var sleep = (ms, signal) => new Promise((resolve, reject) => {
+var sleep2 = (ms, signal) => new Promise((resolve, reject) => {
   if (ms <= 0) {
     resolve();
     return;
@@ -8627,7 +9397,7 @@ function createChain(providers, opts = {}) {
       if (!k) throw new ProviderError(pool.describe(now()) || "no usable keys", "client");
       const who = k.key ? maskKey(k.key) : "no key";
       const tries = attempts.get(k) ?? 0;
-      if (tries > 0) await sleep(retryDelay * tries, req.signal);
+      if (tries > 0) await sleep2(retryDelay * tries, req.signal);
       try {
         const text = await adapter(p, k.key, { system: req.system, prompt: req.prompt, json: req.json ?? false, maxTokens: req.maxTokens ?? p.maxTokens, signal: req.signal });
         k.reason = "ok";
@@ -8839,10 +9609,10 @@ function nextStart(s2, from) {
 }
 
 // src/core/linters.ts
-import { spawn as spawn2 } from "node:child_process";
-import { existsSync as existsSync4, mkdtempSync, readFileSync as readFileSync4, rmSync } from "node:fs";
+import { spawn as spawn3 } from "node:child_process";
+import { existsSync as existsSync7, mkdtempSync, readFileSync as readFileSync9, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import path5 from "node:path";
+import path10 from "node:path";
 
 // src/core/fingerprint.ts
 import { createHash } from "node:crypto";
@@ -8898,7 +9668,7 @@ function toolFindings(tool, hits, files, root) {
   const byPath = new Map(files.map((f) => [f.path, f]));
   const out = [];
   for (const h of hits) {
-    const rel = (path5.isAbsolute(h.file) ? path5.relative(root, h.file) : h.file).replace(/\\/g, "/").replace(/^\.\//, "");
+    const rel = (path10.isAbsolute(h.file) ? path10.relative(root, h.file) : h.file).replace(/\\/g, "/").replace(/^\.\//, "");
     const f = byPath.get(rel);
     if (!f) continue;
     const added = f.hunks.some((hk) => hk.lines.some((l) => l.type === "add" && l.newLine === h.line));
@@ -8927,7 +9697,7 @@ function exec(cmd, args, cwd) {
       resolve({ code: null, stdout: "" });
       return;
     }
-    const child = spawn2(spec.file, spec.args, { cwd, windowsHide: true, windowsVerbatimArguments: spec.verbatim, stdio: ["ignore", "pipe", "ignore"] });
+    const child = spawn3(spec.file, spec.args, { cwd, windowsHide: true, windowsVerbatimArguments: spec.verbatim, stdio: ["ignore", "pipe", "ignore"] });
     let stdout = "";
     const t = setTimeout(() => child.kill(), TOOL_TIMEOUT_MS);
     child.stdout.setEncoding("utf8").on("data", (d) => stdout += d);
@@ -8946,7 +9716,7 @@ var JS = /\.(m|c)?(j|t)sx?$/i;
 async function runLinters(files, config, log = () => {
 }) {
   const root = config.root;
-  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync4(path5.join(root, f.path))).slice(0, MAX_FILES);
+  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync7(path10.join(root, f.path))).slice(0, MAX_FILES);
   if (!present.length) return [];
   const rel = (re) => present.filter((f) => re.test(f.path)).map((f) => `./${f.path}`);
   const jobs = [];
@@ -8963,16 +9733,16 @@ async function runLinters(files, config, log = () => {
     const r = await exec("eslint", ["--format", "json", "--no-error-on-unmatched-pattern", ...js], root);
     return r.stdout.trim().startsWith("[") ? parseEslint(r.stdout) : [];
   });
-  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync4(path5.join(root, c)));
+  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync7(path10.join(root, c)));
   if (semgrepCfg) job("semgrep", async () => parseSemgrep((await exec("semgrep", ["scan", "--json", "--quiet", "--metrics=off", "--config", semgrepCfg, ...present.map((f) => `./${f.path}`)], root)).stdout));
   job("gitleaks", async () => {
-    const dir = mkdtempSync(path5.join(tmpdir(), "cw-gitleaks-"));
+    const dir = mkdtempSync(path10.join(tmpdir(), "cw-gitleaks-"));
     try {
       const hits = [];
       for (const f of present) {
-        const report = path5.join(dir, "r.json");
+        const report = path10.join(dir, "r.json");
         await exec("gitleaks", ["detect", "--no-git", "--no-banner", "--exit-code", "0", "--report-format", "json", "--report-path", report, "--source", `./${f.path}`], root);
-        if (existsSync4(report)) hits.push(...parseGitleaks(readFileSync4(report, "utf8")).map((h) => ({ ...h, file: f.path })));
+        if (existsSync7(report)) hits.push(...parseGitleaks(readFileSync9(report, "utf8")).map((h) => ({ ...h, file: f.path })));
         rmSync(report, { force: true });
       }
       return hits;
@@ -9561,7 +10331,7 @@ async function review(files, config, opts = {}) {
 // package.json
 var package_default = {
   name: "codewolf",
-  version: "0.1.0",
+  version: "0.2.0",
   description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
   type: "module",
   license: "MIT",
@@ -9616,6 +10386,18 @@ Usage:
   codewolf learn "<text>"             Teach a reviewer preference (.codewolf/learnings.md)
   codewolf learnings                  List learned preferences
   codewolf providers [--check]        Show the provider chain and key counts; --check pings every key
+  codewolf fix [<id...> | --all | --nits] [--to <target>]
+                                      Hand stored open findings to an agent as one fix prompt (stdin only).
+                                      Targets: print | claude | codex | opencode | gemini | clipboard
+  codewolf apply <id...> [--dry-run]  Write a stored finding's suggestion into its file
+  codewolf install [<agent...> | --all] [--project | --user] [--yes] [--force]
+                                      Install the CodeWolf command/skill into claude, codex, cursor, gemini,
+                                      opencode or agents. Prints the plan; writes only with --yes
+  codewolf hook install|uninstall|status
+                                      Opt-in post-commit hook: background review, never blocks a commit
+  codewolf doctor                     Check node, git, config, providers (masked keys), Ollama, claude, linters
+  codewolf pr <number|url> [--repo owner/name] [--json]
+                                      Print CodeWolf's comments on a GitHub PR as fix prompts (read-only)
   codewolf --version | --help
 
 Scope (pick one):
@@ -9626,7 +10408,8 @@ Scope (pick one):
   --diff <file|->      Review a patch file, or stdin with -
 
 Options:
-  --format <f>         pretty | plain | markdown | json   (default: pretty on a TTY, plain otherwise)
+  --format <f>         pretty | plain | markdown | json   (default: pretty on a TTY, plain otherwise or inside
+                       a coding agent: Claude Code, Codex, Cursor, Gemini CLI, opencode, aider)
   --agent              NDJSON for coding agents: one finding per line, then a summary line;
                        exit 1 if any critical or major finding remains
   --provider <name>    anthropic | openai | gemini | ollama | claude-code | openrouter
@@ -9665,6 +10448,15 @@ var OPTIONS = {
   force: { type: "boolean" },
   "no-tools": { type: "boolean" },
   verbose: { type: "boolean" },
+  all: { type: "boolean" },
+  nits: { type: "boolean" },
+  to: { type: "string" },
+  "dry-run": { type: "boolean" },
+  project: { type: "boolean" },
+  user: { type: "boolean" },
+  yes: { type: "boolean" },
+  json: { type: "boolean" },
+  repo: { type: "string" },
   version: { type: "boolean", short: "v" },
   help: { type: "boolean", short: "h" }
 };
@@ -9705,7 +10497,7 @@ function scopeFrom(v) {
 }
 async function cmdReview(v, cwd) {
   const log = stderrLogger(v.verbose ? "debug" : "info");
-  let format = process.stdout.isTTY ? "pretty" : "plain";
+  let format = process.stdout.isTTY && !detectAgent(process.env) ? "pretty" : "plain";
   if (v.format) {
     if (!["pretty", "plain", "markdown", "json"].includes(v.format)) throw new UsageError(`unknown --format ${v.format}`);
     format = v.format;
@@ -9716,9 +10508,9 @@ async function cmdReview(v, cwd) {
   if (scope.kind === "file") {
     if (scope.path === "-") patch = await readStdin();
     else {
-      const p = path6.resolve(cwd, scope.path);
-      if (!existsSync5(p)) throw new UsageError(`diff file not found: ${scope.path}`);
-      patch = readFileSync5(p, "utf8");
+      const p = path11.resolve(cwd, scope.path);
+      if (!existsSync8(p)) throw new UsageError(`diff file not found: ${scope.path}`);
+      patch = readFileSync10(p, "utf8");
     }
   } else {
     patch = collectDiff(scope, cwd);
@@ -9747,9 +10539,9 @@ async function cmdReview(v, cwd) {
   return 0;
 }
 function cmdInit(v, cwd) {
-  const file = path6.join(cwd, ".codewolf.yaml");
-  if (existsSync5(file) && !v.force) throw new UsageError(`${file} already exists (use --force to overwrite)`);
-  writeFileSync(file, INIT_TEMPLATE);
+  const file = path11.join(cwd, ".codewolf.yaml");
+  if (existsSync8(file) && !v.force) throw new UsageError(`${file} already exists (use --force to overwrite)`);
+  writeFileSync6(file, INIT_TEMPLATE);
   process.stdout.write(`wrote ${file}
 `);
   return 0;
@@ -9834,6 +10626,18 @@ Run codewolf --help for usage.
         return cmdLearnings(cwd);
       case "providers":
         return await cmdProviders(v, cwd);
+      case "fix":
+        return await cmdFix(rest, v, cwd);
+      case "apply":
+        return cmdApply(rest, v, cwd);
+      case "install":
+        return cmdInstall(rest, v, cwd);
+      case "hook":
+        return cmdHook(rest[0], cwd);
+      case "doctor":
+        return await cmdDoctor({ config: v.config, overrides: overridesFrom(v) }, cwd);
+      case "pr":
+        return await cmdPr(rest[0], v, cwd);
       case "version":
         process.stdout.write(`codewolf ${VERSION}
 `);
