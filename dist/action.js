@@ -7367,13 +7367,13 @@ var require_dist = __commonJS({
 
 // src/action/index.ts
 var import_yaml2 = __toESM(require_dist(), 1);
-import { appendFileSync as appendFileSync2, readFileSync as readFileSync3, realpathSync } from "node:fs";
+import { appendFileSync as appendFileSync2, readFileSync as readFileSync4, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 // src/shared/types.ts
 var SEVERITIES = ["critical", "major", "minor", "nit"];
 var CATEGORIES = ["bug", "security", "performance", "maintainability", "style", "test"];
-var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code"];
+var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code", "publik"];
 
 // src/core/diff.ts
 var HUNK_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
@@ -7580,6 +7580,84 @@ function newLineText(file, line) {
 var import_yaml = __toESM(require_dist(), 1);
 import path2 from "node:path";
 
+// src/providers/publik.ts
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { arch, homedir, hostname, platform } from "node:os";
+import { dirname, join } from "node:path";
+
+// package.json
+var package_default = {
+  name: "codewolf",
+  version: "0.2.0",
+  description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
+  type: "module",
+  license: "MIT",
+  bin: {
+    codewolf: "dist/cli.js"
+  },
+  files: [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "publik-app-token.txt"
+  ],
+  engines: {
+    node: ">=20"
+  },
+  scripts: {
+    build: "tsc --noEmit && node scripts/build.mjs",
+    start: "node dist/cli.js",
+    typecheck: "tsc --noEmit",
+    test: 'node --test "test/**/*.test.ts" "test/**/*.test.mjs"'
+  },
+  repository: {
+    type: "git",
+    url: "git+https://github.com/za3ter123/codewolf.git"
+  },
+  keywords: [
+    "code-review",
+    "ai",
+    "llm",
+    "cli",
+    "github-action",
+    "ollama",
+    "coderabbit-alternative"
+  ],
+  dependencies: {
+    yaml: "2.9.1"
+  },
+  devDependencies: {
+    "@types/node": "26.6.5",
+    esbuild: "0.28.2",
+    typescript: "7.0.2"
+  }
+};
+
+// src/shared/version.ts
+var VERSION = package_default.version;
+
+// src/providers/publik.ts
+var APP_SLUG = "codewolf";
+var DEFAULT_BASE_URL = "https://publikhq.com/api/v1";
+var MODELS = { fast: "publik-fast", balanced: "publik-balanced", smart: "publik-smart" };
+function credentialPath() {
+  const os = platform();
+  const base = os === "darwin" ? join(homedir(), "Library", "Application Support") : os === "win32" ? process.env.LOCALAPPDATA ?? join(homedir(), "AppData", "Local") : process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
+  return join(base, "publik", "apps", `${APP_SLUG}.json`);
+}
+function readCredential() {
+  try {
+    const c = JSON.parse(readFileSync(credentialPath(), "utf8"));
+    return typeof c.key === "string" && c.key.startsWith("pk_") ? c : null;
+  } catch {
+    return null;
+  }
+}
+function topUpUrlFrom402(body) {
+  const e = body?.error;
+  return { message: e?.message ?? "Not enough publik API balance.", url: e?.top_up_url ?? null };
+}
+
 // src/shared/mask.ts
 var known = /* @__PURE__ */ new Set();
 function maskKey(key) {
@@ -7601,17 +7679,17 @@ function redact(text) {
 }
 
 // src/core/learnings.ts
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync as existsSync2, mkdirSync as mkdirSync2, readFileSync as readFileSync2 } from "node:fs";
 import path from "node:path";
 function learningsPath(root) {
   return path.join(root, ".codewolf", "learnings.md");
 }
 function readLearnings(root) {
   const file = learningsPath(root);
-  if (!existsSync(file)) return [];
+  if (!existsSync2(file)) return [];
   let text;
   try {
-    text = readFileSync(file, "utf8");
+    text = readFileSync2(file, "utf8");
   } catch {
     return [];
   }
@@ -7624,10 +7702,10 @@ function readGuidelines(root, cap = GUIDELINES_CAP) {
   let used = 0;
   for (const name of GUIDELINE_FILES) {
     const file = path.join(root, name);
-    if (!existsSync(file)) continue;
+    if (!existsSync2(file)) continue;
     let text;
     try {
-      text = readFileSync(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+      text = readFileSync2(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
     } catch {
       continue;
     }
@@ -7678,7 +7756,8 @@ var DEFAULTS = {
   openai: { baseUrl: "https://api.openai.com/v1", model: "gpt-5-mini", timeoutMs: 18e4 },
   gemini: { baseUrl: "https://generativelanguage.googleapis.com", model: "gemini-2.5-flash", timeoutMs: 18e4 },
   ollama: { baseUrl: "http://127.0.0.1:11434", model: "qwen2.5-coder:7b", timeoutMs: 9e5 },
-  "claude-code": { baseUrl: "", model: "", timeoutMs: 9e5 }
+  "claude-code": { baseUrl: "", model: "", timeoutMs: 9e5 },
+  publik: { baseUrl: DEFAULT_BASE_URL, model: MODELS.balanced, timeoutMs: 18e4 }
 };
 var OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 var DEFAULT_MAX_TOKENS = 8192;
@@ -7732,7 +7811,8 @@ var OFFICIAL_HOSTS = {
   gemini: ["generativelanguage.googleapis.com"],
   openai: ["api.openai.com", "openrouter.ai"],
   ollama: [],
-  "claude-code": []
+  "claude-code": [],
+  publik: ["publikhq.com"]
 };
 function isOfficialHost(name, baseUrl) {
   try {
@@ -7770,14 +7850,26 @@ function ollamaBase(env) {
   const withProto = /^https?:\/\//.test(h) ? h : `http://${h}`;
   return withProto.replace("://0.0.0.0", "://127.0.0.1");
 }
+function publikFrom(env, credential) {
+  const key = env.PUBLIK_API_KEY?.trim();
+  if (key) return { baseUrl: (env.PUBLIK_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, ""), key };
+  const c = credential;
+  if (typeof c?.key !== "string" || !c.key.startsWith("pk_")) return null;
+  const base = typeof c.base_url === "string" && isOfficialHost("publik", c.base_url) ? c.base_url : DEFAULT_BASE_URL;
+  return { baseUrl: base.replace(/\/+$/, ""), key: c.key };
+}
 function buildProvider(raw, ctx, where) {
   const { env, warn: warn2 } = ctx;
   const { name, baseUrl: aliasBase } = normName(raw.name, where);
   const d = DEFAULTS[name];
   const fileBase = str(raw.baseUrl ?? raw.base_url ?? raw.baseURL, `${where}.baseUrl`);
-  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? (name === "ollama" ? ollamaBase(env) : void 0) ?? d.baseUrl).replace(/\/+$/, "");
+  const envBase = name === "ollama" ? ollamaBase(env) : name === "publik" ? ctx.publik?.baseUrl : void 0;
+  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? envBase ?? d.baseUrl).replace(/\/+$/, "");
   let model = str(raw.model, `${where}.model`);
   if (!model) model = name === "openai" && baseUrl === OPENROUTER_BASE ? "qwen/qwen3-coder" : d.model;
+  if (name === "publik" && !Object.values(MODELS).includes(model)) {
+    throw new ConfigError(`${where}.model: publik takes ${Object.values(MODELS).join(", ")}, never a vendor model name`);
+  }
   const baseTrusted = ctx.trusted || ctx.baseOverride !== void 0 || fileBase === void 0 || isOfficialHost(name, baseUrl);
   const withhold = (what) => warn2(`${where}: not sending ${what} to ${baseUrl}, a base URL set by the repository config. Pass --base-url or --config to allow it.`);
   const fileKeys = raw.keys !== void 0 ? expandKeys(raw.keys, env, `${where}.keys`, ctx.trusted, warn2) : [];
@@ -7788,7 +7880,9 @@ function buildProvider(raw, ctx, where) {
   } else if (fileKeys.length) {
     keys = fileKeys;
   } else {
-    const fromEnv = defaultKeysFor(name, baseUrl, env);
+    const pub = name === "publik" ? ctx.publik : null;
+    if (pub && baseUrl !== pub.baseUrl) warn2(`${where}: not sending the publik key to ${baseUrl}; it only goes to ${pub.baseUrl}`);
+    const fromEnv = name === "publik" ? pub && baseUrl === pub.baseUrl ? [pub.key] : [] : defaultKeysFor(name, baseUrl, env);
     keys = baseTrusted ? fromEnv : [];
     if (!baseTrusted && fromEnv.length) withhold("API keys from the environment");
   }
@@ -7810,12 +7904,13 @@ function buildProvider(raw, ctx, where) {
   }
   return p;
 }
-function autoChain(env) {
+function autoChain(env, publik2) {
   const chain = [];
   if (envKeys(env, "ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY").length) chain.push({ name: "anthropic" });
   if (envKeys(env, "OPENAI_API_KEYS", "OPENAI_API_KEY").length) chain.push({ name: "openai" });
   if (envKeys(env, "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY").length) chain.push({ name: "openrouter" });
   if (envKeys(env, "GEMINI_API_KEYS", "GEMINI_API_KEY", "GOOGLE_API_KEY").length) chain.push({ name: "gemini" });
+  if (publik2 && !chain.length) return [{ name: "publik" }, { name: "ollama" }];
   chain.push({ name: "ollama" });
   return chain;
 }
@@ -7868,6 +7963,8 @@ function resolveConfig(raw, overrides2 = {}, opts = {}) {
   const keyOverride = overrides2.keys !== void 0 ? expandKeys(overrides2.keys, env, "--keys") : void 0;
   const warn2 = opts.warn ?? stderrWarn;
   const baseOverride = overrides2.baseUrl || env.CODEWOLF_BASE_URL?.trim() || void 0;
+  const publik2 = publikFrom(env, opts.publikCredential !== void 0 ? opts.publikCredential : opts.env ? null : readCredential());
+  const untouched = !overrides2.provider && !chainRaw.length && !overrides2.model && !baseOverride && !keyOverride?.length && !ollamaBase(env) && !envKeys(env, "CODEWOLF_API_KEYS").length;
   let chain;
   if (overrides2.provider) {
     const want = normName(overrides2.provider, "--provider");
@@ -7881,7 +7978,7 @@ function resolveConfig(raw, overrides2 = {}, opts = {}) {
     chain = [{ ...match ?? {}, name: match ? match.name : overrides2.provider }];
     if (want.baseUrl && !overrides2.baseUrl && !match) chain[0].baseUrl = want.baseUrl;
   } else {
-    chain = chainRaw.length ? chainRaw : autoChain(env);
+    chain = chainRaw.length ? chainRaw : autoChain(env, untouched && publik2 !== null);
   }
   if (overrides2.model) chain[0] = { ...chain[0], model: overrides2.model };
   const providers = chain.map((p, i) => buildProvider(p, {
@@ -7890,7 +7987,8 @@ function resolveConfig(raw, overrides2 = {}, opts = {}) {
     trusted: opts.trusted === true,
     baseOverride: i === 0 ? baseOverride : void 0,
     keyOverride: i === 0 ? keyOverride : void 0,
-    claudeBin: overrides2.claudeBin
+    claudeBin: overrides2.claudeBin,
+    publik: publik2
   }, i === 0 && overrides2.provider ? "--provider" : `providers[${i}]`));
   for (const p of providers) for (const k of p.keys) registerSecret(k);
   const pathInstructions = [];
@@ -7933,6 +8031,7 @@ function resolveConfig(raw, overrides2 = {}, opts = {}) {
     root
   };
   if (opts.configPath) resolved.configPath = opts.configPath;
+  if (untouched && !publik2 && providers.length === 1) resolved.nothingConfigured = true;
   return resolved;
 }
 
@@ -8017,11 +8116,14 @@ var ProviderError = class extends Error {
   kind;
   status;
   retryAfterSec;
-  constructor(message, kind, status, retryAfterSec) {
+  /** Raw error response body, for providers that put structured detail in it (publik's 402 top_up_url). */
+  body;
+  constructor(message, kind, status, retryAfterSec, body) {
     super(redact(message));
     this.kind = kind;
     this.status = status;
     this.retryAfterSec = retryAfterSec;
+    this.body = body;
   }
 };
 var MAX_RETRY_AFTER_SEC = 3600;
@@ -8073,7 +8175,7 @@ async function postJson(url, headers, body, opts) {
   }
   if (!res.ok) {
     const kind = classifyStatus(res.status);
-    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get("retry-after")));
+    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get("retry-after")), text);
   }
   try {
     return JSON.parse(text);
@@ -8084,7 +8186,7 @@ async function postJson(url, headers, body, opts) {
 
 // src/providers/claude-code.ts
 import { spawn } from "node:child_process";
-import { existsSync as existsSync2 } from "node:fs";
+import { existsSync as existsSync3 } from "node:fs";
 import path3 from "node:path";
 var SAFE_ARG = /^[\w.:@/\-[\]]+$/;
 function whichSync(cmd, env = process.env) {
@@ -8092,11 +8194,11 @@ function whichSync(cmd, env = process.env) {
   const exts = isWin ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean) : [""];
   const hasExt = isWin && /\.[a-z0-9]+$/i.test(cmd);
   const candidates2 = hasExt ? [cmd] : exts.map((e) => cmd + e.toLowerCase());
-  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync2(c));
+  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync3(c));
   for (const dir of (env.PATH ?? env.Path ?? "").split(path3.delimiter).filter(Boolean)) {
     for (const c of candidates2) {
       const full = path3.join(dir, c);
-      if (existsSync2(full)) return full;
+      if (existsSync3(full)) return full;
     }
   }
   return void 0;
@@ -8263,8 +8365,22 @@ var ollama = async (p, key, req) => {
   if (!content.trim() && res.done_reason === "length") throw new ProviderError(`ollama hit the ${req.maxTokens} token output limit before answering`, "client");
   return nonEmpty(content, "ollama");
 };
+var publik = async (p, key, req) => {
+  try {
+    return await openai(p, key, req);
+  } catch (e) {
+    if (!(e instanceof ProviderError) || e.status !== 402) throw e;
+    let body = null;
+    try {
+      body = JSON.parse(e.body ?? "");
+    } catch {
+    }
+    const { message, url } = topUpUrlFrom402(body);
+    throw new ProviderError(url ? `${message} ${url}` : message, "client", 402);
+  }
+};
 var claudeCode = async (p, _key, req) => nonEmpty(await runClaudeCode(p, req), "claude-code");
-var ADAPTERS = { anthropic, openai, gemini, ollama, "claude-code": claudeCode };
+var ADAPTERS = { anthropic, openai, gemini, ollama, "claude-code": claudeCode, publik };
 
 // src/providers/chain.ts
 var ChainExhaustedError = class extends Error {
@@ -8540,7 +8656,7 @@ function nextStart(s2, from) {
 
 // src/core/linters.ts
 import { spawn as spawn2 } from "node:child_process";
-import { existsSync as existsSync3, mkdtempSync, readFileSync as readFileSync2, rmSync } from "node:fs";
+import { existsSync as existsSync4, mkdtempSync, readFileSync as readFileSync3, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path4 from "node:path";
 
@@ -8646,7 +8762,7 @@ var JS = /\.(m|c)?(j|t)sx?$/i;
 async function runLinters(files, config, log2 = () => {
 }) {
   const root = config.root;
-  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync3(path4.join(root, f.path))).slice(0, MAX_FILES);
+  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync4(path4.join(root, f.path))).slice(0, MAX_FILES);
   if (!present.length) return [];
   const rel = (re) => present.filter((f) => re.test(f.path)).map((f) => `./${f.path}`);
   const jobs = [];
@@ -8663,7 +8779,7 @@ async function runLinters(files, config, log2 = () => {
     const r = await exec("eslint", ["--format", "json", "--no-error-on-unmatched-pattern", ...js], root);
     return r.stdout.trim().startsWith("[") ? parseEslint(r.stdout) : [];
   });
-  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync3(path4.join(root, c)));
+  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync4(path4.join(root, c)));
   if (semgrepCfg) job("semgrep", async () => parseSemgrep((await exec("semgrep", ["scan", "--json", "--quiet", "--metrics=off", "--config", semgrepCfg, ...present.map((f) => `./${f.path}`)], root)).stdout));
   job("gitleaks", async () => {
     const dir = mkdtempSync(path4.join(tmpdir(), "cw-gitleaks-"));
@@ -8672,7 +8788,7 @@ async function runLinters(files, config, log2 = () => {
       for (const f of present) {
         const report = path4.join(dir, "r.json");
         await exec("gitleaks", ["detect", "--no-git", "--no-banner", "--exit-code", "0", "--report-format", "json", "--report-path", report, "--source", `./${f.path}`], root);
-        if (existsSync3(report)) hits.push(...parseGitleaks(readFileSync2(report, "utf8")).map((h) => ({ ...h, file: f.path })));
+        if (existsSync4(report)) hits.push(...parseGitleaks(readFileSync3(report, "utf8")).map((h) => ({ ...h, file: f.path })));
         rmSync(report, { force: true });
       }
       return hits;
@@ -9277,55 +9393,6 @@ function countSeverities(findings) {
   for (const f of findings) bySeverity[f.severity] = (bySeverity[f.severity] ?? 0) + 1;
   return bySeverity;
 }
-
-// package.json
-var package_default = {
-  name: "codewolf",
-  version: "0.2.0",
-  description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
-  type: "module",
-  license: "MIT",
-  bin: {
-    codewolf: "dist/cli.js"
-  },
-  files: [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
-  engines: {
-    node: ">=20"
-  },
-  scripts: {
-    build: "tsc --noEmit && node scripts/build.mjs",
-    typecheck: "tsc --noEmit",
-    test: 'node --test "test/**/*.test.ts" "test/**/*.test.mjs"'
-  },
-  repository: {
-    type: "git",
-    url: "git+https://github.com/za3ter123/codewolf.git"
-  },
-  keywords: [
-    "code-review",
-    "ai",
-    "llm",
-    "cli",
-    "github-action",
-    "ollama",
-    "coderabbit-alternative"
-  ],
-  dependencies: {
-    yaml: "2.9.1"
-  },
-  devDependencies: {
-    "@types/node": "26.6.5",
-    esbuild: "0.28.2",
-    typescript: "7.0.2"
-  }
-};
-
-// src/shared/version.ts
-var VERSION = package_default.version;
 
 // src/action/github.ts
 var PER_PAGE = 100;
@@ -10071,7 +10138,7 @@ async function run(env = process.env) {
     if (!eventName || !eventPath) throw new Error("GITHUB_EVENT_NAME and GITHUB_EVENT_PATH are not set. This entry point runs inside GitHub Actions; use the codewolf CLI for local reviews.");
     let payload;
     try {
-      payload = JSON.parse(readFileSync3(eventPath, "utf8"));
+      payload = JSON.parse(readFileSync4(eventPath, "utf8"));
     } catch (err) {
       throw new Error(`Cannot read the event payload at ${eventPath}: ${err instanceof Error ? err.message : String(err)}`);
     }

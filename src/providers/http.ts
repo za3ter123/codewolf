@@ -12,11 +12,14 @@ export class ProviderError extends Error {
   readonly kind: FailureKind;
   readonly status: number | undefined;
   readonly retryAfterSec: number | undefined;
-  constructor(message: string, kind: FailureKind, status?: number, retryAfterSec?: number) {
+  /** Raw error response body, for providers that put structured detail in it (publik's 402 top_up_url). */
+  readonly body: string | undefined;
+  constructor(message: string, kind: FailureKind, status?: number, retryAfterSec?: number, body?: string) {
     super(redact(message));
     this.kind = kind;
     this.status = status;
     this.retryAfterSec = retryAfterSec;
+    this.body = body;
   }
 }
 
@@ -74,7 +77,7 @@ export async function postJson(url: string, headers: Record<string, string>, bod
   }
   if (!res.ok) {
     const kind = classifyStatus(res.status);
-    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get('retry-after')));
+    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind, res.status, parseRetryAfter(res.headers.get('retry-after')), text);
   }
   try { return JSON.parse(text); } catch { throw new ProviderError(`response is not JSON: ${text.slice(0, 120)}`, 'server', res.status); }
 }

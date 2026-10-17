@@ -98,11 +98,14 @@ export function tmpFile(name: string, content: string): string {
   return p;
 }
 
-/** Env with every key-like variable blanked so tests never reach a real provider. */
+let configHome: string | undefined;
+
+/** Env with every key-like variable blanked so tests never reach a real provider, and config dirs (the publik credential) in a temp dir. */
 export function cleanEnv(extra: Record<string, string> = {}): Record<string, string> {
   const env: Record<string, string> = {};
-  for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = /API_KEY|_KEYS$|GITHUB_TOKEN|GH_TOKEN|OLLAMA_HOST/i.test(k) ? '' : v;
-  return { ...env, NO_COLOR: '1', ...extra };
+  for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = /API_KEY|_KEYS$|GITHUB_TOKEN|GH_TOKEN|OLLAMA_HOST|^PUBLIK_/i.test(k) ? '' : v;
+  configHome ??= tmpDir('cwhome-');
+  return { ...env, HOME: configHome, LOCALAPPDATA: configHome, APPDATA: configHome, XDG_CONFIG_HOME: configHome, NO_COLOR: '1', ...extra };
 }
 
 export function runCli(args: string[], opts: { cwd?: string; env?: Record<string, string>; input?: string } = {}): Promise<{ code: number | null; stdout: string; stderr: string }> {

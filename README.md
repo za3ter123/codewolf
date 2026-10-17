@@ -11,6 +11,10 @@ Open-source AI code review for pull requests and local changes.<br>
 Bring one API key, many keys at once, a local model, or your Claude subscription.
 </p>
 
+<p align="center">
+  <img src="docs/screenshot.png" width="800" alt="CodeWolf reviewing a pull request: three actionable findings, starting with a SQL injection in find_user">
+</p>
+
 ---
 
 CodeWolf reviews a diff and gives you a summary, a per-file walkthrough, and line-by-line findings with ready-to-apply fix suggestions. It runs in three places:
@@ -85,6 +89,10 @@ export OPENROUTER_API_KEYS=...
 codewolf review --provider openai --base-url https://openrouter.ai/api/v1 --model qwen/qwen3-coder
 ```
 
+### publik API (no key to paste)
+
+When you have no key, no `providers:` list and no running Ollama, an interactive `codewolf review` offers [publik API](https://publikhq.com/developers). It explains the deal first and sets up this computer only after you answer yes, saving a per-install key in your user config folder. Use is priced per request from a publik balance, and linking the computer to a publik account gives $0.05 of free use once. You can also bring a publik key yourself with `PUBLIK_API_KEY` (and `PUBLIK_API_BASE_URL`), or pick it with `--provider publik`; the models are `publik-fast`, `publik-balanced` (the default) and `publik-smart`. Your own keys always come first: publik joins the chain only when you have none, and the GitHub Action never sets it up on its own.
+
 ## CLI reference
 
 ```text
@@ -99,7 +107,7 @@ Options:
   --format pretty|plain|markdown|json
                                 pretty on a terminal, plain otherwise; json prints one ReviewResult object
   --agent                       NDJSON for coding agents; exit 1 if a critical or major finding remains
-  --provider <name>             anthropic | openai | gemini | ollama | claude-code | openrouter
+  --provider <name>             anthropic | openai | gemini | ollama | claude-code | openrouter | publik
   --model <id>  --base-url <url>  --keys <a,b,c>
   --profile quiet|chill|assertive
   --config <path>               Config file (default: nearest .codewolf.yaml upward from the current directory)

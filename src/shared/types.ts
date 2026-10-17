@@ -5,11 +5,11 @@ export type Category = 'bug' | 'security' | 'performance' | 'maintainability' | 
 export type Profile = 'quiet' | 'chill' | 'assertive';
 export type Effort = 'quick' | 'heavy';
 export type Kind = 'issue' | 'refactor' | 'nitpick';
-export type ProviderName = 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'claude-code';
+export type ProviderName = 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'claude-code' | 'publik';
 
 export const SEVERITIES: readonly Severity[] = ['critical', 'major', 'minor', 'nit'];
 export const CATEGORIES: readonly Category[] = ['bug', 'security', 'performance', 'maintainability', 'style', 'test'];
-export const PROVIDER_NAMES: readonly ProviderName[] = ['anthropic', 'openai', 'gemini', 'ollama', 'claude-code'];
+export const PROVIDER_NAMES: readonly ProviderName[] = ['anthropic', 'openai', 'gemini', 'ollama', 'claude-code', 'publik'];
 
 export interface HunkLine {
   type: 'add' | 'del' | 'ctx';
@@ -115,6 +115,8 @@ export interface ResolvedConfig {
   /** Repository root (git toplevel, else config dir, else cwd). */
   root: string;
   configPath?: string;
+  /** No provider, model, base URL or key is set anywhere (not even publik API): the chain is the default local Ollama. */
+  nothingConfigured?: boolean;
 }
 
 /** Overrides from CLI flags or GitHub Action inputs. All optional; strings are raw user input. */

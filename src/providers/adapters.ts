@@ -2,6 +2,7 @@
 import type { ProviderConfig } from '../shared/types.ts';
 import { postJson, ProviderError } from './http.ts';
 import { runClaudeCode } from './claude-code.ts';
+import { topUpUrlFrom402 } from './publik.ts';
 
 export interface AdapterRequest {
   system: string;
@@ -103,6 +104,19 @@ const ollama: Adapter = async (p, key, req) => {
   return nonEmpty(content, 'ollama');
 };
 
+// publik API speaks OpenAI chat completions. A 402 shows its message and exactly one link, the top-up URL.
+const publik: Adapter = async (p, key, req) => {
+  try {
+    return await openai(p, key, req);
+  } catch (e) {
+    if (!(e instanceof ProviderError) || e.status !== 402) throw e;
+    let body: unknown = null;
+    try { body = JSON.parse(e.body ?? ''); } catch { /* not JSON */ }
+    const { message, url } = topUpUrlFrom402(body);
+    throw new ProviderError(url ? `${message} ${url}` : message, 'client', 402);
+  }
+};
+
 const claudeCode: Adapter = async (p, _key, req) => nonEmpty(await runClaudeCode(p, req), 'claude-code');
 
-export const ADAPTERS: Record<ProviderConfig['name'], Adapter> = { anthropic, openai, gemini, ollama, 'claude-code': claudeCode };
+export const ADAPTERS: Record<ProviderConfig['name'], Adapter> = { anthropic, openai, gemini, ollama, 'claude-code': claudeCode, publik };

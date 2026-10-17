@@ -10,7 +10,8 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "publik-app-token.txt"
   ],
   "engines": {
     "node": ">=20"

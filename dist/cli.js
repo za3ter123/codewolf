@@ -7367,8 +7367,9 @@ var require_dist = __commonJS({
 });
 
 // src/cli.ts
-import { existsSync as existsSync7, readFileSync as readFileSync11, writeFileSync as writeFileSync6 } from "node:fs";
+import { existsSync as existsSync8, readFileSync as readFileSync12, writeFileSync as writeFileSync7 } from "node:fs";
 import path12 from "node:path";
+import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
 
 // src/cli/git.ts
@@ -7687,13 +7688,167 @@ function cmdApply(ids, opts, cwd) {
 
 // src/cli/doctor.ts
 import { spawnSync as spawnSync3 } from "node:child_process";
-import { mkdirSync as mkdirSync3, unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
+import { mkdirSync as mkdirSync4, unlinkSync, writeFileSync as writeFileSync4 } from "node:fs";
 import path7 from "node:path";
 
 // src/core/config.ts
 var import_yaml = __toESM(require_dist(), 1);
-import { existsSync as existsSync2, readFileSync as readFileSync5 } from "node:fs";
+import { existsSync as existsSync3, readFileSync as readFileSync6 } from "node:fs";
 import path5 from "node:path";
+
+// src/providers/publik.ts
+import { randomUUID } from "node:crypto";
+import { chmodSync, existsSync, mkdirSync as mkdirSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync3 } from "node:fs";
+import { arch, homedir, hostname, platform } from "node:os";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+// package.json
+var package_default = {
+  name: "codewolf",
+  version: "0.2.0",
+  description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
+  type: "module",
+  license: "MIT",
+  bin: {
+    codewolf: "dist/cli.js"
+  },
+  files: [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "publik-app-token.txt"
+  ],
+  engines: {
+    node: ">=20"
+  },
+  scripts: {
+    build: "tsc --noEmit && node scripts/build.mjs",
+    start: "node dist/cli.js",
+    typecheck: "tsc --noEmit",
+    test: 'node --test "test/**/*.test.ts" "test/**/*.test.mjs"'
+  },
+  repository: {
+    type: "git",
+    url: "git+https://github.com/za3ter123/codewolf.git"
+  },
+  keywords: [
+    "code-review",
+    "ai",
+    "llm",
+    "cli",
+    "github-action",
+    "ollama",
+    "coderabbit-alternative"
+  ],
+  dependencies: {
+    yaml: "2.9.1"
+  },
+  devDependencies: {
+    "@types/node": "26.6.5",
+    esbuild: "0.28.2",
+    typescript: "7.0.2"
+  }
+};
+
+// src/shared/version.ts
+var VERSION = package_default.version;
+
+// src/providers/publik.ts
+var APP_SLUG = "codewolf";
+var APP_VERSION = VERSION;
+var DEFAULT_BASE_URL = "https://publikhq.com/api/v1";
+var MODELS = { fast: "publik-fast", balanced: "publik-balanced", smart: "publik-smart" };
+var DISCLOSURE = "This app can use publik API for its AI features: no key to paste, priced per use in dollars from a publik balance that starts at $0.00. Linking this computer to a publik account gives $0.05 of free use, once. Your prompts go through publik's servers to the model; you can switch to your own key at any time.";
+function appToken() {
+  const env = process.env.PUBLIK_APP_TOKEN?.trim();
+  if (env) return env;
+  for (let dir = dirname(fileURLToPath(import.meta.url)); ; dir = dirname(dir)) {
+    const file = join(dir, "publik-app-token.txt");
+    if (existsSync(file)) return readFileSync4(file, "utf8").trim();
+    if (dirname(dir) === dir) return "";
+  }
+}
+function credentialPath() {
+  const os = platform();
+  const base = os === "darwin" ? join(homedir(), "Library", "Application Support") : os === "win32" ? process.env.LOCALAPPDATA ?? join(homedir(), "AppData", "Local") : process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
+  return join(base, "publik", "apps", `${APP_SLUG}.json`);
+}
+function readCredential() {
+  try {
+    const c = JSON.parse(readFileSync4(credentialPath(), "utf8"));
+    return typeof c.key === "string" && c.key.startsWith("pk_") ? c : null;
+  } catch {
+    return null;
+  }
+}
+function writeCredential(c) {
+  const file = credentialPath();
+  mkdirSync2(dirname(file), { recursive: true });
+  writeFileSync3(file, JSON.stringify(c, null, 2), { mode: 384 });
+  chmodSync(file, 384);
+}
+async function provision() {
+  const token = appToken();
+  if (!token.startsWith("pat_")) throw new Error("This build has no publik API app token. Use your own key for now.");
+  const prior = readCredential();
+  let installId = prior?.install_id ?? randomUUID();
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const res = await fetch(`${DEFAULT_BASE_URL}/installs`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        app_token: token,
+        app_slug: APP_SLUG,
+        app_version: APP_VERSION,
+        os: platform() === "darwin" ? "macos" : platform() === "win32" ? "windows" : "linux",
+        arch: arch(),
+        device_name: hostname().slice(0, 120),
+        install_id: installId,
+        disclosure_version: 1,
+        dialects: ["chat_completions"]
+      })
+    });
+    const body = await res.json().catch(() => ({}));
+    const key = body.key ?? (res.status === 200 ? prior?.key ?? null : null);
+    if ((res.status === 201 || res.status === 200) && key) {
+      const c = {
+        key,
+        base_url: body.base_url ?? DEFAULT_BASE_URL,
+        install_id: body.install_id ?? installId,
+        claim_url: body.claim_url ?? null,
+        claim_state: body.claim_state ?? "anonymous",
+        add_credit_url: body.wallet?.add_credit_url ?? null,
+        cost_sentence: body.disclosure?.cost ?? null,
+        balance_micros: body.balance_micros ?? null
+      };
+      writeCredential(c);
+      return c;
+    }
+    if (res.status === 200 || body.error?.type === "install_revoked") {
+      installId = randomUUID();
+      continue;
+    }
+    throw new Error(body.error?.message ?? `publik API could not set up this computer (${res.status}). Use your own key for now.`);
+  }
+  throw new Error("publik API could not set up this computer. Use your own key for now.");
+}
+async function selfTest() {
+  try {
+    return `publik self-test: ok ${APP_SLUG} ${APP_VERSION} (install ${(await provision()).install_id.slice(0, 8)})`;
+  } catch (e) {
+    return `publik self-test: failed: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+function balanceLine(micros, claimState = "anonymous") {
+  if (micros == null) return "";
+  const dollars = `$${(micros / 1e6).toFixed(2)}`;
+  return micros === 0 && claimState === "anonymous" ? `${dollars} \xB7 link this computer for $0.05 of free use` : `${dollars} of publik balance`;
+}
+function topUpUrlFrom402(body) {
+  const e = body?.error;
+  return { message: e?.message ?? "Not enough publik API balance.", url: e?.top_up_url ?? null };
+}
 
 // src/shared/mask.ts
 var known = /* @__PURE__ */ new Set();
@@ -7718,20 +7873,20 @@ function redact(text) {
 // src/shared/types.ts
 var SEVERITIES = ["critical", "major", "minor", "nit"];
 var CATEGORIES = ["bug", "security", "performance", "maintainability", "style", "test"];
-var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code"];
+var PROVIDER_NAMES = ["anthropic", "openai", "gemini", "ollama", "claude-code", "publik"];
 
 // src/core/learnings.ts
-import { appendFileSync, existsSync, mkdirSync as mkdirSync2, readFileSync as readFileSync4 } from "node:fs";
+import { appendFileSync, existsSync as existsSync2, mkdirSync as mkdirSync3, readFileSync as readFileSync5 } from "node:fs";
 import path4 from "node:path";
 function learningsPath(root) {
   return path4.join(root, ".codewolf", "learnings.md");
 }
 function readLearnings(root) {
   const file = learningsPath(root);
-  if (!existsSync(file)) return [];
+  if (!existsSync2(file)) return [];
   let text;
   try {
-    text = readFileSync4(file, "utf8");
+    text = readFileSync5(file, "utf8");
   } catch {
     return [];
   }
@@ -7741,11 +7896,11 @@ function appendLearning(root, text) {
   const clean = text.replace(/\s+/g, " ").trim();
   if (!clean) throw new Error("learning text is empty");
   const file = learningsPath(root);
-  mkdirSync2(path4.dirname(file), { recursive: true });
+  mkdirSync3(path4.dirname(file), { recursive: true });
   let prefix = "";
-  if (!existsSync(file)) prefix = "# CodeWolf learnings\n\n<!-- Reviewer preferences for this repo, one per line. CodeWolf adds them to every review prompt. -->\n\n";
+  if (!existsSync2(file)) prefix = "# CodeWolf learnings\n\n<!-- Reviewer preferences for this repo, one per line. CodeWolf adds them to every review prompt. -->\n\n";
   else {
-    const cur = readFileSync4(file, "utf8");
+    const cur = readFileSync5(file, "utf8");
     if (cur.length && !cur.endsWith("\n")) prefix = "\n";
   }
   appendFileSync(file, `${prefix}- ${clean}
@@ -7759,10 +7914,10 @@ function readGuidelines(root, cap = GUIDELINES_CAP) {
   let used = 0;
   for (const name of GUIDELINE_FILES) {
     const file = path4.join(root, name);
-    if (!existsSync(file)) continue;
+    if (!existsSync2(file)) continue;
     let text;
     try {
-      text = readFileSync4(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+      text = readFileSync5(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
     } catch {
       continue;
     }
@@ -7814,7 +7969,8 @@ var DEFAULTS = {
   openai: { baseUrl: "https://api.openai.com/v1", model: "gpt-5-mini", timeoutMs: 18e4 },
   gemini: { baseUrl: "https://generativelanguage.googleapis.com", model: "gemini-2.5-flash", timeoutMs: 18e4 },
   ollama: { baseUrl: "http://127.0.0.1:11434", model: "qwen2.5-coder:7b", timeoutMs: 9e5 },
-  "claude-code": { baseUrl: "", model: "", timeoutMs: 9e5 }
+  "claude-code": { baseUrl: "", model: "", timeoutMs: 9e5 },
+  publik: { baseUrl: DEFAULT_BASE_URL, model: MODELS.balanced, timeoutMs: 18e4 }
 };
 var OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 var DEFAULT_MAX_TOKENS = 8192;
@@ -7868,7 +8024,8 @@ var OFFICIAL_HOSTS = {
   gemini: ["generativelanguage.googleapis.com"],
   openai: ["api.openai.com", "openrouter.ai"],
   ollama: [],
-  "claude-code": []
+  "claude-code": [],
+  publik: ["publikhq.com"]
 };
 function isOfficialHost(name, baseUrl) {
   try {
@@ -7906,14 +8063,26 @@ function ollamaBase(env) {
   const withProto = /^https?:\/\//.test(h) ? h : `http://${h}`;
   return withProto.replace("://0.0.0.0", "://127.0.0.1");
 }
+function publikFrom(env, credential) {
+  const key = env.PUBLIK_API_KEY?.trim();
+  if (key) return { baseUrl: (env.PUBLIK_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, ""), key };
+  const c = credential;
+  if (typeof c?.key !== "string" || !c.key.startsWith("pk_")) return null;
+  const base = typeof c.base_url === "string" && isOfficialHost("publik", c.base_url) ? c.base_url : DEFAULT_BASE_URL;
+  return { baseUrl: base.replace(/\/+$/, ""), key: c.key };
+}
 function buildProvider(raw, ctx, where) {
   const { env, warn } = ctx;
   const { name, baseUrl: aliasBase } = normName(raw.name, where);
   const d = DEFAULTS[name];
   const fileBase = str(raw.baseUrl ?? raw.base_url ?? raw.baseURL, `${where}.baseUrl`);
-  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? (name === "ollama" ? ollamaBase(env) : void 0) ?? d.baseUrl).replace(/\/+$/, "");
+  const envBase = name === "ollama" ? ollamaBase(env) : name === "publik" ? ctx.publik?.baseUrl : void 0;
+  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? envBase ?? d.baseUrl).replace(/\/+$/, "");
   let model = str(raw.model, `${where}.model`);
   if (!model) model = name === "openai" && baseUrl === OPENROUTER_BASE ? "qwen/qwen3-coder" : d.model;
+  if (name === "publik" && !Object.values(MODELS).includes(model)) {
+    throw new ConfigError(`${where}.model: publik takes ${Object.values(MODELS).join(", ")}, never a vendor model name`);
+  }
   const baseTrusted = ctx.trusted || ctx.baseOverride !== void 0 || fileBase === void 0 || isOfficialHost(name, baseUrl);
   const withhold = (what) => warn(`${where}: not sending ${what} to ${baseUrl}, a base URL set by the repository config. Pass --base-url or --config to allow it.`);
   const fileKeys = raw.keys !== void 0 ? expandKeys(raw.keys, env, `${where}.keys`, ctx.trusted, warn) : [];
@@ -7924,7 +8093,9 @@ function buildProvider(raw, ctx, where) {
   } else if (fileKeys.length) {
     keys = fileKeys;
   } else {
-    const fromEnv = defaultKeysFor(name, baseUrl, env);
+    const pub = name === "publik" ? ctx.publik : null;
+    if (pub && baseUrl !== pub.baseUrl) warn(`${where}: not sending the publik key to ${baseUrl}; it only goes to ${pub.baseUrl}`);
+    const fromEnv = name === "publik" ? pub && baseUrl === pub.baseUrl ? [pub.key] : [] : defaultKeysFor(name, baseUrl, env);
     keys = baseTrusted ? fromEnv : [];
     if (!baseTrusted && fromEnv.length) withhold("API keys from the environment");
   }
@@ -7946,12 +8117,13 @@ function buildProvider(raw, ctx, where) {
   }
   return p;
 }
-function autoChain(env) {
+function autoChain(env, publik2) {
   const chain = [];
   if (envKeys(env, "ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY").length) chain.push({ name: "anthropic" });
   if (envKeys(env, "OPENAI_API_KEYS", "OPENAI_API_KEY").length) chain.push({ name: "openai" });
   if (envKeys(env, "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY").length) chain.push({ name: "openrouter" });
   if (envKeys(env, "GEMINI_API_KEYS", "GEMINI_API_KEY", "GOOGLE_API_KEY").length) chain.push({ name: "gemini" });
+  if (publik2 && !chain.length) return [{ name: "publik" }, { name: "ollama" }];
   chain.push({ name: "ollama" });
   return chain;
 }
@@ -8004,6 +8176,8 @@ function resolveConfig(raw, overrides = {}, opts = {}) {
   const keyOverride = overrides.keys !== void 0 ? expandKeys(overrides.keys, env, "--keys") : void 0;
   const warn = opts.warn ?? stderrWarn;
   const baseOverride = overrides.baseUrl || env.CODEWOLF_BASE_URL?.trim() || void 0;
+  const publik2 = publikFrom(env, opts.publikCredential !== void 0 ? opts.publikCredential : opts.env ? null : readCredential());
+  const untouched = !overrides.provider && !chainRaw.length && !overrides.model && !baseOverride && !keyOverride?.length && !ollamaBase(env) && !envKeys(env, "CODEWOLF_API_KEYS").length;
   let chain;
   if (overrides.provider) {
     const want = normName(overrides.provider, "--provider");
@@ -8017,7 +8191,7 @@ function resolveConfig(raw, overrides = {}, opts = {}) {
     chain = [{ ...match ?? {}, name: match ? match.name : overrides.provider }];
     if (want.baseUrl && !overrides.baseUrl && !match) chain[0].baseUrl = want.baseUrl;
   } else {
-    chain = chainRaw.length ? chainRaw : autoChain(env);
+    chain = chainRaw.length ? chainRaw : autoChain(env, untouched && publik2 !== null);
   }
   if (overrides.model) chain[0] = { ...chain[0], model: overrides.model };
   const providers = chain.map((p, i) => buildProvider(p, {
@@ -8026,7 +8200,8 @@ function resolveConfig(raw, overrides = {}, opts = {}) {
     trusted: opts.trusted === true,
     baseOverride: i === 0 ? baseOverride : void 0,
     keyOverride: i === 0 ? keyOverride : void 0,
-    claudeBin: overrides.claudeBin
+    claudeBin: overrides.claudeBin,
+    publik: publik2
   }, i === 0 && overrides.provider ? "--provider" : `providers[${i}]`));
   for (const p of providers) for (const k of p.keys) registerSecret(k);
   const pathInstructions = [];
@@ -8069,6 +8244,7 @@ function resolveConfig(raw, overrides = {}, opts = {}) {
     root
   };
   if (opts.configPath) resolved.configPath = opts.configPath;
+  if (untouched && !publik2 && providers.length === 1) resolved.nothingConfigured = true;
   return resolved;
 }
 function findConfigFile(cwd) {
@@ -8076,7 +8252,7 @@ function findConfigFile(cwd) {
   for (; ; ) {
     for (const name of CONFIG_FILENAMES) {
       const p = path5.join(dir, name);
-      if (existsSync2(p)) return p;
+      if (existsSync3(p)) return p;
     }
     const up = path5.dirname(dir);
     if (up === dir) return void 0;
@@ -8086,7 +8262,7 @@ function findConfigFile(cwd) {
 function readConfigFile(file) {
   let text;
   try {
-    text = readFileSync5(file, "utf8");
+    text = readFileSync6(file, "utf8");
   } catch (e) {
     throw new ConfigError(`cannot read config ${file}: ${e.message}`);
   }
@@ -8101,7 +8277,7 @@ function loadConfig(opts = {}) {
   let file;
   if (opts.configPath) {
     file = path5.resolve(cwd, opts.configPath);
-    if (!existsSync2(file)) throw new ConfigError(`config file not found: ${file}`);
+    if (!existsSync3(file)) throw new ConfigError(`config file not found: ${file}`);
   } else {
     file = findConfigFile(cwd);
   }
@@ -8116,7 +8292,7 @@ function loadConfig(opts = {}) {
 
 // src/providers/claude-code.ts
 import { spawn } from "node:child_process";
-import { existsSync as existsSync3 } from "node:fs";
+import { existsSync as existsSync4 } from "node:fs";
 import path6 from "node:path";
 
 // src/providers/http.ts
@@ -8125,11 +8301,14 @@ var ProviderError = class extends Error {
   kind;
   status;
   retryAfterSec;
-  constructor(message, kind2, status, retryAfterSec) {
+  /** Raw error response body, for providers that put structured detail in it (publik's 402 top_up_url). */
+  body;
+  constructor(message, kind2, status, retryAfterSec, body) {
     super(redact(message));
     this.kind = kind2;
     this.status = status;
     this.retryAfterSec = retryAfterSec;
+    this.body = body;
   }
 };
 var MAX_RETRY_AFTER_SEC = 3600;
@@ -8181,7 +8360,7 @@ async function postJson(url, headers, body, opts) {
   }
   if (!res.ok) {
     const kind2 = classifyStatus(res.status);
-    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind2, res.status, parseRetryAfter(res.headers.get("retry-after")));
+    throw new ProviderError(`HTTP ${res.status}: ${errorText(text) || res.statusText}`, kind2, res.status, parseRetryAfter(res.headers.get("retry-after")), text);
   }
   try {
     return JSON.parse(text);
@@ -8197,11 +8376,11 @@ function whichSync(cmd, env = process.env) {
   const exts = isWin ? (env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean) : [""];
   const hasExt = isWin && /\.[a-z0-9]+$/i.test(cmd);
   const candidates2 = hasExt ? [cmd] : exts.map((e) => cmd + e.toLowerCase());
-  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync3(c));
+  if (cmd.includes("/") || cmd.includes("\\")) return candidates2.concat(cmd).find((c) => existsSync4(c));
   for (const dir of (env.PATH ?? env.Path ?? "").split(path6.delimiter).filter(Boolean)) {
     for (const c of candidates2) {
       const full = path6.join(dir, c);
-      if (existsSync3(full)) return full;
+      if (existsSync4(full)) return full;
     }
   }
   return void 0;
@@ -8349,9 +8528,9 @@ async function cmdDoctor(opts, cwd) {
     try {
       const dir = stateDir(root);
       if (!dir) throw new Error("git did not report a git dir");
-      mkdirSync3(dir, { recursive: true });
+      mkdirSync4(dir, { recursive: true });
       const probe = path7.join(dir, `.doctor-${process.pid}`);
-      writeFileSync3(probe, "ok");
+      writeFileSync4(probe, "ok");
       unlinkSync(probe);
       add("OK", `state dir ${dir} writable`);
     } catch (e) {
@@ -8364,7 +8543,7 @@ async function cmdDoctor(opts, cwd) {
 
 // src/cli/fix.ts
 import { spawn as spawn2 } from "node:child_process";
-import { readFileSync as readFileSync6 } from "node:fs";
+import { readFileSync as readFileSync7 } from "node:fs";
 
 // src/action/render.ts
 function stripComments(text) {
@@ -8422,7 +8601,7 @@ function buildFixPrompt(root, findings) {
   const items = findings.map((f, i) => {
     let line = f.line;
     try {
-      line = relocate(f, readFileSync6(repoFile(root, f.file), "utf8"));
+      line = relocate(f, readFileSync7(repoFile(root, f.file), "utf8"));
     } catch {
     }
     const moved = line === null ? " (the code at this line has changed since the review)" : "";
@@ -8600,7 +8779,7 @@ function formatResult(r, format, color) {
 }
 
 // src/cli/hook.ts
-import { chmodSync, existsSync as existsSync4, mkdirSync as mkdirSync4, readFileSync as readFileSync7, statSync, unlinkSync as unlinkSync2, writeFileSync as writeFileSync4 } from "node:fs";
+import { chmodSync as chmodSync2, existsSync as existsSync5, mkdirSync as mkdirSync5, readFileSync as readFileSync8, statSync, unlinkSync as unlinkSync2, writeFileSync as writeFileSync5 } from "node:fs";
 import path8 from "node:path";
 var BEGIN = "# >>> codewolf:managed post-commit (codewolf hook uninstall removes this block) >>>";
 var END = "# <<< codewolf:managed post-commit <<<";
@@ -8621,13 +8800,13 @@ function cmdHook(sub, cwd) {
   const root = repoRoot(cwd);
   if (!root) throw new Error("not inside a git repository");
   const file = hookFile(root);
-  const cur = existsSync4(file) ? readFileSync7(file, "utf8") : null;
+  const cur = existsSync5(file) ? readFileSync8(file, "utf8") : null;
   const ours = cur !== null && BLOCK_RE.test(cur);
   switch (sub) {
     case "install": {
       const dir = stateDir(root);
       if (!dir) throw new Error("cannot find the git dir for hook state");
-      mkdirSync4(dir, { recursive: true });
+      mkdirSync5(dir, { recursive: true });
       const block = hookBlock(process.execPath, path8.resolve(process.argv[1] ?? ""), path8.join(dir, "last-hook-review.txt"));
       let next;
       if (cur === null) next = `${CREATED}${block}`;
@@ -8639,10 +8818,10 @@ function cmdHook(sub, cwd) {
         next = !first.startsWith("#!") ? `${block}${cur}` : nl < 0 ? `${cur}
 ${block}` : `${cur.slice(0, nl + 1)}${block}${cur.slice(nl + 1)}`;
       }
-      mkdirSync4(path8.dirname(file), { recursive: true });
-      writeFileSync4(file, next);
+      mkdirSync5(path8.dirname(file), { recursive: true });
+      writeFileSync5(file, next);
       try {
-        chmodSync(file, 493);
+        chmodSync2(file, 493);
       } catch {
       }
       process.stdout.write(`${ours ? "updated" : cur === null ? "installed" : "chained into existing"} post-commit hook: ${file}
@@ -8657,7 +8836,7 @@ reviews land in ${path8.join(dir, "last-hook-review.txt")}
       }
       const rest = cur.replace(BLOCK_RE, "");
       if (rest === CREATED || rest === "") unlinkSync2(file);
-      else writeFileSync4(file, rest);
+      else writeFileSync5(file, rest);
       process.stdout.write(`removed the CodeWolf block from ${file}
 `);
       return 0;
@@ -8667,7 +8846,7 @@ reviews land in ${path8.join(dir, "last-hook-review.txt")}
       const last = state ? path8.join(state, "last-hook-review.txt") : null;
       process.stdout.write(`post-commit hook: ${ours ? "installed" : cur === null ? "not installed" : "not installed (another hook exists; install will chain it)"}  ${file}
 `);
-      if (last && existsSync4(last)) process.stdout.write(`last hook review: ${last} (${statSync(last).mtime.toISOString()})
+      if (last && existsSync5(last)) process.stdout.write(`last hook review: ${last} (${statSync(last).mtime.toISOString()})
 `);
       return 0;
     }
@@ -8677,8 +8856,8 @@ reviews land in ${path8.join(dir, "last-hook-review.txt")}
 }
 
 // src/cli/install.ts
-import { existsSync as existsSync5, mkdirSync as mkdirSync5, readFileSync as readFileSync8, realpathSync as realpathSync2, writeFileSync as writeFileSync5 } from "node:fs";
-import { homedir } from "node:os";
+import { existsSync as existsSync6, mkdirSync as mkdirSync6, readFileSync as readFileSync9, realpathSync as realpathSync2, writeFileSync as writeFileSync6 } from "node:fs";
+import { homedir as homedir2 } from "node:os";
 import path9 from "node:path";
 var MANAGED = "codewolf:managed";
 var MD_MARK = `<!-- ${MANAGED}: written by codewolf install. Delete this line to keep your own edits safe from reinstalls. -->`;
@@ -8716,7 +8895,7 @@ ${STEPS}`;
 var INSTALL_AGENTS = {
   claude: {
     project: ".claude",
-    user: (env) => env.CLAUDE_CONFIG_DIR || path9.join(homedir(), ".claude"),
+    user: (env) => env.CLAUDE_CONFIG_DIR || path9.join(homedir2(), ".claude"),
     files: [
       ["commands/codewolf.md", () => `---
 description: ${DESCRIPTION}
@@ -8732,7 +8911,7 @@ ${STEPS}`],
       ["skills/codewolf/SKILL.md", skill]
     ]
   },
-  codex: { project: ".codex", user: (env) => env.CODEX_HOME || path9.join(homedir(), ".codex"), files: [["skills/codewolf/SKILL.md", skill]] },
+  codex: { project: ".codex", user: (env) => env.CODEX_HOME || path9.join(homedir2(), ".codex"), files: [["skills/codewolf/SKILL.md", skill]] },
   cursor: {
     project: ".cursor",
     user: () => null,
@@ -8749,7 +8928,7 @@ ${STEPS}`]]
   },
   gemini: {
     project: ".gemini",
-    user: () => path9.join(homedir(), ".gemini"),
+    user: () => path9.join(homedir2(), ".gemini"),
     files: [["commands/codewolf.toml", () => `# ${MANAGED}: written by codewolf install. Delete this line to keep your own edits safe from reinstalls.
 description = "${DESCRIPTION}"
 prompt = """
@@ -8760,7 +8939,7 @@ ${STEPS}"""
   },
   opencode: {
     project: ".opencode",
-    user: (env) => path9.join(env.XDG_CONFIG_HOME || path9.join(homedir(), ".config"), "opencode"),
+    user: (env) => path9.join(env.XDG_CONFIG_HOME || path9.join(homedir2(), ".config"), "opencode"),
     files: [["command/codewolf.md", () => `---
 description: ${DESCRIPTION}
 ---
@@ -8771,12 +8950,12 @@ Extra flags from the user (may be empty): $ARGUMENTS
 
 ${STEPS}`]]
   },
-  agents: { project: ".agents", user: () => path9.join(homedir(), ".agents"), files: [["skills/codewolf/SKILL.md", skill]] }
+  agents: { project: ".agents", user: () => path9.join(homedir2(), ".agents"), files: [["skills/codewolf/SKILL.md", skill]] }
 };
 function nearestReal(p) {
   let dir = path9.resolve(p);
   const rest = [];
-  while (!existsSync5(dir)) {
+  while (!existsSync6(dir)) {
     const up = path9.dirname(dir);
     if (up === dir) break;
     rest.unshift(path9.basename(dir));
@@ -8816,9 +8995,9 @@ function cmdInstall(names, opts, cwd, env = process.env) {
       const content = make();
       let action;
       if (!inside(boundary, file)) action = "refused (outside the allowed dir)";
-      else if (!existsSync5(file)) action = "create";
+      else if (!existsSync6(file)) action = "create";
       else {
-        const cur = readFileSync8(file, "utf8");
+        const cur = readFileSync9(file, "utf8");
         action = cur === content ? "unchanged" : cur.includes(MANAGED) || opts.force ? "overwrite" : "skip (not ours, use --force)";
       }
       steps.push({ file, content, action });
@@ -8832,8 +9011,8 @@ function cmdInstall(names, opts, cwd, env = process.env) {
   }
   for (const s2 of steps) {
     if (s2.action !== "create" && s2.action !== "overwrite") continue;
-    mkdirSync5(path9.dirname(s2.file), { recursive: true });
-    writeFileSync5(s2.file, s2.content);
+    mkdirSync6(path9.dirname(s2.file), { recursive: true });
+    writeFileSync6(s2.file, s2.content);
   }
   const blocked = steps.filter((s2) => s2.action.startsWith("skip") || s2.action.startsWith("refused")).length;
   process.stdout.write(`codewolf: installed ${steps.filter((s2) => s2.action === "create" || s2.action === "overwrite").length} file(s)${blocked ? `, ${blocked} left alone` : ""}
@@ -9022,9 +9201,59 @@ ${blocks.join("\n\n")}
   return 0;
 }
 
+// src/shared/log.ts
+var order = { debug: 0, info: 1, warn: 2, error: 3 };
+function stderrLogger(min = "info") {
+  return (level, message) => {
+    if (order[level] < order[min]) return;
+    const tag = level === "info" ? "" : `${level}: `;
+    process.stderr.write(`codewolf: ${tag}${redact(message)}
+`);
+  };
+}
+function errorMessage(err) {
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
+// src/cli/publik.ts
+var OWN_KEY_HINT = "To use your own key, set ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY or OPENROUTER_API_KEY (or pass --keys), or start Ollama for a local model. codewolf doctor checks the setup.";
+async function offerPublik(config, io) {
+  if (!io.interactive || !config.nothingConfigured) return false;
+  if (await io.ollamaUp(config.providers[0]?.baseUrl ?? "")) return false;
+  io.write(`${DISCLOSURE}
+`);
+  const answer = (await io.ask("Use publik API? [y/N] ")).trim().toLowerCase();
+  if (answer !== "y" && answer !== "yes") {
+    io.write(`${OWN_KEY_HINT}
+`);
+    return false;
+  }
+  try {
+    const c = await provision();
+    const card = [balanceLine(c.balance_micros, c.claim_state), c.cost_sentence ?? "", c.claim_url ? `Sign in with publik: ${c.claim_url}` : ""];
+    io.write(card.filter(Boolean).join("\n") + "\n");
+    return true;
+  } catch (e) {
+    io.write(`${errorMessage(e)}
+${OWN_KEY_HINT}
+`);
+    return false;
+  }
+}
+async function ollamaUp(baseUrl) {
+  try {
+    const res = await fetch(`${baseUrl}/api/tags`, { signal: AbortSignal.timeout(1e3) });
+    await res.body?.cancel();
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 // src/cli/state.ts
 import { spawnSync as spawnSync5 } from "node:child_process";
-import { readFileSync as readFileSync10 } from "node:fs";
+import { readFileSync as readFileSync11 } from "node:fs";
 import path11 from "node:path";
 
 // src/core/diff.ts
@@ -9289,21 +9518,6 @@ function isExcluded(path13, patterns) {
   return excluded;
 }
 
-// src/shared/log.ts
-var order = { debug: 0, info: 1, warn: 2, error: 3 };
-function stderrLogger(min = "info") {
-  return (level, message) => {
-    if (order[level] < order[min]) return;
-    const tag = level === "info" ? "" : `${level}: `;
-    process.stderr.write(`codewolf: ${tag}${redact(message)}
-`);
-  };
-}
-function errorMessage(err) {
-  if (err instanceof Error) return err.message;
-  return String(err);
-}
-
 // src/providers/adapters.ts
 function nonEmpty(text, provider) {
   if (!text.trim()) throw new ProviderError(`${provider} returned an empty response`, "client");
@@ -9381,8 +9595,22 @@ var ollama = async (p, key, req) => {
   if (!content.trim() && res.done_reason === "length") throw new ProviderError(`ollama hit the ${req.maxTokens} token output limit before answering`, "client");
   return nonEmpty(content, "ollama");
 };
+var publik = async (p, key, req) => {
+  try {
+    return await openai(p, key, req);
+  } catch (e) {
+    if (!(e instanceof ProviderError) || e.status !== 402) throw e;
+    let body = null;
+    try {
+      body = JSON.parse(e.body ?? "");
+    } catch {
+    }
+    const { message, url } = topUpUrlFrom402(body);
+    throw new ProviderError(url ? `${message} ${url}` : message, "client", 402);
+  }
+};
 var claudeCode = async (p, _key, req) => nonEmpty(await runClaudeCode(p, req), "claude-code");
-var ADAPTERS = { anthropic, openai, gemini, ollama, "claude-code": claudeCode };
+var ADAPTERS = { anthropic, openai, gemini, ollama, "claude-code": claudeCode, publik };
 
 // src/providers/chain.ts
 var ChainExhaustedError = class extends Error {
@@ -9655,7 +9883,7 @@ function nextStart(s2, from) {
 
 // src/core/linters.ts
 import { spawn as spawn3 } from "node:child_process";
-import { existsSync as existsSync6, mkdtempSync, readFileSync as readFileSync9, rmSync as rmSync2 } from "node:fs";
+import { existsSync as existsSync7, mkdtempSync, readFileSync as readFileSync10, rmSync as rmSync2 } from "node:fs";
 import { tmpdir } from "node:os";
 import path10 from "node:path";
 
@@ -9761,7 +9989,7 @@ var JS = /\.(m|c)?(j|t)sx?$/i;
 async function runLinters(files, config, log = () => {
 }) {
   const root = config.root;
-  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync6(path10.join(root, f.path))).slice(0, MAX_FILES);
+  const present = files.filter((f) => f.status !== "deleted" && !f.binary && existsSync7(path10.join(root, f.path))).slice(0, MAX_FILES);
   if (!present.length) return [];
   const rel = (re) => present.filter((f) => re.test(f.path)).map((f) => `./${f.path}`);
   const jobs = [];
@@ -9778,7 +10006,7 @@ async function runLinters(files, config, log = () => {
     const r = await exec("eslint", ["--format", "json", "--no-error-on-unmatched-pattern", ...js], root);
     return r.stdout.trim().startsWith("[") ? parseEslint(r.stdout) : [];
   });
-  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync6(path10.join(root, c)));
+  const semgrepCfg = [".semgrep.yml", ".semgrep.yaml", ".semgrep"].find((c) => existsSync7(path10.join(root, c)));
   if (semgrepCfg) job("semgrep", async () => parseSemgrep((await exec("semgrep", ["scan", "--json", "--quiet", "--metrics=off", "--config", semgrepCfg, ...present.map((f) => `./${f.path}`)], root)).stdout));
   job("gitleaks", async () => {
     const dir = mkdtempSync(path10.join(tmpdir(), "cw-gitleaks-"));
@@ -9787,7 +10015,7 @@ async function runLinters(files, config, log = () => {
       for (const f of present) {
         const report = path10.join(dir, "r.json");
         await exec("gitleaks", ["detect", "--no-git", "--no-banner", "--exit-code", "0", "--report-format", "json", "--report-path", report, "--source", `./${f.path}`], root);
-        if (existsSync6(report)) hits.push(...parseGitleaks(readFileSync9(report, "utf8")).map((h) => ({ ...h, file: f.path })));
+        if (existsSync7(report)) hits.push(...parseGitleaks(readFileSync10(report, "utf8")).map((h) => ({ ...h, file: f.path })));
         rmSync2(report, { force: true });
       }
       return hits;
@@ -10473,7 +10701,7 @@ function prepareReview(scope, all, config, cwd, opts) {
 function fileLine(root, file, line) {
   if (!isSafePath(file)) return "";
   try {
-    return readFileSync10(path11.join(root, file), "utf8").split(/\r?\n/)[line - 1] ?? "";
+    return readFileSync11(path11.join(root, file), "utf8").split(/\r?\n/)[line - 1] ?? "";
   } catch {
     return "";
   }
@@ -10481,7 +10709,7 @@ function fileLine(root, file, line) {
 function lineCount(root, file, committed) {
   if (!isSafePath(file)) return 0;
   try {
-    const lines = (committed ? git(["show", `HEAD:${file}`], root) : readFileSync10(path11.join(root, file), "utf8")).split(/\r?\n/);
+    const lines = (committed ? git(["show", `HEAD:${file}`], root) : readFileSync11(path11.join(root, file), "utf8")).split(/\r?\n/);
     if (lines.at(-1) === "") lines.pop();
     return lines.length;
   } catch {
@@ -10534,7 +10762,7 @@ function stateRoot(cwd) {
 function currentLine(root, f) {
   if (!isSafePath(f.file)) return f.line;
   try {
-    return relocate(f, readFileSync10(path11.join(root, f.file), "utf8")) ?? f.line;
+    return relocate(f, readFileSync11(path11.join(root, f.file), "utf8")) ?? f.line;
   } catch {
     return f.line;
   }
@@ -10714,56 +10942,11 @@ async function ingestAnswer(text, files, config, opts = {}) {
   }, opts.suppressed);
 }
 
-// package.json
-var package_default = {
-  name: "codewolf",
-  version: "0.2.0",
-  description: "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
-  type: "module",
-  license: "MIT",
-  bin: {
-    codewolf: "dist/cli.js"
-  },
-  files: [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
-  engines: {
-    node: ">=20"
-  },
-  scripts: {
-    build: "tsc --noEmit && node scripts/build.mjs",
-    typecheck: "tsc --noEmit",
-    test: 'node --test "test/**/*.test.ts" "test/**/*.test.mjs"'
-  },
-  repository: {
-    type: "git",
-    url: "git+https://github.com/za3ter123/codewolf.git"
-  },
-  keywords: [
-    "code-review",
-    "ai",
-    "llm",
-    "cli",
-    "github-action",
-    "ollama",
-    "coderabbit-alternative"
-  ],
-  dependencies: {
-    yaml: "2.9.1"
-  },
-  devDependencies: {
-    "@types/node": "26.6.5",
-    esbuild: "0.28.2",
-    typescript: "7.0.2"
-  }
-};
-
-// src/shared/version.ts
-var VERSION = package_default.version;
-
 // src/cli.ts
+if (process.env.PUBLIK_SELF_TEST) {
+  console.log(await selfTest());
+  process.exit(0);
+}
 var HELP = `codewolf ${VERSION}: AI code review with your own keys, many keys, or a local model.
 
 Usage:
@@ -10802,7 +10985,7 @@ Options:
                        a coding agent: Claude Code, Codex, Cursor, Gemini CLI, opencode, aider)
   --agent              NDJSON for coding agents: one finding per line, then a summary line;
                        exit 1 if any critical or major finding remains
-  --provider <name>    anthropic | openai | gemini | ollama | claude-code | openrouter
+  --provider <name>    anthropic | openai | gemini | ollama | claude-code | openrouter | publik
   --model <id>         Model id
   --base-url <url>     Provider base URL (OpenAI-compatible servers, proxies, remote Ollama)
   --keys <a,b,c>       API keys for the provider (round-robin; env:NAME reads an env var)
@@ -10898,8 +11081,8 @@ async function loadReview(v, cwd, log) {
     if (scope.path === "-") patch = await readStdin();
     else {
       const p = path12.resolve(cwd, scope.path);
-      if (!existsSync7(p)) throw new UsageError(`diff file not found: ${scope.path}`);
-      patch = readFileSync11(p, "utf8");
+      if (!existsSync8(p)) throw new UsageError(`diff file not found: ${scope.path}`);
+      patch = readFileSync12(p, "utf8");
     }
   } else {
     patch = collectDiff(scope, cwd);
@@ -10912,8 +11095,8 @@ async function readAnswer(from, v, cwd) {
     return readStdin();
   }
   const p = path12.resolve(cwd, from);
-  if (!existsSync7(p)) throw new UsageError(`answer file not found: ${from}`);
-  return readFileSync11(p, "utf8");
+  if (!existsSync8(p)) throw new UsageError(`answer file not found: ${from}`);
+  return readFileSync12(p, "utf8");
 }
 async function cmdPacket(v, cwd) {
   const log = stderrLogger(v.verbose ? "debug" : "info");
@@ -10930,9 +11113,25 @@ async function cmdReview(v, cwd, answerFrom) {
     format = v.format;
   }
   const answer = answerFrom === void 0 ? void 0 : await readAnswer(answerFrom, v, cwd);
-  const { config, prep } = await loadReview(v, cwd, log);
+  let { config, prep } = await loadReview(v, cwd, log);
   const files = prep.files;
   if (!prep.all.length) log("info", "no changes to review");
+  const publikIO = {
+    interactive: process.stdin.isTTY === true && process.stdout.isTTY === true,
+    ask: async (q) => {
+      const rl = createInterface({ input: process.stdin, output: process.stderr });
+      try {
+        return await rl.question(q);
+      } finally {
+        rl.close();
+      }
+    },
+    write: (t) => {
+      process.stderr.write(t);
+    },
+    ollamaUp
+  };
+  if (answer === void 0 && files.length && await offerPublik(config, publikIO)) config = configFor(v, cwd);
   else log("debug", `reviewing ${files.length} file(s) with ${config.providers.map((p) => p.name).join(" -> ")}`);
   const ac = new AbortController();
   const onSig = () => ac.abort(new Error("interrupted"));
@@ -10957,8 +11156,8 @@ async function cmdReview(v, cwd, answerFrom) {
 }
 function cmdInit(v, cwd) {
   const file = path12.join(cwd, ".codewolf.yaml");
-  if (existsSync7(file) && !v.force) throw new UsageError(`${file} already exists (use --force to overwrite)`);
-  writeFileSync6(file, INIT_TEMPLATE);
+  if (existsSync8(file) && !v.force) throw new UsageError(`${file} already exists (use --force to overwrite)`);
+  writeFileSync7(file, INIT_TEMPLATE);
   process.stdout.write(`wrote ${file}
 `);
   return 0;

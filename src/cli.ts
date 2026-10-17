@@ -1,6 +1,7 @@
 // codewolf CLI. stdout carries only results; every log line goes to stderr, redacted.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
 import { collectDiff, repoRoot } from './cli/git.ts';
 import type { DiffScope } from './cli/git.ts';
@@ -12,6 +13,7 @@ import { formatNdjson, formatResult } from './cli/format.ts';
 import { cmdHook } from './cli/hook.ts';
 import { cmdInstall } from './cli/install.ts';
 import { cmdPr } from './cli/pr.ts';
+import { offerPublik, ollamaUp } from './cli/publik.ts';
 import type { Format } from './cli/format.ts';
 import { cmdDismiss, cmdFindings, prepareReview, recordReview } from './cli/state.ts';
 import type { Prepared } from './cli/state.ts';
@@ -22,12 +24,15 @@ import { review } from './core/engine.ts';
 import { buildPacket, ingestAnswer } from './core/host.ts';
 import { appendLearning, learningsPath, readLearnings } from './core/learnings.ts';
 import { createChain } from './providers/chain.ts';
+import { selfTest } from './providers/publik.ts';
 import { errorMessage, stderrLogger } from './shared/log.ts';
 import type { LogFn } from './shared/log.ts';
 import { maskKey, redact } from './shared/mask.ts';
 import { SEVERITIES } from './shared/types.ts';
 import type { ConfigOverrides, ResolvedConfig } from './shared/types.ts';
 import { VERSION } from './shared/version.ts';
+
+if (process.env.PUBLIK_SELF_TEST) { console.log(await selfTest()); process.exit(0); }
 
 const HELP = `codewolf ${VERSION}: AI code review with your own keys, many keys, or a local model.
 
@@ -67,7 +72,7 @@ Options:
                        a coding agent: Claude Code, Codex, Cursor, Gemini CLI, opencode, aider)
   --agent              NDJSON for coding agents: one finding per line, then a summary line;
                        exit 1 if any critical or major finding remains
-  --provider <name>    anthropic | openai | gemini | ollama | claude-code | openrouter
+  --provider <name>    anthropic | openai | gemini | ollama | claude-code | openrouter | publik
   --model <id>         Model id
   --base-url <url>     Provider base URL (OpenAI-compatible servers, proxies, remote Ollama)
   --keys <a,b,c>       API keys for the provider (round-robin; env:NAME reads an env var)
@@ -182,9 +187,16 @@ async function cmdReview(v: Values, cwd: string, answerFrom?: string): Promise<n
     format = v.format as Format;
   }
   const answer = answerFrom === undefined ? undefined : await readAnswer(answerFrom, v, cwd);
-  const { config, prep } = await loadReview(v, cwd, log);
+  let { config, prep } = await loadReview(v, cwd, log);
   const files = prep.files;
   if (!prep.all.length) log('info', 'no changes to review');
+  const publikIO = {
+    interactive: process.stdin.isTTY === true && process.stdout.isTTY === true,
+    ask: async (q: string) => { const rl = createInterface({ input: process.stdin, output: process.stderr }); try { return await rl.question(q); } finally { rl.close(); } },
+    write: (t: string) => { process.stderr.write(t); },
+    ollamaUp,
+  };
+  if (answer === undefined && files.length && await offerPublik(config, publikIO)) config = configFor(v, cwd);
   else log('debug', `reviewing ${files.length} file(s) with ${config.providers.map((p) => p.name).join(' -> ')}`);
 
   const ac = new AbortController();

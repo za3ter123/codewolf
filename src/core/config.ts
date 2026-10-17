@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { DEFAULT_BASE_URL as PUBLIK_BASE, MODELS as PUBLIK_MODELS, readCredential } from '../providers/publik.ts';
+import type { PublikCredential } from '../providers/publik.ts';
 import { registerSecret } from '../shared/mask.ts';
 import { PROVIDER_NAMES, SEVERITIES } from '../shared/types.ts';
 import type { ConfigOverrides, PathInstruction, Profile, ProviderConfig, ProviderName, ResolvedConfig, Severity } from '../shared/types.ts';
@@ -27,6 +29,7 @@ const DEFAULTS: Record<ProviderName, { baseUrl: string; model: string; timeoutMs
   gemini: { baseUrl: 'https://generativelanguage.googleapis.com', model: 'gemini-2.5-flash', timeoutMs: 180_000 },
   ollama: { baseUrl: 'http://127.0.0.1:11434', model: 'qwen2.5-coder:7b', timeoutMs: 900_000 },
   'claude-code': { baseUrl: '', model: '', timeoutMs: 900_000 },
+  publik: { baseUrl: PUBLIK_BASE, model: PUBLIK_MODELS.balanced, timeoutMs: 180_000 },
 };
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1';
 const DEFAULT_MAX_TOKENS = 8192;
@@ -87,6 +90,7 @@ const OFFICIAL_HOSTS: Record<ProviderName, string[]> = {
   openai: ['api.openai.com', 'openrouter.ai'],
   ollama: [],
   'claude-code': [],
+  publik: ['publikhq.com'],
 };
 
 /** True when baseUrl is the provider's own https endpoint, where env keys may always go. */
@@ -129,6 +133,17 @@ export function ollamaBase(env: Env): string | undefined {
   return withProto.replace('://0.0.0.0', '://127.0.0.1');
 }
 
+/** publik API from PUBLIK_API_KEY / PUBLIK_API_BASE_URL, else this app's credential file. Null when neither is set. */
+function publikFrom(env: Env, credential: PublikCredential | null): { baseUrl: string; key: string } | null {
+  const key = env.PUBLIK_API_KEY?.trim();
+  if (key) return { baseUrl: (env.PUBLIK_API_BASE_URL?.trim() || PUBLIK_BASE).replace(/\/+$/, ''), key };
+  // the file is untrusted input: no string pk_ key means no credential, and its base URL counts only on https publikhq.com
+  const c = credential as { key?: unknown; base_url?: unknown } | null;
+  if (typeof c?.key !== 'string' || !c.key.startsWith('pk_')) return null;
+  const base = typeof c.base_url === 'string' && isOfficialHost('publik', c.base_url) ? c.base_url : PUBLIK_BASE;
+  return { baseUrl: base.replace(/\/+$/, ''), key: c.key };
+}
+
 interface RawProvider { name: unknown; model?: unknown; baseUrl?: unknown; base_url?: unknown; baseURL?: unknown; keys?: unknown; timeout?: unknown; maxTokens?: unknown; max_tokens?: unknown; command?: unknown }
 
 interface BuildContext {
@@ -140,6 +155,7 @@ interface BuildContext {
   baseOverride?: string | undefined;
   keyOverride?: string[] | undefined;
   claudeBin?: string | undefined;
+  publik: { baseUrl: string; key: string } | null;
 }
 
 function buildProvider(raw: RawProvider, ctx: BuildContext, where: string): ProviderConfig {
@@ -147,9 +163,13 @@ function buildProvider(raw: RawProvider, ctx: BuildContext, where: string): Prov
   const { name, baseUrl: aliasBase } = normName(raw.name, where);
   const d = DEFAULTS[name];
   const fileBase = str(raw.baseUrl ?? raw.base_url ?? raw.baseURL, `${where}.baseUrl`);
-  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? (name === 'ollama' ? ollamaBase(env) : undefined) ?? d.baseUrl).replace(/\/+$/, '');
+  const envBase = name === 'ollama' ? ollamaBase(env) : name === 'publik' ? ctx.publik?.baseUrl : undefined;
+  const baseUrl = (ctx.baseOverride ?? fileBase ?? aliasBase ?? envBase ?? d.baseUrl).replace(/\/+$/, '');
   let model = str(raw.model, `${where}.model`);
   if (!model) model = name === 'openai' && baseUrl === OPENROUTER_BASE ? 'qwen/qwen3-coder' : d.model;
+  if (name === 'publik' && !(Object.values(PUBLIK_MODELS) as string[]).includes(model)) {
+    throw new ConfigError(`${where}.model: publik takes ${Object.values(PUBLIK_MODELS).join(', ')}, never a vendor model name`);
+  }
   // Keys the user holds (env vars, --keys) only go to a base URL the user chose or to the provider's official host.
   // An auto-discovered repo config pointing elsewhere gets no keys: otherwise opening a hostile repo leaks them.
   const baseTrusted = ctx.trusted || ctx.baseOverride !== undefined || fileBase === undefined || isOfficialHost(name, baseUrl);
@@ -162,7 +182,10 @@ function buildProvider(raw: RawProvider, ctx: BuildContext, where: string): Prov
   } else if (fileKeys.length) {
     keys = fileKeys; // literal keys written in the file came from whoever wrote the file
   } else {
-    const fromEnv = defaultKeysFor(name, baseUrl, env);
+    // the publik key only ever goes to the publik base URL (publikhq.com, or PUBLIK_API_BASE_URL with PUBLIK_API_KEY)
+    const pub = name === 'publik' ? ctx.publik : null;
+    if (pub && baseUrl !== pub.baseUrl) warn(`${where}: not sending the publik key to ${baseUrl}; it only goes to ${pub.baseUrl}`);
+    const fromEnv = name === 'publik' ? (pub && baseUrl === pub.baseUrl ? [pub.key] : []) : defaultKeysFor(name, baseUrl, env);
     keys = baseTrusted ? fromEnv : [];
     if (!baseTrusted && fromEnv.length) withhold('API keys from the environment');
   }
@@ -182,13 +205,17 @@ function buildProvider(raw: RawProvider, ctx: BuildContext, where: string): Prov
   return p;
 }
 
-/** Chain used when nothing is configured: every provider that has keys in the environment, then local Ollama. */
-function autoChain(env: Env): RawProvider[] {
+/**
+ * Chain used when nothing is configured: every provider that has keys in the environment, then local Ollama.
+ * `publik` is true only when the user set nothing at all; then publik API goes ahead of the default Ollama.
+ */
+function autoChain(env: Env, publik: boolean): RawProvider[] {
   const chain: RawProvider[] = [];
   if (envKeys(env, 'ANTHROPIC_API_KEYS', 'ANTHROPIC_API_KEY').length) chain.push({ name: 'anthropic' });
   if (envKeys(env, 'OPENAI_API_KEYS', 'OPENAI_API_KEY').length) chain.push({ name: 'openai' });
   if (envKeys(env, 'OPENROUTER_API_KEYS', 'OPENROUTER_API_KEY').length) chain.push({ name: 'openrouter' });
   if (envKeys(env, 'GEMINI_API_KEYS', 'GEMINI_API_KEY', 'GOOGLE_API_KEY').length) chain.push({ name: 'gemini' });
+  if (publik && !chain.length) return [{ name: 'publik' }, { name: 'ollama' }];
   chain.push({ name: 'ollama' });
   return chain;
 }
@@ -236,6 +263,8 @@ export interface ResolveOptions {
   trusted?: boolean;
   /** Receives security warnings (withheld keys, ignored commands). Default: stderr. */
   warn?: (message: string) => void;
+  /** This app's publik API credential. Default: read from disk, unless `env` is passed (tests stay off the real file). */
+  publikCredential?: PublikCredential | null;
 }
 
 const stderrWarn = (m: string) => { process.stderr.write(`codewolf: warning: ${m}
@@ -264,6 +293,10 @@ export function resolveConfig(raw: unknown, overrides: ConfigOverrides = {}, opt
   const keyOverride = overrides.keys !== undefined ? expandKeys(overrides.keys, env, '--keys') : undefined;
   const warn = opts.warn ?? stderrWarn;
   const baseOverride = overrides.baseUrl || env.CODEWOLF_BASE_URL?.trim() || undefined;
+  const publik = publikFrom(env, opts.publikCredential !== undefined ? opts.publikCredential : opts.env ? null : readCredential());
+  // no providers list, --provider, --model, --keys, base URL override, OLLAMA_HOST or CODEWOLF_API_KEYS (provider env keys: autoChain)
+  const untouched = !overrides.provider && !chainRaw.length && !overrides.model && !baseOverride && !keyOverride?.length
+    && !ollamaBase(env) && !envKeys(env, 'CODEWOLF_API_KEYS').length;
   let chain: RawProvider[];
   if (overrides.provider) {
     const want = normName(overrides.provider, '--provider');
@@ -271,7 +304,7 @@ export function resolveConfig(raw: unknown, overrides: ConfigOverrides = {}, opt
     chain = [{ ...(match ?? {}), name: match ? match.name : overrides.provider }]; // keep an alias like openrouter from the config
     if (want.baseUrl && !overrides.baseUrl && !match) chain[0]!.baseUrl = want.baseUrl;
   } else {
-    chain = chainRaw.length ? chainRaw : autoChain(env);
+    chain = chainRaw.length ? chainRaw : autoChain(env, untouched && publik !== null);
   }
   if (overrides.model) chain[0] = { ...chain[0]!, model: overrides.model };
   const providers = chain.map((p, i) => buildProvider(p, {
@@ -279,6 +312,7 @@ export function resolveConfig(raw: unknown, overrides: ConfigOverrides = {}, opt
     baseOverride: i === 0 ? baseOverride : undefined,
     keyOverride: i === 0 ? keyOverride : undefined,
     claudeBin: overrides.claudeBin,
+    publik,
   }, i === 0 && overrides.provider ? '--provider' : `providers[${i}]`));
   for (const p of providers) for (const k of p.keys) registerSecret(k);
 
@@ -323,6 +357,7 @@ export function resolveConfig(raw: unknown, overrides: ConfigOverrides = {}, opt
     root,
   };
   if (opts.configPath) resolved.configPath = opts.configPath;
+  if (untouched && !publik && providers.length === 1) resolved.nothingConfigured = true; // just the default Ollama
   return resolved;
 }
 
