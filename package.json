@@ -1,0 +1,44 @@
+{
+  "name": "codewolf",
+  "version": "0.1.0",
+  "description": "Open-source AI code reviewer. Bring your own keys, many keys at once, or a local model. It eats rabbits.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "codewolf": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.ts\" \"test/**/*.test.mjs\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/za3ter123/codewolf.git"
+  },
+  "keywords": [
+    "code-review",
+    "ai",
+    "llm",
+    "cli",
+    "github-action",
+    "ollama",
+    "coderabbit-alternative"
+  ],
+  "dependencies": {
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  }
+}

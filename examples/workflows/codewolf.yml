@@ -1,0 +1,42 @@
+# CodeWolf review with your own API keys.
+# Copy to .github/workflows/codewolf.yml and add the secret ANTHROPIC_API_KEYS
+# (one key, or several separated by commas or newlines).
+name: CodeWolf
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: codewolf-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    # Pull requests from forks get a read-only token and no secrets, so skip them instead of failing.
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name != 'pull_request' && contains(github.event.comment.body, '@codewolf'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: za3ter123/codewolf@v0
+        with:
+          provider: anthropic
+          model: claude-sonnet-5-5
+          api-keys: ${{ secrets.ANTHROPIC_API_KEYS }}
+          profile: chill
+          # Any OpenAI-compatible API works too:
+          # provider: openai
+          # base-url: https://openrouter.ai/api/v1
+          # model: qwen/qwen3-coder
+          # api-keys: ${{ secrets.OPENROUTER_API_KEYS }}

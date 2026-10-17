@@ -1,0 +1,14 @@
+{
+  "name": "codewolf",
+  "displayName": "CodeWolf",
+  "version": "0.1.0",
+  "description": "Open-source AI code review inside Claude Code. Runs codewolf review on your changes, fixes critical and major findings, and re-runs until clean.",
+  "author": {
+    "name": "CodeWolf contributors",
+    "url": "https://github.com/za3ter123/codewolf"
+  },
+  "homepage": "https://github.com/za3ter123/codewolf",
+  "repository": "https://github.com/za3ter123/codewolf",
+  "license": "MIT",
+  "keywords": ["code-review", "review", "lint", "security", "ollama"]
+}

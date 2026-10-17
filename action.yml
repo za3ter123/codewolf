@@ -1,0 +1,36 @@
+name: CodeWolf AI Code Review
+description: Open-source AI code review for pull requests with your own API keys, many keys at once, or a local model. It eats rabbits.
+author: CodeWolf contributors
+branding:
+  icon: eye
+  color: gray-dark
+inputs:
+  github-token:
+    description: Token used to read the pull request and post comments. Needs pull-requests write.
+    required: false
+    default: ${{ github.token }}
+  provider:
+    description: "Model provider: anthropic, openai (any OpenAI-compatible API), gemini, ollama or claude-code. Overrides the first provider in the config file."
+    required: false
+  model:
+    description: Model id for the provider, for example claude-sonnet-5-5 or qwen2.5-coder:3b.
+    required: false
+  api-keys:
+    description: One or more API keys, comma or newline separated. CodeWolf rotates between them and cools keys that hit rate limits. Pass them from secrets.
+    required: false
+  base-url:
+    description: Base URL for the provider, for example https://openrouter.ai/api/v1 or http://127.0.0.1:11434.
+    required: false
+  profile:
+    description: "Review profile: quiet (critical only), chill (critical and major, few nits) or assertive (everything)."
+    required: false
+  config:
+    description: Path to the CodeWolf config file in the repository.
+    required: false
+    default: .codewolf.yaml
+  language:
+    description: Language for the review text, for example en.
+    required: false
+runs:
+  using: node24
+  main: dist/action.js

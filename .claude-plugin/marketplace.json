@@ -1,0 +1,15 @@
+{
+  "name": "codewolf",
+  "description": "CodeWolf: open-source AI code review for Claude Code. It eats rabbits.",
+  "owner": {
+    "name": "CodeWolf contributors",
+    "url": "https://github.com/za3ter123/codewolf"
+  },
+  "plugins": [
+    {
+      "name": "codewolf",
+      "source": "./integrations/claude-code",
+      "description": "Review your uncommitted changes with CodeWolf, fix critical and major findings, and re-run until clean."
+    }
+  ]
+}

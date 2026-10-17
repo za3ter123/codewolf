@@ -1,0 +1,58 @@
+# Dogfood: CodeWolf reviews its own pull requests with a local model through Ollama. No API keys.
+name: CodeWolf
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: codewolf-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
+
+env:
+  CODEWOLF_MODEL: qwen2.5-coder:3b
+
+jobs:
+  review:
+    # Forks get a read-only token, so skip them instead of failing.
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name != 'pull_request' && contains(github.event.comment.body, '@codewolf'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Ollama models
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-${{ env.CODEWOLF_MODEL }}
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start Ollama and pull the model
+        run: |
+          if ! curl -sf http://127.0.0.1:11434/api/tags > /dev/null; then
+            nohup ollama serve > /tmp/ollama.log 2>&1 &
+          fi
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:11434/api/tags > /dev/null && break
+            sleep 1
+          done
+          ollama pull "$CODEWOLF_MODEL"
+
+      - uses: ./
+        with:
+          provider: ollama
+          model: ${{ env.CODEWOLF_MODEL }}
+          base-url: http://127.0.0.1:11434

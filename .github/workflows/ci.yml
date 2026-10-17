@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Keep LF on Windows so the dist/ staleness check compares like with like.
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24  # tests run TypeScript directly (type stripping); dist/ targets Node 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - name: Fail if dist/ is stale
+        shell: bash
+        run: |
+          if ! git diff --exit-code -- dist; then
+            echo "::error::dist/ is out of date. Run npm run build and commit dist/."
+            exit 1
+          fi

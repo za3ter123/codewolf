@@ -1,0 +1,6 @@
+.unlazy/
+node_modules/
+.claude/settings.local.json
+.unlazy-hook-state.json
+*.log
+coverage/
