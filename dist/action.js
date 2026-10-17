@@ -9221,6 +9221,8 @@ async function review(files, config, opts = {}) {
   const walk = /* @__PURE__ */ new Map();
   const summaries = [];
   let diagram;
+  const unreviewed = [...new Set(chunks.flatMap((c, i) => results[i] ? [] : c.paths))];
+  if (unreviewed.length) warn2(`not reviewed (unparseable model output): ${unreviewed.join(", ")}; the next review covers them again`);
   for (const r of results) {
     if (!r) continue;
     providerUsed.set(r.provider, (providerUsed.get(r.provider) ?? 0) + 1);
@@ -9243,7 +9245,9 @@ async function review(files, config, opts = {}) {
   }
   const top = [...providerUsed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   const [pname, pmodel] = top ? top.split("\0") : [first?.name ?? "none", first?.model ?? ""];
-  return buildResult(files, keep, config, { findings, outside, walk, summary, ...diagram ? { diagram } : {}, provider: { name: pname ?? "none", model: pmodel ?? "" }, warnings }, opts.suppressed);
+  const result = buildResult(files, keep, config, { findings, outside, walk, summary, ...diagram ? { diagram } : {}, provider: { name: pname ?? "none", model: pmodel ?? "" }, warnings }, opts.suppressed);
+  if (unreviewed.length) result.unreviewed = unreviewed;
+  return result;
 }
 function finalize(list, config, suppressed) {
   return applyProfile(dedupe(suppressed?.size ? list.filter((f) => !suppressed.has(f.fingerprint)) : list), config.profile).sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line).map((f) => ({ ...f, kind: f.kind ?? (f.severity === "nit" ? "nitpick" : "issue"), agentPrompt: agentPrompt(f) }));

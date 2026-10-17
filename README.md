@@ -154,6 +154,8 @@ Reviews are remembered in the git directory (`.git/codewolf/`, never your work t
 
 `codewolf fix` builds one prompt from the open findings (each one's agent instruction, location and suggestion) and hands it to an agent. With no ids it takes every open finding except nits; `--nits` takes only the nits. The prompt always goes to the agent on stdin, and each agent is started with a fixed command line: `claude -p`, `codex exec -`, `opencode run`, `gemini -p`. `--to clipboard` copies it (clip.exe, pbcopy, wl-copy or xclip). When stdout is not a terminal, or CodeWolf is already running inside an agent, the default is `--to print`, which writes the prompt to stdout for the calling agent. If a target fails, the prompt is printed instead.
 
+`--to claude` runs `claude -p` from your current directory in the repository, so that repository's Claude Code settings apply, the same as running `claude` there yourself.
+
 ```bash
 codewolf fix                  # print or hand off the prompt for all open non-nit findings
 codewolf fix 3fa2c19d --to claude
@@ -313,7 +315,7 @@ A `.codewolf.yaml` found in the repository is treated as untrusted, because anyo
 
 Learnings are reviewer preferences in `.codewolf/learnings.md`, one per line. Add them with `codewolf learn "prefer early returns"` and commit the file; both the CLI and the action read it.
 
-What the reviewer looks for: bugs, security problems (injection, broken authorization, hardcoded secrets, unsafe deserialization, SSRF, path traversal), performance, maintainability and missing tests. For a hot path it may propose a rewrite in a faster language or library, always with a stated reason. A built-in scanner that uses no model flags hardcoded secrets on added lines (AWS key ids, private key blocks, GitHub, Slack, OpenAI, Anthropic and Google key shapes, high-entropy `api_key = "..."` values). Findings that point at lines outside the diff, or at files that are not in it, are dropped before you see them.
+What the reviewer looks for: bugs, security problems (injection, broken authorization, hardcoded secrets, unsafe deserialization, SSRF, path traversal), performance, maintainability and missing tests. For a hot path it may propose a rewrite in a faster language or library, always with a stated reason. A built-in scanner that uses no model flags hardcoded secrets on added lines (AWS key ids, private key blocks, GitHub, Slack, OpenAI, Anthropic and Google key shapes, high-entropy `api_key = "..."` values). Findings on files that are not in the diff are dropped before you see them. Findings on a changed file but on an unchanged line go to a separate outside the diff list: never posted inline, never counted in the exit code, and dropped when the line is past the end of the file.
 
 ## Claude Code plugin
 

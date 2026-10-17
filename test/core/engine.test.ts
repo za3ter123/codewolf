@@ -88,6 +88,7 @@ test('invalid JSON gets one repair request; if that fails too the chunk warns in
   const r2 = await review(parseDiff(FIXTURE_DIFF), config(), { chain: broken.chain });
   assert.equal(broken.calls.length, 2);
   assert.ok(r2.warnings!.some((w) => /unparseable/.test(w)));
+  assert.deepEqual([r1.unreviewed, r2.unreviewed], [undefined, ['src/app.py']], 'files of an unparseable chunk are named so they never count as clean');
   assert.ok(r2.findings.every((f) => f.source === 'builtin'), 'builtin scanner still runs');
 });
 

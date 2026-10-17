@@ -11,6 +11,8 @@ export interface StoredFinding extends Finding {
   status: 'open' | 'dismissed' | 'fixed';
   /** Exact text of line `line` at review time, used to find the finding again after edits. */
   snippet: string;
+  /** Found on a changed file but outside every hunk: carried over only into the outside-diff bucket, never into the exit code. */
+  outside?: true;
 }
 
 export interface FindingsStore {
@@ -20,11 +22,16 @@ export interface FindingsStore {
   findings: StoredFinding[];
 }
 
-export interface Checkpoint {
-  version: 1;
+export interface ScopeCheckpoint {
   head: string | null;
   /** path -> git blob id of the new-side content at the last successful review. */
   files: Record<string, string>;
+}
+
+/** One entry per scope identity ("uncommitted", "base:<merge-base sha>", "committed:<merge-base sha>"). */
+export interface Checkpoint {
+  version: 2;
+  scopes: Record<string, ScopeCheckpoint>;
 }
 
 interface Suppressed { version: 1; items: { fingerprint: string; reason?: string; at: string }[] }
@@ -115,15 +122,24 @@ export function addSuppressed(root: string, fingerprints: string[], reason?: str
   writeJson(dir, 'suppressed.json', s);
 }
 
-export function readCheckpoint(root: string): Checkpoint | null {
-  const dir = stateDir(root);
-  const raw = dir ? readJson(path.join(dir, 'checkpoint.json')) as Checkpoint | null | undefined : undefined;
-  return raw && raw.version === 1 && raw.files && typeof raw.files === 'object' ? raw : null;
+/** Every scope's checkpoint; empty when missing, corrupt or from an older version (version 1 did not know the scope). */
+function readCheckpoints(dir: string): Checkpoint {
+  const raw = readJson(path.join(dir, 'checkpoint.json')) as Checkpoint | null | undefined;
+  return raw && raw.version === 2 && raw.scopes && typeof raw.scopes === 'object' ? raw : { version: 2, scopes: {} };
 }
 
-export function writeCheckpoint(root: string, c: Checkpoint): void {
+/** The checkpoint of one scope, or null: a review in one scope never marks files clean for another. */
+export function readCheckpoint(root: string, scope: string): ScopeCheckpoint | null {
   const dir = stateDir(root);
-  if (dir) writeJson(dir, 'checkpoint.json', c);
+  const c = dir ? readCheckpoints(dir).scopes[scope] : undefined;
+  return c && c.files && typeof c.files === 'object' ? c : null;
+}
+
+export function writeCheckpoint(root: string, scope: string, c: ScopeCheckpoint): void {
+  const dir = stateDir(root);
+  if (!dir) return;
+  const all = readCheckpoints(dir);
+  writeJson(dir, 'checkpoint.json', { version: 2, scopes: { ...all.scopes, [scope]: c } });
 }
 
 export function clearCheckpoint(root: string): void {

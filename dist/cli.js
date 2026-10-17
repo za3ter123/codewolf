@@ -7566,14 +7566,20 @@ function addSuppressed(root, fingerprints, reason) {
   for (const fp of fingerprints) if (!have.has(fp)) s2.items.push({ fingerprint: fp, ...reason ? { reason } : {}, at });
   writeJson(dir, "suppressed.json", s2);
 }
-function readCheckpoint(root) {
-  const dir = stateDir(root);
-  const raw = dir ? readJson(path2.join(dir, "checkpoint.json")) : void 0;
-  return raw && raw.version === 1 && raw.files && typeof raw.files === "object" ? raw : null;
+function readCheckpoints(dir) {
+  const raw = readJson(path2.join(dir, "checkpoint.json"));
+  return raw && raw.version === 2 && raw.scopes && typeof raw.scopes === "object" ? raw : { version: 2, scopes: {} };
 }
-function writeCheckpoint(root, c) {
+function readCheckpoint(root, scope) {
   const dir = stateDir(root);
-  if (dir) writeJson(dir, "checkpoint.json", c);
+  const c = dir ? readCheckpoints(dir).scopes[scope] : void 0;
+  return c && c.files && typeof c.files === "object" ? c : null;
+}
+function writeCheckpoint(root, scope, c) {
+  const dir = stateDir(root);
+  if (!dir) return;
+  const all = readCheckpoints(dir);
+  writeJson(dir, "checkpoint.json", { version: 2, scopes: { ...all.scopes, [scope]: c } });
 }
 function clearCheckpoint(root) {
   const dir = stateDir(root);
@@ -8598,7 +8604,8 @@ import { chmodSync, existsSync as existsSync4, mkdirSync as mkdirSync4, readFile
 import path8 from "node:path";
 var BEGIN = "# >>> codewolf:managed post-commit (codewolf hook uninstall removes this block) >>>";
 var END = "# <<< codewolf:managed post-commit <<<";
-var BLOCK_RE = /\n?# >>> codewolf:managed post-commit[^\n]*\n[\s\S]*?# <<< codewolf:managed post-commit <<<\n?/;
+var BLOCK_RE = /# >>> codewolf:managed post-commit[^\n]*\n[\s\S]*?# <<< codewolf:managed post-commit <<<\n?/;
+var CREATED = "#!/bin/sh\n";
 var SH_SHEBANG = /^#!\s*\S*\b(sh|bash|dash|zsh|ksh)\b|^#!\s*\S*env\s+(sh|bash|dash|zsh|ksh)\b/;
 var shq = (s2) => `'${s2.replace(/\\/g, "/").replace(/'/g, `'\\''`)}'`;
 function hookBlock(node, cli, out) {
@@ -8614,7 +8621,7 @@ function cmdHook(sub, cwd) {
   const root = repoRoot(cwd);
   if (!root) throw new Error("not inside a git repository");
   const file = hookFile(root);
-  const cur = existsSync4(file) ? readFileSync7(file, "utf8").replace(/\r\n/g, "\n") : null;
+  const cur = existsSync4(file) ? readFileSync7(file, "utf8") : null;
   const ours = cur !== null && BLOCK_RE.test(cur);
   switch (sub) {
     case "install": {
@@ -8623,14 +8630,14 @@ function cmdHook(sub, cwd) {
       mkdirSync4(dir, { recursive: true });
       const block = hookBlock(process.execPath, path8.resolve(process.argv[1] ?? ""), path8.join(dir, "last-hook-review.txt"));
       let next;
-      if (cur === null) next = `#!/bin/sh
-${block}`;
-      else if (ours) next = cur.replace(BLOCK_RE, (m) => (m.startsWith("\n") ? "\n" : "") + block);
+      if (cur === null) next = `${CREATED}${block}`;
+      else if (ours) next = cur.replace(BLOCK_RE, () => block);
       else {
-        const first = cur.split("\n", 1)[0];
+        const first = cur.split("\n", 1)[0].replace(/\r$/, "");
         if (first.startsWith("#!") && !SH_SHEBANG.test(first)) throw new Error(`${file} is not a shell script (${first}); add CodeWolf to it by hand`);
-        next = first.startsWith("#!") ? `${first}
-${block}${cur.slice(first.length + 1)}` : `${block}${cur}`;
+        const nl = cur.indexOf("\n");
+        next = !first.startsWith("#!") ? `${block}${cur}` : nl < 0 ? `${cur}
+${block}` : `${cur.slice(0, nl + 1)}${block}${cur.slice(nl + 1)}`;
       }
       mkdirSync4(path8.dirname(file), { recursive: true });
       writeFileSync4(file, next);
@@ -8648,8 +8655,8 @@ reviews land in ${path8.join(dir, "last-hook-review.txt")}
         process.stdout.write("codewolf: no CodeWolf block in the post-commit hook; nothing to remove\n");
         return 0;
       }
-      const rest = cur.replace(BLOCK_RE, "\n").replace(/^\n/, "").replace(/\n{3,}/g, "\n\n");
-      if (/^(#![^\n]*)?\s*$/.test(rest)) unlinkSync2(file);
+      const rest = cur.replace(BLOCK_RE, "");
+      if (rest === CREATED || rest === "") unlinkSync2(file);
       else writeFileSync4(file, rest);
       process.stdout.write(`removed the CodeWolf block from ${file}
 `);
@@ -10329,6 +10336,8 @@ async function review(files, config, opts = {}) {
   const walk = /* @__PURE__ */ new Map();
   const summaries = [];
   let diagram;
+  const unreviewed = [...new Set(chunks.flatMap((c, i) => results[i] ? [] : c.paths))];
+  if (unreviewed.length) warn(`not reviewed (unparseable model output): ${unreviewed.join(", ")}; the next review covers them again`);
   for (const r of results) {
     if (!r) continue;
     providerUsed.set(r.provider, (providerUsed.get(r.provider) ?? 0) + 1);
@@ -10351,7 +10360,9 @@ async function review(files, config, opts = {}) {
   }
   const top = [...providerUsed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   const [pname, pmodel] = top ? top.split("\0") : [first?.name ?? "none", first?.model ?? ""];
-  return buildResult(files, keep, config, { findings, outside, walk, summary, ...diagram ? { diagram } : {}, provider: { name: pname ?? "none", model: pmodel ?? "" }, warnings }, opts.suppressed);
+  const result = buildResult(files, keep, config, { findings, outside, walk, summary, ...diagram ? { diagram } : {}, provider: { name: pname ?? "none", model: pmodel ?? "" }, warnings }, opts.suppressed);
+  if (unreviewed.length) result.unreviewed = unreviewed;
+  return result;
 }
 function finalize(list, config, suppressed2) {
   return applyProfile(dedupe(suppressed2?.size ? list.filter((f) => !suppressed2.has(f.fingerprint)) : list), config.profile).sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line).map((f) => ({ ...f, kind: f.kind ?? (f.severity === "nit" ? "nitpick" : "issue"), agentPrompt: agentPrompt(f) }));
@@ -10411,21 +10422,33 @@ function headSha(root) {
   }
 }
 function strip(f) {
-  const { id: _id, status: _status, snippet: _snippet, ...rest } = f;
+  const { id: _id, status: _status, snippet: _snippet, outside: _outside, ...rest } = f;
   return rest;
+}
+function scopeKey(scope, root) {
+  try {
+    if (scope.kind === "uncommitted") return `uncommitted:${headSha(root) ?? "none"}`;
+    if (scope.kind === "base") return `base:${mergeBase(scope.ref, root)}`;
+    if (scope.kind === "committed") return `committed:${mergeBase(defaultBranch(root), root)}`;
+  } catch {
+  }
+  return null;
 }
 function prepareReview(scope, all, config, cwd, opts) {
   const repo = repoRoot(cwd) ?? null;
   const root = scope.kind === "file" ? null : repo;
-  const incremental = root !== null && scope.kind !== "staged" && scope.kind !== "file";
+  const checkpoint = root !== null ? scopeKey(scope, root) : null;
   const keep = reviewableFiles(all, config.review.exclude).keep;
-  const hashes = incremental ? blobIds(root, keep.map((f) => f.path), scope.kind === "committed") : {};
-  const cp = incremental && !opts.fresh ? readCheckpoint(root) : null;
+  const hashes = checkpoint ? blobIds(root, keep.map((f) => f.path), scope.kind === "committed") : {};
+  const cp = checkpoint && !opts.fresh ? readCheckpoint(root, checkpoint) : null;
   const skipped = cp ? keep.filter((f) => hashes[f.path] && cp.files[f.path] === hashes[f.path]).map((f) => f.path) : [];
   const skip = new Set(skipped);
-  const carried = skipped.length ? readStore(root).findings.filter((f) => f.status === "open" && skip.has(f.file)).map(strip) : [];
+  const open = skipped.length ? readStore(root).findings.filter((f) => f.status === "open" && skip.has(f.file)) : [];
+  const carried = open.filter((f) => !f.outside).map(strip);
+  const carriedOutside = open.filter((f) => f.outside).map(strip);
   if (skipped.length) {
-    opts.log("info", `skipped ${skipped.length} file(s) unchanged since the last review${carried.length ? `, ${carried.length} open finding(s) on them carried over` : ""} (--fresh reviews everything)`);
+    const kept = [carried.length && `${carried.length} open finding(s)`, carriedOutside.length && `${carriedOutside.length} outside the diff`].filter(Boolean).join(" and ");
+    opts.log("info", `skipped ${skipped.length} file(s) unchanged since the last review${kept ? `, ${kept} on them carried over` : ""} (--fresh reviews everything)`);
   }
   const files = all.filter((f) => !skip.has(f.path));
   const tokens = Math.round(reviewableFiles(files, config.review.exclude).keep.reduce((n, f) => n + f.patch.length, 0) / 4);
@@ -10439,10 +10462,11 @@ function prepareReview(scope, all, config, cwd, opts) {
     files,
     skipped,
     root,
-    incremental,
+    checkpoint,
     head: root ? headSha(root) : null,
     hashes,
     carried,
+    carriedOutside,
     suppressed: repo ? suppressed(repo) : /* @__PURE__ */ new Set()
   };
 }
@@ -10454,25 +10478,49 @@ function fileLine(root, file, line) {
     return "";
   }
 }
+function lineCount(root, file, committed) {
+  if (!isSafePath(file)) return 0;
+  try {
+    const lines = (committed ? git(["show", `HEAD:${file}`], root) : readFileSync10(path11.join(root, file), "utf8")).split(/\r?\n/);
+    if (lines.at(-1) === "") lines.pop();
+    return lines.length;
+  } catch {
+    return 0;
+  }
+}
+var byRank = (a, b) => rank2(a.severity) - rank2(b.severity) || a.file.localeCompare(b.file) || a.line - b.line;
 function recordReview(prep, result, config, log) {
   const have = new Set([...result.findings, ...result.outsideDiff ?? []].map((f) => f.fingerprint));
-  const extra = prep.carried.filter((f) => !have.has(f.fingerprint) && !prep.suppressed.has(f.fingerprint));
+  const unseen = (list) => list.filter((f) => !have.has(f.fingerprint) && !prep.suppressed.has(f.fingerprint));
+  const extra = unseen(prep.carried), extraOutside = unseen(prep.carriedOutside);
   let out = result;
   if (extra.length) {
-    const findings = [...result.findings, ...extra].sort((a, b) => rank2(a.severity) - rank2(b.severity) || a.file.localeCompare(b.file) || a.line - b.line);
+    const findings = [...result.findings, ...extra].sort(byRank);
     out = { ...result, findings, stats: { ...result.stats, findings: findings.length, bySeverity: countSeverities(findings) } };
   }
+  if (extraOutside.length) out = { ...out, outsideDiff: [...out.outsideDiff ?? [], ...extraOutside].sort(byRank) };
   const root = prep.root;
   if (!root) return out;
+  if (out.outsideDiff?.length) {
+    const counts2 = /* @__PURE__ */ new Map();
+    const inFile = (f) => {
+      if (!counts2.has(f.file)) counts2.set(f.file, lineCount(root, f.file, prep.scope.kind === "committed"));
+      return f.line >= 1 && f.line <= counts2.get(f.file);
+    };
+    out = { ...out, outsideDiff: out.outsideDiff.filter(inFile) };
+  }
   try {
     const byPath = new Map(prep.all.map((f) => [f.path, f]));
     const snippetOf = (f) => {
       const d = byPath.get(f.file);
       return (d && newLineText(d, f.line)) ?? fileLine(root, f.file, f.line);
     };
-    const reviewed = new Set(reviewableFiles(prep.files, config.review.exclude).keep.map((f) => f.path));
-    writeStore(root, mergeStore(readStore(root), [...out.findings, ...out.outsideDiff ?? []], reviewed, snippetOf, prep.head));
-    if (prep.incremental) writeCheckpoint(root, { version: 1, head: prep.head, files: prep.hashes });
+    const unreviewed = new Set(out.unreviewed ?? []);
+    const reviewed = new Set(reviewableFiles(prep.files, config.review.exclude).keep.map((f) => f.path).filter((p) => !unreviewed.has(p)));
+    const found = [...out.findings, ...(out.outsideDiff ?? []).map((f) => ({ ...f, outside: true }))];
+    writeStore(root, mergeStore(readStore(root), found, reviewed, snippetOf, prep.head));
+    const files = Object.fromEntries(Object.entries(prep.hashes).filter(([p]) => !unreviewed.has(p)));
+    if (prep.checkpoint) writeCheckpoint(root, prep.checkpoint, { head: prep.head, files });
   } catch (e) {
     log("warn", `could not save review state: ${errorMessage(e)}`);
   }
@@ -10508,7 +10556,7 @@ function cmdFindings(v, cwd) {
     process.stdout.write(v.all ? "no stored findings. run codewolf review first\n" : "no open findings\n");
     return 0;
   }
-  const rows = list.map((f) => [f.id, `${f.file}:${f.line}`, f.severity, f.kind ?? "issue", ...v.all ? [f.status] : [], f.title.replace(/\s*\r?\n\s*/g, " ")].join(" "));
+  const rows = list.map((f) => [f.id, `${f.file}:${f.line}`, f.severity, f.kind ?? "issue", ...v.all ? [f.status] : [], f.title.replace(/\s*\r?\n\s*/g, " "), ...f.outside ? ["(outside the diff)"] : []].join(" "));
   process.stdout.write(rows.join("\n") + "\n");
   return 0;
 }

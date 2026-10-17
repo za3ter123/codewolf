@@ -43,7 +43,7 @@ export function defaultBranch(cwd: string): string {
   throw new GitError('cannot find the default branch (no origin/HEAD, main or master); use --base <ref>');
 }
 
-function mergeBase(ref: string, cwd: string): string {
+export function mergeBase(ref: string, cwd: string): string {
   if (ref.startsWith('-')) throw new GitError(`invalid ref: ${ref}`);
   const mb = tryGit(['merge-base', ref, 'HEAD'], cwd);
   if (!mb) throw new GitError(`no merge base between ${ref} and HEAD (does the ref exist? try git fetch)`);

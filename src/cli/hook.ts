@@ -6,7 +6,9 @@ import { git, repoRoot } from './git.ts';
 
 const BEGIN = '# >>> codewolf:managed post-commit (codewolf hook uninstall removes this block) >>>';
 const END = '# <<< codewolf:managed post-commit <<<';
-const BLOCK_RE = /\n?# >>> codewolf:managed post-commit[^\n]*\n[\s\S]*?# <<< codewolf:managed post-commit <<<\n?/;
+// exactly the bytes hookBlock writes, so uninstall gives back the foreign hook byte for byte
+const BLOCK_RE = /# >>> codewolf:managed post-commit[^\n]*\n[\s\S]*?# <<< codewolf:managed post-commit <<<\n?/;
+const CREATED = '#!/bin/sh\n';
 const SH_SHEBANG = /^#!\s*\S*\b(sh|bash|dash|zsh|ksh)\b|^#!\s*\S*env\s+(sh|bash|dash|zsh|ksh)\b/;
 
 /** Single-quote for POSIX sh: nothing inside is expanded. Forward slashes so Git for Windows' sh reads Windows paths. */
@@ -25,7 +27,7 @@ export function cmdHook(sub: string | undefined, cwd: string): number {
   const root = repoRoot(cwd);
   if (!root) throw new Error('not inside a git repository');
   const file = hookFile(root);
-  const cur = existsSync(file) ? readFileSync(file, 'utf8').replace(/\r\n/g, '\n') : null;
+  const cur = existsSync(file) ? readFileSync(file, 'utf8') : null;
   const ours = cur !== null && BLOCK_RE.test(cur);
   switch (sub) {
     case 'install': {
@@ -34,13 +36,15 @@ export function cmdHook(sub: string | undefined, cwd: string): number {
       mkdirSync(dir, { recursive: true }); // the hook's redirect needs the state dir to exist
       const block = hookBlock(process.execPath, path.resolve(process.argv[1] ?? ''), path.join(dir, 'last-hook-review.txt'));
       let next: string;
-      if (cur === null) next = `#!/bin/sh\n${block}`;
-      else if (ours) next = cur.replace(BLOCK_RE, (m) => (m.startsWith('\n') ? '\n' : '') + block);
+      if (cur === null) next = `${CREATED}${block}`;
+      else if (ours) next = cur.replace(BLOCK_RE, () => block);
       else {
-        const first = cur.split('\n', 1)[0]!;
+        const first = cur.split('\n', 1)[0]!.replace(/\r$/, '');
         if (first.startsWith('#!') && !SH_SHEBANG.test(first)) throw new Error(`${file} is not a shell script (${first}); add CodeWolf to it by hand`);
-        // chain: keep the existing hook and put our block right after its shebang, so an `exit` in it cannot skip ours
-        next = first.startsWith('#!') ? `${first}\n${block}${cur.slice(first.length + 1)}` : `${block}${cur}`;
+        // chain: keep the existing hook and put our block right after its shebang line (its own line ending kept),
+        // so an `exit` in it cannot skip ours
+        const nl = cur.indexOf('\n');
+        next = !first.startsWith('#!') ? `${block}${cur}` : nl < 0 ? `${cur}\n${block}` : `${cur.slice(0, nl + 1)}${block}${cur.slice(nl + 1)}`;
       }
       mkdirSync(path.dirname(file), { recursive: true });
       writeFileSync(file, next);
@@ -50,8 +54,8 @@ export function cmdHook(sub: string | undefined, cwd: string): number {
     }
     case 'uninstall': {
       if (!ours) { process.stdout.write('codewolf: no CodeWolf block in the post-commit hook; nothing to remove\n'); return 0; }
-      const rest = cur!.replace(BLOCK_RE, '\n').replace(/^\n/, '').replace(/\n{3,}/g, '\n\n');
-      if (/^(#![^\n]*)?\s*$/.test(rest)) unlinkSync(file); // only our block was left
+      const rest = cur!.replace(BLOCK_RE, '');
+      if (rest === CREATED || rest === '') unlinkSync(file); // only the file install created is left
       else writeFileSync(file, rest);
       process.stdout.write(`removed the CodeWolf block from ${file}\n`);
       return 0;

@@ -73,6 +73,8 @@ export interface ReviewResult {
   diagram?: string;
   /** Non-fatal problems (unparseable chunk, skipped files). Not part of the minimum contract. */
   warnings?: string[];
+  /** Files in a chunk whose model output could not be parsed: not reviewed, so never treated as clean. */
+  unreviewed?: string[];
 }
 
 export interface ProviderConfig {

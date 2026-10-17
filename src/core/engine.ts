@@ -203,6 +203,8 @@ export async function review(files: DiffFile[], config: ResolvedConfig, opts: Re
   const walk = new Map<string, string>();
   const summaries: string[] = [];
   let diagram: string | undefined;
+  const unreviewed = [...new Set(chunks.flatMap((c, i) => (results[i] ? [] : c.paths)))];
+  if (unreviewed.length) warn(`not reviewed (unparseable model output): ${unreviewed.join(', ')}; the next review covers them again`);
   for (const r of results) {
     if (!r) continue;
     providerUsed.set(r.provider, (providerUsed.get(r.provider) ?? 0) + 1);
@@ -227,7 +229,9 @@ export async function review(files: DiffFile[], config: ResolvedConfig, opts: Re
 
   const top = [...providerUsed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   const [pname, pmodel] = top ? top.split('\u0000') : [first?.name ?? 'none', first?.model ?? ''];
-  return buildResult(files, keep, config, { findings, outside, walk, summary, ...(diagram ? { diagram } : {}), provider: { name: pname ?? 'none', model: pmodel ?? '' }, warnings }, opts.suppressed);
+  const result = buildResult(files, keep, config, { findings, outside, walk, summary, ...(diagram ? { diagram } : {}), provider: { name: pname ?? 'none', model: pmodel ?? '' }, warnings }, opts.suppressed);
+  if (unreviewed.length) result.unreviewed = unreviewed;
+  return result;
 }
 
 export interface Collected {

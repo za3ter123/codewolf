@@ -58,3 +58,17 @@ test('hook honours core.hooksPath and quotes paths so they cannot break out of t
   assert.ok(existsSync(path.join(repo, 'my-hooks', 'post-commit')));
   assert.equal(hookBlock("C:\\a b\\node.exe", "/x/it's $(rm -rf)/cli.js", '/o').split('\n')[1], "( 'C:/a b/node.exe' '/x/it'\\''s $(rm -rf)/cli.js' review --committed --format plain --fail-on none > '/o' 2>&1 < /dev/null & ) > /dev/null 2>&1");
 });
+
+test('hook uninstall restores a foreign hook byte for byte: CRLF line endings and runs of blank lines survive', async () => {
+  for (const foreign of ['#!/bin/sh\r\necho one >> ran.txt\r\n\r\n\r\nexit 0\r\n', '#!/bin/sh\necho two\n\n\n\nexit 0\n\n\n', 'echo no shebang\n\n\n\n']) {
+    const repo = tempRepo();
+    writeFileSync(hookPath(repo), foreign);
+    assert.equal((await runCli(['hook', 'install'], { cwd: repo })).code, 0);
+    const text = readFileSync(hookPath(repo), 'utf8');
+    assert.ok(text.includes(foreign.split('\n').slice(1).join('\n')) || text.endsWith(foreign), JSON.stringify(text));
+    await runCli(['hook', 'install'], { cwd: repo }); // update in place
+    assert.equal(readFileSync(hookPath(repo), 'utf8'), text);
+    await runCli(['hook', 'uninstall'], { cwd: repo });
+    assert.equal(readFileSync(hookPath(repo), 'utf8'), foreign);
+  }
+});
