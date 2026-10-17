@@ -1,7 +1,7 @@
 // Shared test helpers: local fake HTTP servers, sample diffs, runtime-built secret-shaped strings.
 import http from 'node:http';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -88,7 +88,8 @@ export function config(over: Partial<ResolvedConfig> = {}): ResolvedConfig {
 }
 
 export function tmpDir(prefix = 'cwtest-'): string {
-  return mkdtempSync(path.join(tmpdir(), prefix));
+  // Long path form: Windows runners hand out 8.3 temp paths (RUNNER~1) while git reports the long one.
+  return realpathSync.native(mkdtempSync(path.join(tmpdir(), prefix)));
 }
 
 export function tmpFile(name: string, content: string): string {
