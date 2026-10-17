@@ -4,3 +4,4 @@ node_modules/
 .unlazy-hook-state.json
 *.log
 coverage/
+.claude/worktrees/

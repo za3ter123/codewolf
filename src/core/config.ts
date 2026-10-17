@@ -122,7 +122,7 @@ function posInt(v: unknown, where: string): number | undefined {
   return Math.floor(n);
 }
 
-function ollamaBase(env: Env): string | undefined {
+export function ollamaBase(env: Env): string | undefined {
   const h = env.OLLAMA_HOST?.trim();
   if (!h) return undefined;
   const withProto = /^https?:\/\//.test(h) ? h : `http://${h}`;

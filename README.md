@@ -29,6 +29,20 @@ You need Node.js 20 or newer. CodeWolf is installed straight from GitHub:
 npm install -g github:za3ter123/codewolf   # or prefix any command with: npx -y github:za3ter123/codewolf
 ```
 
+### Inside your coding agent (no key at all)
+
+CodeWolf is meant to live inside the agent you already use: Claude Code, Codex, Cursor, Gemini CLI, opencode, or any agent that can run a shell command. Install its command or skill into the agent once:
+
+```bash
+codewolf install claude            # prints the plan: which files it would create
+codewolf install claude --yes      # writes .claude/commands/codewolf.md and .claude/skills/codewolf/SKILL.md
+codewolf install --all --user --yes   # every supported agent, in your user config instead of the repo
+```
+
+Then ask the agent to run `/codewolf` (or just "review my changes with codewolf"). When no API key, Ollama model or `claude` CLI is configured, the agent itself does the reviewing: `codewolf packet` hands it the diff and the review instructions, and `codewolf ingest` checks its answer with the same filters a normal review uses. Your agent subscription is the model, so nothing else is needed.
+
+After a review, `codewolf fix` turns the open findings into one prompt for your agent, and `codewolf apply <id>` writes a single suggestion straight into the file.
+
 ### One API key
 
 ```bash
@@ -97,8 +111,16 @@ codewolf init                   Write a commented .codewolf.yaml
 codewolf learn "<text>"         Add a reviewer preference to .codewolf/learnings.md
 codewolf learnings              List the learnings
 codewolf providers [--check]    Show the provider chain with masked key counts; --check pings each key
+codewolf fix [<id...> | --all | --nits] [--to print|claude|codex|opencode|gemini|clipboard]
+codewolf apply <id...> [--dry-run]
+codewolf install [<agent...> | --all] [--project | --user] [--yes] [--force]
+codewolf hook install|uninstall|status
+codewolf doctor
+codewolf pr <number|url> [--repo owner/name] [--json]
 codewolf --version
 ```
+
+When `--format` is not given and CodeWolf sees it is running inside a coding agent (Claude Code, Codex, Cursor, Gemini CLI, opencode or aider, detected from their environment variables), it prints `plain` text and never ANSI colors.
 
 Exit codes: `0` review done, `1` the `--fail-on` threshold was hit, `2` error. Logs always go to stderr, so `--format json` output can be piped.
 
@@ -125,6 +147,27 @@ codewolf dismiss <id...> [--reason "<text>"] [--learn]
 ```
 
 With no API key, your agent can be the reviewer: `codewolf packet` hands it our review prompt and the numbered diff, the agent writes a JSON answer, and `codewolf ingest` puts that answer through the same filters as a model reply (findings on files outside the diff are dropped). Reviews remember what they saw, in the git directory and never in your work tree: files unchanged since the last review are skipped (their open findings still count), and `--staged` and `--diff` always review everything.
+
+## Agent commands
+
+Reviews are remembered in the git directory (`.git/codewolf/`, never your work tree), so the commands below work on the findings of the last review. `codewolf findings` lists them with their ids.
+
+`codewolf fix` builds one prompt from the open findings (each one's agent instruction, location and suggestion) and hands it to an agent. With no ids it takes every open finding except nits; `--nits` takes only the nits. The prompt always goes to the agent on stdin, and each agent is started with a fixed command line: `claude -p`, `codex exec -`, `opencode run`, `gemini -p`. `--to clipboard` copies it (clip.exe, pbcopy, wl-copy or xclip). When stdout is not a terminal, or CodeWolf is already running inside an agent, the default is `--to print`, which writes the prompt to stdout for the calling agent. If a target fails, the prompt is printed instead.
+
+```bash
+codewolf fix                  # print or hand off the prompt for all open non-nit findings
+codewolf fix 3fa2c19d --to claude
+```
+
+`codewolf apply <id...>` writes a finding's suggestion over its lines. It first finds where those lines moved to since the review. It refuses with exit 2 and leaves the file alone when the finding has no suggestion, when the original line can no longer be found, or when the path would leave the repository (absolute paths, `..`, symlinks pointing outside). `--dry-run` shows the change without writing. Applied findings are marked fixed.
+
+`codewolf install` puts CodeWolf's command or skill into an agent: `claude` (`.claude/commands/codewolf.md` and `.claude/skills/codewolf/SKILL.md`), `codex` (`.codex/skills/codewolf/SKILL.md`), `cursor` (`.cursor/rules/codewolf.mdc`), `gemini` (`.gemini/commands/codewolf.toml`), `opencode` (`.opencode/command/codewolf.md`) and `agents` (`.agents/skills/codewolf/SKILL.md`). `--project` (the default) writes inside the repository, `--user` writes into the agent's own config directory (`~/.claude`, `~/.codex`, `~/.gemini`, `~/.config/opencode`, `~/.agents`; Cursor has no user-level file). Without `--yes` it only prints the plan. Every file it writes carries a `codewolf:managed` marker, and it never overwrites a file without that marker unless you pass `--force`.
+
+`codewolf hook install` adds an opt-in git `post-commit` hook that reviews each commit in the background (`codewolf review --committed --format plain`) and writes the result to `.git/codewolf/last-hook-review.txt`. It never delays or fails a commit. An existing shell hook is kept and CodeWolf's marked block is added to it; `codewolf hook uninstall` removes only that block. The hook records the path of the CodeWolf it was installed with, so run `hook install` again after moving or reinstalling CodeWolf.
+
+`codewolf doctor` prints one OK, WARN or FAIL line per check: Node version, git and the repository, the config file and whether it is trusted, each provider with its keys masked, whether Ollama answers at its base URL, the `claude` binary, each linter, and whether the state directory is writable. It exits 1 only when a line says FAIL.
+
+`codewolf pr <number|url>` reads CodeWolf's own inline comments on a GitHub pull request and prints them as fix prompts for your agent (`--json` for structured output). It trusts only comments written by a bot account that carry CodeWolf's fingerprint marker, the same rule the Action uses. It uses `GITHUB_TOKEN` or `GH_TOKEN` when set, otherwise the `gh` CLI, and it never writes to GitHub.
 
 ## GitHub Action
 
@@ -311,18 +354,37 @@ CodeRabbit is a mature hosted product with features CodeWolf does not have. Code
 | Code stays on your runner (with a local model) | Yes | No, hosted service |
 | GitLab, Bitbucket, Azure DevOps | Not yet, GitHub only | Yes |
 | Codebase-wide context (code graph, related files) | No, the diff only | Yes |
-| Docstring and unit test generation | Not yet | Yes |
+| Docstring and unit test generation | No, by design: your coding agent writes them | Yes |
 | Issue tracker integration (Jira, Linear) | No | Yes |
-| IDE extension | No (Claude Code plugin only) | Yes |
+| IDE extension | No, by design: it installs into your coding agent | Yes |
 | Hosted app with dashboard and org settings | No | Yes |
 
 Review quality depends mostly on the model you point CodeWolf at. A small local model catches obvious bugs; a frontier model catches much more.
 
 Other open-source reviewers are worth a look too. [PR-Agent](https://github.com/qodo-ai/pr-agent) from Qodo is the most established, with many tools and support for several git hosts. [Shippie](https://github.com/mattzcarey/shippie) is a lighter TypeScript reviewer that runs in CI. CodeWolf's focus is multi-key rotation with a provider fallback chain, zero-key local models, and a review loop built for coding agents.
 
+## What CodeWolf will not do
+
+CodeWolf is a tool that runs inside your own agent and your own CI. These features of hosted review services are left out on purpose:
+
+- Accounts, login, organizations, SSO and regions. There is no service to log in to.
+- Plans, credits, billing, usage caps and seat checks. Your only limits are your model provider's.
+- Telemetry of any kind: no analytics, no crash reporting, no uninstall pings, no update checks. CodeWolf only talks to the model and GitHub endpoints you configure.
+- A one-click GitHub App, hosted webhooks or a web dashboard. The Action runs in your own workflow with your own token.
+- Cloud agent tasks and uploading your agent session transcripts. Your sessions stay on your machine.
+- A VS Code extension UI. Your coding agent is the interface.
+- A self-hosted server mode. The CLI and the Action need no server.
+- Perforce and jj support. CodeWolf reads git diffs only.
+- Stats heatmaps. They measure people, and a reviewer has no use for them.
+- Docstring and unit test generation. Your host agent already writes those well; CodeWolf hands it the findings instead.
+
+## How this was researched
+
+The v0.2 agent features (the fix hand-off, applying suggestions, installing into agents, the commit hook, `doctor`, agent detection and pulling PR comments) were chosen by statically inspecting CodeRabbit's public VS Code extension 0.23.0 and CLI 0.9.0 with the REA reverse-engineering tool, to list which features they offer. Only that feature list was used. No CodeRabbit code, prompts, endpoints or wire formats were copied, and CodeWolf never calls CodeRabbit services. Everything here is written from scratch in our own words.
+
 ## Clean-room statement
 
-CodeWolf is a clean-room implementation. It was built only from CodeRabbit's public documentation and its publicly observable behavior on pull requests. No CodeRabbit source code, prompts, binaries or private APIs were copied, decompiled or called. CodeWolf is not affiliated with or endorsed by CodeRabbit.
+CodeWolf is a clean-room implementation. It was built from CodeRabbit's public documentation, its publicly observable behavior on pull requests, and the feature inventory described above. No CodeRabbit source code, prompts, endpoints or private APIs were copied or called. CodeWolf is not affiliated with or endorsed by CodeRabbit.
 
 ## Development
 
